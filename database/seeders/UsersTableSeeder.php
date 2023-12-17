@@ -1,0 +1,34 @@
+<?php
+
+namespace Database\Seeders;
+
+use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
+
+class UsersTableSeeder extends Seeder
+{
+    public function run()
+    {
+        DB::table('users')->insert([
+            [
+                'id' => 1,
+                'name' => 'Admin',
+                'firstname' => 'Admin',
+                'lastname' => 'Admin',
+                'phonenumber' => '08122222',
+                'email' => 'admin@ptmkm.co.id',
+                'email_verified_at' => null,
+                'password' => Hash::make('your_password_here'), // Replace 'your_password_here' with the desired password
+                'remember_token' => null,
+                'role' => 'Super Admin',
+                'last_login' => '2023-08-15 11:38:49',
+                'login_counter' => 1,
+                'is_active' => '1',
+                'created_at' => '2023-07-08 05:42:25',
+                'updated_at' => '2023-08-15 11:38:49',
+            ],
+            // Add more users if needed
+        ]);
+    }
+}
