@@ -152,13 +152,8 @@
                               <div class="modal-body">
                                 <div class="form-group">
                                   <input name="id" type="text" value="{{$data->id}}" hidden>
-                                  <input type="text" class="form-control" id="class" name="class" placeholder="Enter Class" value="{{ $data->class }}">
+                                  <input type="text" class="form-control" id="location" name="location" placeholder="Enter Location" value="{{ $data->name }}">
                                 </div>
-                                <br>
-                                <div class="form-group">
-                                  <input type="text" class="form-control" id="description" name="description" placeholder="Enter Description" value="{{ $data->desc }}">
-                                </div>
-                                <br>
                               </div>
                               <div class="modal-footer">
                                 <button type="button" class="btn btn-dark" data-bs-dismiss="modal">Close</button>
@@ -183,7 +178,7 @@
                             @method('delete')
                             <div class="modal-body">
                                 <div class="form-group">
-                                Are you sure you want to delete <label for="Dropdown">{{ $data->class }}</label>?
+                                Are you sure you want to delete <label for="Dropdown">{{ $data->name }}</label>?
                                 </div>
                             </div>
                             <div class="modal-footer">

@@ -40,14 +40,56 @@ class LocationController extends Controller
         }
     }
 
-
-    public function update(Request $request, $id){
-        dd($request);
+    public function update(Request $request, $id)
+    {
+        $request->validate([
+            'location' => 'required|string|max:255',
+        ]);
+    
+        try {
+            $locHeader = LocHeader::findOrFail($id);
+    
+            // Get the original values
+            $originalValues = $locHeader->getOriginal();
+    
+            // Update the name attribute
+            $locHeader->name = $request->location;
+    
+            // Compare the original values with the new values
+            if ($originalValues != $locHeader->getAttributes()) {
+                // Save the LocHeader
+                $locHeader->save();
+    
+                return redirect()->back()->with('status', 'Location header updated successfully');
+            } else {
+                // No changes, so no update is needed
+                return redirect()->back()->with('failed', 'No changes made to the location header.');
+            }
+        } catch (\Exception $e) {
+            // Handle any exception that may occur during the update
+            return redirect()->back()->with('failed', 'Failed to update location header. Please try again.');
+        }
     }
-
-    public function delete($id){
-
+    
+    public function delete($id)
+    {
+        try {
+            // Find the LocHeader model by ID
+            $locHeader = LocHeader::findOrFail($id);
+    
+            // Delete the related LocDetail records
+            $locHeader->locDetails()->delete();
+    
+            // Delete the LocHeader record
+            $locHeader->delete();
+    
+            return redirect()->back()->with('status', 'Location header and related details deleted successfully');
+        } catch (\Exception $e) {
+            // Handle any exception that may occur during the delete
+            return redirect()->back()->with('failed', 'Failed to delete location header and related details. Please try again.');
+        }
     }
+    
 
     public function detail($id){
         $id = decrypt($id);
