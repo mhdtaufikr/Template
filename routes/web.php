@@ -1,5 +1,6 @@
 <?php
 
+
 use Illuminate\Support\Facades\Route;
 
 use App\Http\Controllers\AuthController;
@@ -7,6 +8,10 @@ use App\Http\Controllers\HomeController;
 use App\Http\Controllers\DropdownController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\RulesController;
+use App\Http\Controllers\AssetCategoryController;
+use App\Http\Controllers\CostCenterController;
+use App\Http\Controllers\DepartmentController;
+use App\Http\Controllers\LocationController;
 
 /*
 |--------------------------------------------------------------------------
@@ -28,17 +33,17 @@ Route::middleware(['auth'])->group(function () {
     //Home Controller
     Route::get('/home', [HomeController::class, 'index']);
 
-     //Dropdown Controller
-     Route::get('/dropdown', [DropdownController::class, 'index'])->middleware(['checkRole:Super Admin']);
-     Route::post('/dropdown/store', [DropdownController::class, 'store'])->middleware(['checkRole:Super Admin']);
-     Route::patch('/dropdown/update/{id}', [DropdownController::class, 'update'])->middleware(['checkRole:Super Admin']);
-     Route::delete('/dropdown/delete/{id}', [DropdownController::class, 'delete'])->middleware(['checkRole:Super Admin']);
- 
-     //Rules Controller
-     Route::get('/rule', [RulesController::class, 'index'])->middleware(['checkRole:Super Admin']);
-     Route::post('/rule/store', [RulesController::class, 'store'])->middleware(['checkRole:Super Admin']);
-     Route::patch('/rule/update/{id}', [RulesController::class, 'update'])->middleware(['checkRole:Super Admin']);
-     Route::delete('/rule/delete/{id}', [RulesController::class, 'delete'])->middleware(['checkRole:Super Admin']);
+    //Dropdown Controller
+    Route::get('/dropdown', [DropdownController::class, 'index'])->middleware(['checkRole:Super Admin']);
+    Route::post('/dropdown/store', [DropdownController::class, 'store'])->middleware(['checkRole:Super Admin']);
+    Route::patch('/dropdown/update/{id}', [DropdownController::class, 'update'])->middleware(['checkRole:Super Admin']);
+    Route::delete('/dropdown/delete/{id}', [DropdownController::class, 'delete'])->middleware(['checkRole:Super Admin']);
+
+    //Rules Controller
+    Route::get('/rule', [RulesController::class, 'index'])->middleware(['checkRole:Super Admin']);
+    Route::post('/rule/store', [RulesController::class, 'store'])->middleware(['checkRole:Super Admin']);
+    Route::patch('/rule/update/{id}', [RulesController::class, 'update'])->middleware(['checkRole:Super Admin']);
+    Route::delete('/rule/delete/{id}', [RulesController::class, 'delete'])->middleware(['checkRole:Super Admin']);
 
     //User Controller
     Route::get('/user', [UserController::class, 'index'])->middleware(['checkRole:Super Admin']);
@@ -47,4 +52,32 @@ Route::middleware(['auth'])->group(function () {
     Route::patch('/user/update/{user}', [UserController::class, 'update'])->middleware(['checkRole:Super Admin']);
     Route::get('/user/revoke/{user}', [UserController::class, 'revoke'])->middleware(['checkRole:Super Admin']);
     Route::get('/user/access/{user}', [UserController::class, 'access'])->middleware(['checkRole:Super Admin']);
+
+    //Asset Controller
+    Route::get('/asset_category', [AssetCategoryController::class, 'index'])->middleware(['checkRole:Super Admin']);
+    Route::post('/asset_category/store', [AssetCategoryController::class, 'store'])->middleware(['checkRole:Super Admin']);
+    Route::patch('/asset_category/update/{id}', [AssetCategoryController::class, 'update'])->middleware(['checkRole:Super Admin']);
+    Route::delete('/asset_category/delete/{id}', [AssetCategoryController::class, 'delete'])->middleware(['checkRole:Super Admin']);
+    
+    //CostCenter Controller
+    Route::get('/cost_center', [CostCenterController::class, 'index'])->middleware(['checkRole:Super Admin']);
+    Route::post('/cost_center/store', [CostCenterController::class, 'store'])->middleware(['checkRole:Super Admin']);
+    Route::patch('/cost_center/update/{id}', [CostCenterController::class, 'update'])->middleware(['checkRole:Super Admin']);
+    Route::delete('/cost_center/delete/{id}', [CostCenterController::class, 'delete'])->middleware(['checkRole:Super Admin']);
+
+    //Department Controller
+    Route::get('/department', [DepartmentController::class, 'index'])->middleware(['checkRole:Super Admin']);
+    Route::post('/department/store', [DepartmentController::class, 'store'])->middleware(['checkRole:Super Admin']);
+    Route::patch('/department/update/{id}', [DepartmentController::class, 'update'])->middleware(['checkRole:Super Admin']);
+    Route::delete('/department/delete/{id}', [DepartmentController::class, 'delete'])->middleware(['checkRole:Super Admin']);
+
+    //Location Controller
+    Route::get('/location', [LocationController::class, 'index'])->middleware(['checkRole:Super Admin']);
+    Route::post('/location/store', [LocationController::class, 'store'])->middleware(['checkRole:Super Admin']);
+    Route::patch('/location/update/{id}', [LocationController::class, 'update'])->middleware(['checkRole:Super Admin']);
+    Route::delete('/location/delete/{id}', [LocationController::class, 'delete'])->middleware(['checkRole:Super Admin']); 
+    
+    Route::get('/location/detail/{id}', [LocationController::class, 'detail'])->middleware(['checkRole:Super Admin']);
+    Route::post('/location/detail/store/{id}', [LocationController::class, 'storeDetail'])->middleware(['checkRole:Super Admin']);
+
 });

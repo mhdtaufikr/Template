@@ -40,7 +40,7 @@
           <div class="col-12">
             <div class="card">
               <div class="card-header">
-                <h3 class="card-title">List of Dropdown</h3>
+                <h3 class="card-title">List of Cost Center</h3>
               </div>
               
               <!-- /.card-header -->
@@ -56,23 +56,48 @@
                             <div class="modal-dialog">
                               <div class="modal-content">
                                 <div class="modal-header">
-                                  <h5 class="modal-title" id="modal-add-label">Add Dropdown</h5>
+                                  <h5 class="modal-title" id="modal-add-label">Add Cost Center</h5>
                                   <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                 </div>
-                                <form action="{{ url('/dropdown/store') }}" method="POST">
+                                <form action="{{ url('/cost_center/store') }}" method="POST">
                                   @csrf
                                   <div class="modal-body">
-                                    <div class="form-group">
-                                      <input type="text" class="form-control" id="category" name="category" placeholder="Enter Dropdown Category" required>
+                                    <div class="row mb-3">
+                                        <div class="col-md-6">
+                                            <div class="form-group">
+                                                <input type="number" class="form-control" id="costctr" name="costctr" placeholder="Enter Cost Ctr" required>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="form-group">
+                                                <input type="number" class="form-control" id="coar" name="coar" placeholder="Enter COAr" required>
+                                            </div>
+                                        </div>
                                     </div>
-                                    <br>
-                                    <div class="form-group">
-                                      <input type="text" class="form-control" id="name_value" name="name_value" placeholder="Enter Dropdown Name Value" required>
+                                    <div class="row mb-3">
+                                        <div class="col-md-6">
+                                            <div class="form-group">
+                                                <input type="number" class="form-control" id="cocd" name="cocd" placeholder="Enter CoCD" required>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="form-group">
+                                                <input type="text" class="form-control" id="cctc" name="cctc" placeholder="Enter CCtC" required>
+                                            </div>
+                                        </div>
                                     </div>
-                                    <br>
-                                    <div class="form-group">
-                                        <input type="text" class="form-control" id="code_format" name="code_format" placeholder="Enter Dropdown Code Format" required>
+                                    <div class="form-group mb-3">
+                                      <input type="text" class="form-control" id="pic" name="pic" placeholder="Enter Person Responsible" required>
+                                    </div>
+                                    
+                                    <div class="form-group mb-3">
+                                      <input type="text" class="form-control" id="userpic" name="userpic" placeholder="Enter User Resp.">
+                                    </div>
+                                    
+                                    <div class="form-group mb-3">
+                                        <input type="text" class="form-control" id="remarks" name="remarks" placeholder="Enter Short Text" required>
                                       </div>
+                                    
                                   </div>
                                   <div class="modal-footer">
                                     <button type="button" class="btn btn-dark" data-bs-dismiss="modal">Close</button>
@@ -121,9 +146,13 @@
                   <thead>
                   <tr>
                     <th>No</th>
-                    <th>Category</th>
-                    <th>Name Value</th>
-                    <th>Code Format</th>
+                    <th>Cost Ctr</th>
+                    <th>COAr</th>
+                    <th>CoCD</th>
+                    <th>CCtC</th>
+                    <th>Person Responsible</th>
+                    <th>User Resp.</th>
+                    <th>Short Text</th>
                     <th>Action</th>
                   </tr>
                   </thead>
@@ -131,17 +160,21 @@
                     @php
                       $no=1;
                     @endphp
-                    @foreach ($dropdown as $data)
+                    @foreach ($costCenterData as $data)
                     <tr>
                         <td>{{ $no++ }}</td>
-                        <td>{{ $data->category }}</td>
-                        <td>{{ $data->name_value }}</td>
-                        <td>{{ $data->code_format }}</td>
+                        <td>{{ $data->cost_ctr }}</td>
+                        <td>{{ $data->coar }}</td>
+                        <td>{{ $data->cocd }}</td>
+                        <td>{{ $data->cctc }}</td>
+                        <td>{{ $data->pic }}</td>
+                        <td>{{ $data->user_pic }}</td>
+                        <td>{{ $data->remarks }}</td>
                         <td>
-                            <button title="Edit Dropdown" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#modal-update{{ $data->id }}">
+                            <button title="Edit Cost Center" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#modal-update{{ $data->id }}">
                                 <i class="fas fa-edit"></i>
                               </button>
-                            <button title="Delete Dropdown" class="btn btn-danger btn-sm" data-bs-toggle="modal" data-bs-target="#modal-delete{{ $data->id }}">
+                            <button title="Delete Cost Center" class="btn btn-danger btn-sm" data-bs-toggle="modal" data-bs-target="#modal-delete{{ $data->id }}">
                                 <i class="fas fa-trash-alt"></i>
                               </button>   
                         </td>
@@ -152,25 +185,49 @@
                         <div class="modal-dialog">
                           <div class="modal-content">
                             <div class="modal-header">
-                              <h4 class="modal-title" id="modal-update{{ $data->id }}-label">Edit Dropdown</h4>
+                              <h4 class="modal-title" id="modal-update{{ $data->id }}-label">Edit Cost Center</h4>
                               <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                             </div>
-                            <form action="{{ url('/dropdown/update/'.$data->id) }}" method="POST">
+                            <form action="{{ url('/cost_center/update/'.$data->id) }}" method="POST">
                               @csrf
                               @method('patch')
                               <div class="modal-body">
-                                <div class="form-group">
-                                  <input name="id" type="text" value="{{$data->id}}" hidden>
-                                  <input type="text" class="form-control" id="category" name="category" placeholder="Enter Category Name" value="{{ $data->category }}">
+                                <input name="id" type="text" value="{{$data->id}}" hidden>
+                                <div class="row mb-3">
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <input value="{{$data->cost_ctr}}" type="number" class="form-control" id="costctr" name="costctr" placeholder="Enter Cost Ctr" required>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <input value="{{$data->coar}}" type="number" class="form-control" id="coar" name="coar" placeholder="Enter COAr" required>
+                                        </div>
+                                    </div>
                                 </div>
-                                <br>
-                                <div class="form-group">
-                                  <input type="text" class="form-control" id="name_value" name="name_value" placeholder="Enter Name Value Value" value="{{ $data->name_value }}">
+                                <div class="row mb-3">
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <input value="{{$data->cocd}}" type="number" class="form-control" id="cocd" name="cocd" placeholder="Enter CoCD" required>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <input value="{{$data->cctc}}" type="text" class="form-control" id="cctc" name="cctc" placeholder="Enter CCtC" required>
+                                        </div>
+                                    </div>
                                 </div>
-                                <br>
-                                <div class="form-group">
-                                  <input type="text" class="form-control" id="code_format" name="code_format" placeholder="Enter Code Format Value" value="{{ $data->code_format }}">
+                                <div class="form-group mb-3">
+                                  <input value="{{$data->pic}}" type="text" class="form-control" id="pic" name="pic" placeholder="Enter Person Responsible" required>
                                 </div>
+                                
+                                <div class="form-group mb-3">
+                                  <input value="{{$data->user_pic}}" type="text" class="form-control" id="userpic" name="userpic" placeholder="Enter User Resp.">
+                                </div>
+                                
+                                <div class="form-group mb-3">
+                                    <input value="{{$data->remarks}}" type="text" class="form-control" id="remarks" name="remarks" placeholder="Enter Short Text" required>
+                                  </div>
                               </div>
                               <div class="modal-footer">
                                 <button type="button" class="btn btn-dark" data-bs-dismiss="modal">Close</button>
@@ -187,15 +244,15 @@
                         <div class="modal-dialog">
                         <div class="modal-content">
                             <div class="modal-header">
-                            <h4 class="modal-title" id="modal-delete{{ $data->id }}-label">Delete Dropdown</h4>
+                            <h4 class="modal-title" id="modal-delete{{ $data->id }}-label">Delete Cost Center</h4>
                             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                             </div>
-                            <form action="{{ url('/dropdown/delete/'.$data->id) }}" method="POST">
+                            <form action="{{ url('/cost_center/delete/'.$data->id) }}" method="POST">
                             @csrf
                             @method('delete')
                             <div class="modal-body">
                                 <div class="form-group">
-                                Are you sure you want to delete <label for="Dropdown">{{ $data->name_value }}</label>?
+                                Are you sure you want to delete <label for="Dropdown">{{ $data->cost_ctr }}</label>?
                                 </div>
                             </div>
                             <div class="modal-footer">

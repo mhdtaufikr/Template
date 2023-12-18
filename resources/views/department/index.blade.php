@@ -40,7 +40,7 @@
           <div class="col-12">
             <div class="card">
               <div class="card-header">
-                <h3 class="card-title">List of Dropdown</h3>
+                <h3 class="card-title">List of Department</h3>
               </div>
               
               <!-- /.card-header -->
@@ -56,23 +56,15 @@
                             <div class="modal-dialog">
                               <div class="modal-content">
                                 <div class="modal-header">
-                                  <h5 class="modal-title" id="modal-add-label">Add Dropdown</h5>
+                                  <h5 class="modal-title" id="modal-add-label">Add Department</h5>
                                   <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                 </div>
-                                <form action="{{ url('/dropdown/store') }}" method="POST">
+                                <form action="{{ url('/department/store') }}" method="POST">
                                   @csrf
                                   <div class="modal-body">
                                     <div class="form-group">
-                                      <input type="text" class="form-control" id="category" name="category" placeholder="Enter Dropdown Category" required>
+                                      <input type="text" class="form-control" id="department" name="department" placeholder="Enter Department" required>
                                     </div>
-                                    <br>
-                                    <div class="form-group">
-                                      <input type="text" class="form-control" id="name_value" name="name_value" placeholder="Enter Dropdown Name Value" required>
-                                    </div>
-                                    <br>
-                                    <div class="form-group">
-                                        <input type="text" class="form-control" id="code_format" name="code_format" placeholder="Enter Dropdown Code Format" required>
-                                      </div>
                                   </div>
                                   <div class="modal-footer">
                                     <button type="button" class="btn btn-dark" data-bs-dismiss="modal">Close</button>
@@ -121,9 +113,7 @@
                   <thead>
                   <tr>
                     <th>No</th>
-                    <th>Category</th>
-                    <th>Name Value</th>
-                    <th>Code Format</th>
+                    <th>Department</th>
                     <th>Action</th>
                   </tr>
                   </thead>
@@ -131,17 +121,15 @@
                     @php
                       $no=1;
                     @endphp
-                    @foreach ($dropdown as $data)
+                    @foreach ($deptData as $data)
                     <tr>
                         <td>{{ $no++ }}</td>
-                        <td>{{ $data->category }}</td>
-                        <td>{{ $data->name_value }}</td>
-                        <td>{{ $data->code_format }}</td>
+                        <td>{{ $data->dept }}</td>
                         <td>
-                            <button title="Edit Dropdown" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#modal-update{{ $data->id }}">
+                            <button title="Edit Department" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#modal-update{{ $data->id }}">
                                 <i class="fas fa-edit"></i>
                               </button>
-                            <button title="Delete Dropdown" class="btn btn-danger btn-sm" data-bs-toggle="modal" data-bs-target="#modal-delete{{ $data->id }}">
+                            <button title="Delete Department" class="btn btn-danger btn-sm" data-bs-toggle="modal" data-bs-target="#modal-delete{{ $data->id }}">
                                 <i class="fas fa-trash-alt"></i>
                               </button>   
                         </td>
@@ -152,24 +140,16 @@
                         <div class="modal-dialog">
                           <div class="modal-content">
                             <div class="modal-header">
-                              <h4 class="modal-title" id="modal-update{{ $data->id }}-label">Edit Dropdown</h4>
+                              <h4 class="modal-title" id="modal-update{{ $data->id }}-label">Edit Department</h4>
                               <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                             </div>
-                            <form action="{{ url('/dropdown/update/'.$data->id) }}" method="POST">
+                            <form action="{{ url('/department/update/'.$data->id) }}" method="POST">
                               @csrf
                               @method('patch')
                               <div class="modal-body">
                                 <div class="form-group">
                                   <input name="id" type="text" value="{{$data->id}}" hidden>
-                                  <input type="text" class="form-control" id="category" name="category" placeholder="Enter Category Name" value="{{ $data->category }}">
-                                </div>
-                                <br>
-                                <div class="form-group">
-                                  <input type="text" class="form-control" id="name_value" name="name_value" placeholder="Enter Name Value Value" value="{{ $data->name_value }}">
-                                </div>
-                                <br>
-                                <div class="form-group">
-                                  <input type="text" class="form-control" id="code_format" name="code_format" placeholder="Enter Code Format Value" value="{{ $data->code_format }}">
+                                  <input type="text" class="form-control" id="department" name="department" placeholder="Enter Department" value="{{ $data->dept }}">
                                 </div>
                               </div>
                               <div class="modal-footer">
@@ -187,15 +167,15 @@
                         <div class="modal-dialog">
                         <div class="modal-content">
                             <div class="modal-header">
-                            <h4 class="modal-title" id="modal-delete{{ $data->id }}-label">Delete Dropdown</h4>
+                            <h4 class="modal-title" id="modal-delete{{ $data->id }}-label">Delete Department</h4>
                             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                             </div>
-                            <form action="{{ url('/dropdown/delete/'.$data->id) }}" method="POST">
+                            <form action="{{ url('/department/delete/'.$data->id) }}" method="POST">
                             @csrf
                             @method('delete')
                             <div class="modal-body">
                                 <div class="form-group">
-                                Are you sure you want to delete <label for="Dropdown">{{ $data->name_value }}</label>?
+                                Are you sure you want to delete <label for="Dropdown">{{ $data->class }}</label>?
                                 </div>
                             </div>
                             <div class="modal-footer">
