@@ -18,7 +18,6 @@ class DropdownsTableSeeder extends Seeder
                 'created_at' => '2023-12-17 11:46:14',
                 'updated_at' => '2023-12-17 11:46:14',
             ],
-            // Add more dropdowns if needed
         ]);
     }
 }

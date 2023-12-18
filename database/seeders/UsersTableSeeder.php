@@ -19,7 +19,7 @@ class UsersTableSeeder extends Seeder
                 'phonenumber' => '08122222',
                 'email' => 'admin@ptmkm.co.id',
                 'email_verified_at' => null,
-                'password' => Hash::make('your_password_here'), // Replace 'your_password_here' with the desired password
+                'password' => Hash::make('Password.1'), // Replace 'your_password_here' with the desired password
                 'remember_token' => null,
                 'role' => 'Super Admin',
                 'last_login' => '2023-08-15 11:38:49',
