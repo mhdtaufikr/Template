@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 use App\Models\LocHeader;
 use App\Models\LocDetail;
+use Illuminate\Support\Facades\DB;
 
 use Illuminate\Http\Request;
 
@@ -71,24 +72,37 @@ class LocationController extends Controller
         }
     }
     
+
     public function delete($id)
     {
         try {
+            // Use database transaction
+            DB::beginTransaction();
+    
             // Find the LocHeader model by ID
             $locHeader = LocHeader::findOrFail($id);
-    
-            // Delete the related LocDetail records
-            $locHeader->locDetails()->delete();
-    
+        
+            // Delete the related LocDetail records based on loc_header_id
+            LocDetail::where('loc_header_id', $id)->delete();
+            
             // Delete the LocHeader record
             $locHeader->delete();
     
+            // Commit the transaction
+            DB::commit();
+    
             return redirect()->back()->with('status', 'Location header and related details deleted successfully');
         } catch (\Exception $e) {
-            // Handle any exception that may occur during the delete
+
+            dd($e);
+            // Rollback the transaction in case of exception
+            DB::rollback();
+    
             return redirect()->back()->with('failed', 'Failed to delete location header and related details. Please try again.');
         }
     }
+    
+
     
 
     public function detail($id){
@@ -121,15 +135,57 @@ class LocationController extends Controller
                 'name' => $request->location,
             ]);
     
-            return redirect()->back()->with('status', 'Location detail created successfully');
+            return redirect()->back()->with('status', 'Location detail created success  fully');
         } catch (\Exception $e) {
             // Handle any exception that may occur during the creation
             return redirect()->back()->with('failed', 'Failed to create location detail. Please try again.');
         }
     }
     
+    public function updateDetail(Request $request, $id)
+    {
+        $request->validate([
+            'name' => 'required|string|max:255',
+        ]);
+
+        try {
+            // Find the LocDetail model by ID
+            $locDetail = LocDetail::findOrFail($id);
+
+            // Get the original attributes
+            $originalAttributes = $locDetail->getOriginal();
+
+            // Update the name attribute
+            $locDetail->name = $request->name;
+
+            // Check if any changes have been made to the model attributes
+            if ($locDetail->getAttributes() != $originalAttributes) {
+                // Save the LocDetail
+                $locDetail->save();
+
+                return redirect()->back()->with('status', 'Location detail updated successfully');
+            } else {
+                // No changes, so no update is needed
+                return redirect()->back()->with('failed', 'No changes made to the location detail.');
+            }
+        } catch (\Exception $e) {
+            // Handle any exception that may occur during the update
+            return redirect()->back()->with('failed', 'Failed to update location detail. Please try again.');
+        }
+    }
+
     
 
+    public function deleteDetail($id){
+        try {
+            $detailLocation = LocDetail::findOrFail($id);
+            $detailLocation->delete();
+    
+            return redirect()->back()->with('status', 'Location Detail deleted successfully');
+        } catch (\Exception $e) {
+            return redirect()->back()->with('failed', 'Failed to delete Location Detail. Please try again.');
+        }
+    }
     
 
 

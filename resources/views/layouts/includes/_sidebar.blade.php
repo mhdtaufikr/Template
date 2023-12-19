@@ -10,7 +10,7 @@
                     Home
                 </a>
 
-                <a class="nav-link" href="{{url('/home')}}">
+                <a class="nav-link" href="{{url('/asset')}}">
                     <div class="nav-link-icon"><i class="fas fa-boxes"></i></div>
                     Asset
                 </a>

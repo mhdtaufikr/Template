@@ -14,9 +14,6 @@ class UsersTableSeeder extends Seeder
             [
                 'id' => 1,
                 'name' => 'Admin',
-                'firstname' => 'Admin',
-                'lastname' => 'Admin',
-                'phonenumber' => '08122222',
                 'email' => 'admin@ptmkm.co.id',
                 'email_verified_at' => null,
                 'password' => Hash::make('Password.1'), // Replace 'your_password_here' with the desired password

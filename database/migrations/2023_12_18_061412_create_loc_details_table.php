@@ -14,6 +14,7 @@ class CreateLocDetailsTable extends Migration
     public function up()
     {
         Schema::create('loc_details', function (Blueprint $table) {
+            $table->id(); 
             $table->unsignedBigInteger('loc_header_id'); // Foreign key reference to loc_headers.id
             $table->foreign('loc_header_id')->references('id')->on('loc_headers')->onDelete('cascade');
             $table->string('name'); // Varchar column for name

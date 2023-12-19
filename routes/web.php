@@ -12,6 +12,7 @@ use App\Http\Controllers\AssetCategoryController;
 use App\Http\Controllers\CostCenterController;
 use App\Http\Controllers\DepartmentController;
 use App\Http\Controllers\LocationController;
+use App\Http\Controllers\AssetController;
 
 /*
 |--------------------------------------------------------------------------
@@ -32,6 +33,12 @@ Route::get('/logout', [AuthController::class, 'logout']);
 Route::middleware(['auth'])->group(function () {
     //Home Controller
     Route::get('/home', [HomeController::class, 'index']);
+
+    //Home Controller
+    Route::get('/asset', [AssetController::class, 'index']);
+    Route::post('/asset/store', [AssetController::class,'store']);
+    Route::patch('/asset/update/{id}', [AssetController::class,'update']);
+    Route::get('/asset/detail/{id}', [AssetController::class, 'detail']);
 
     //Dropdown Controller
     Route::get('/dropdown', [DropdownController::class, 'index'])->middleware(['checkRole:Super Admin']);
@@ -79,5 +86,7 @@ Route::middleware(['auth'])->group(function () {
     
     Route::get('/location/detail/{id}', [LocationController::class, 'detail'])->middleware(['checkRole:Super Admin']);
     Route::post('/location/detail/store/{id}', [LocationController::class, 'storeDetail'])->middleware(['checkRole:Super Admin']);
+    Route::patch('/location/detail/update/{id}', [LocationController::class, 'updateDetail'])->middleware(['checkRole:Super Admin']);
+    Route::delete('/location/detail/delete/{id}', [LocationController::class, 'deleteDetail'])->middleware(['checkRole:Super Admin']);
 
 });

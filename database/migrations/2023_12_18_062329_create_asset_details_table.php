@@ -14,6 +14,7 @@ class CreateAssetDetailsTable extends Migration
     public function up()
     {
         Schema::create('asset_details', function (Blueprint $table) {
+            $table->id(); 
             $table->unsignedBigInteger('asset_header_id'); // Foreign key reference to asset_headers.id
             $table->foreign('asset_header_id')->references('id')->on('asset_headers')->onDelete('cascade');
             $table->string('asset_no'); // Varchar column for asset number

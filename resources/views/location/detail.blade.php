@@ -140,22 +140,17 @@
                         <div class="modal-dialog">
                           <div class="modal-content">
                             <div class="modal-header">
-                              <h4 class="modal-title" id="modal-update{{ $data->id }}-label">Edit Location</h4>
+                              <h4 class="modal-title" id="modal-update{{ $data->id }}-label">Edit Location {{$location->name}}</h4>
                               <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                             </div>
-                            <form action="{{ url('/location/update/'.$data->id) }}" method="POST">
+                            <form action="{{ url('/location/detail/update/'.$data->id) }}" method="POST">
                               @csrf
                               @method('patch')
                               <div class="modal-body">
                                 <div class="form-group">
                                   <input name="id" type="text" value="{{$data->id}}" hidden>
-                                  <input type="text" class="form-control" id="class" name="class" placeholder="Enter Class" value="{{ $data->class }}">
+                                  <input type="text" class="form-control" id="name" name="name" placeholder="Enter name" value="{{ $data->name }}">
                                 </div>
-                                <br>
-                                <div class="form-group">
-                                  <input type="text" class="form-control" id="description" name="description" placeholder="Enter Description" value="{{ $data->desc }}">
-                                </div>
-                                <br>
                               </div>
                               <div class="modal-footer">
                                 <button type="button" class="btn btn-dark" data-bs-dismiss="modal">Close</button>
@@ -175,12 +170,12 @@
                             <h4 class="modal-title" id="modal-delete{{ $data->id }}-label">Delete Location</h4>
                             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                             </div>
-                            <form action="{{ url('/location/delete/'.$data->id) }}" method="POST">
+                            <form action="{{ url('/location/detail/delete/'.$data->id) }}" method="POST">
                             @csrf
                             @method('delete')
                             <div class="modal-body">
                                 <div class="form-group">
-                                Are you sure you want to delete <label for="Dropdown">{{ $data->class }}</label>?
+                                Are you sure you want to delete <label for="Dropdown">{{ $data->name }}</label>?
                                 </div>
                             </div>
                             <div class="modal-footer">
