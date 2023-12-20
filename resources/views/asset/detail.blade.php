@@ -36,8 +36,6 @@
     <!-- Main content -->
     <section class="content">
 
-        
-
       <div class="container-fluid">
 
         <div class="card card-header-actions mb-4">
@@ -46,57 +44,89 @@
                 <!-- Button to trigger the modal -->
                 @if($assetHeaderData->status == 1)
                 <!-- Button for active status -->
-                <button class="btn btn-success btn-sm">
-                    <i class="fas fa-check"></i> Active
-                </button>
+                <a class="btn btn-success btn-sm" href="{{url("/asset/disposal/".encrypt($assetHeaderData->id))}}">
+                     Active
+                </a>
             @else
                 <!-- Button for disposal status -->
-                <button class="btn btn-danger btn-sm">
-                    <i class="fas fa-times"></i> Disposal
-                </button>
+                <a class="btn btn-danger btn-sm" href="{{url("/asset/active/".encrypt($assetHeaderData->id))}}">
+                    <i class="fa-solid fa-x"></i> Disposal
+                </a>
             @endif
             
 
-<!-- Modal -->
-<div class="modal fade" id="imageModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="exampleModalLabel">Image Preview</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            <!-- Modal -->
+            <div class="modal fade" id="imageModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="exampleModalLabel">Image Preview</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            <!-- Image container -->
+                            <img id="modalImage" class="img-fluid" alt="Image Preview">
+                        </div>
+                    </div>
+                </div>
             </div>
-            <div class="modal-body">
-                <!-- Image container -->
-                <img id="modalImage" class="img-fluid" alt="Image Preview">
-            </div>
-        </div>
-    </div>
-</div>
 
-<!-- JavaScript to set image source when the modal is shown -->
-<script>
-    document.addEventListener('DOMContentLoaded', function () {
-        var imageModal = new bootstrap.Modal(document.getElementById('imageModal'));
-        var modalImage = document.getElementById('modalImage');
-        var seeImageButton = document.querySelector('.btn-see-image');
-        var imgPath = '{{ asset($assetHeaderData->img) }}';
+            <!-- JavaScript to set image source when the modal is shown -->
+            <script>
+                document.addEventListener('DOMContentLoaded', function () {
+                    var imageModal = new bootstrap.Modal(document.getElementById('imageModal'));
+                    var modalImage = document.getElementById('modalImage');
+                    var seeImageButton = document.querySelector('.btn-see-image');
+                    var imgPath = '{{ asset($assetHeaderData->img) }}';
 
-        // Set the image source dynamically when the modal is shown
-        imageModal._element.addEventListener('shown.bs.modal', function (event) {
-            // Set the image source dynamically using the asset helper
-            modalImage.src = imgPath;
-        });
+                    // Set the image source dynamically when the modal is shown
+                    imageModal._element.addEventListener('shown.bs.modal', function (event) {
+                        // Set the image source dynamically using the asset helper
+                        modalImage.src = imgPath;
+                    });
 
-        // Handle button click to show the modal
-        seeImageButton.addEventListener('click', function () {
-            imageModal.show();
-        });
-    });
-</script>
+                    // Handle button click to show the modal
+                    seeImageButton.addEventListener('click', function () {
+                        imageModal.show();
+                    });
+                });
+            </script>
 
-            </div>
+                        </div>
             <div class="card-body">
                
+                <div class="col-sm-12">
+                    <!--alert success -->
+                    @if (session('status'))
+                    <div class="alert alert-success alert-dismissible fade show" role="alert">
+                      <strong>{{ session('status') }}</strong>
+                      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div> 
+                  @endif
+
+                  @if (session('failed'))
+                  <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    <strong>{{ session('failed') }}</strong>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                  </div> 
+                @endif
+                  
+                    <!--alert success -->
+                    <!--validasi form-->
+                      @if (count($errors)>0)
+                        <div class="alert alert-info alert-dismissible fade show" role="alert">
+                          <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                            <ul>
+                                <li><strong>Data Process Failed !</strong></li>
+                                @foreach ($errors->all() as $error)
+                                    <li><strong>{{ $error }}</strong></li>
+                                @endforeach
+                            </ul>
+                        </div>
+                      @endif
+                    <!--end validasi form-->
+                  </div>
+
                 <div class="row">
                     <div class="col-md-4">
                         <strong>Asset No.</strong><br>
@@ -190,12 +220,25 @@
                                   <h5 class="modal-title" id="modal-add-label">Add Asset</h5>
                                   <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                 </div>
-                                <form action="{{ url('/asset/store') }}" method="POST" enctype="multipart/form-data">
+                                <form action="{{ url('/asset/detail/store') }}" method="POST" enctype="multipart/form-data">
                                   @csrf
+
+                                  <input value="{{$assetHeaderData->id}}" type="text" name="id" id="" hidden>
+
                                   <div class="modal-body">
-                                    <div class="form-group mb-3">
-                                      <input type="text" class="form-control" id="asset_no" name="asset_no" placeholder="Enter Person Asset Number" required>
+                                    <div class="row">
+                                        <div class="col-md-8">
+                                            <div class="form-group mb-3">
+                                                <input readonly value="{{$assetHeaderData->asset_no}}" type="text" class="form-control" id="asset_no" name="asset_no" placeholder="Enter Asset Number" required>
+                                              </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="form-group mb-3">
+                                                <input type="number" class="form-control" id="sub_asset" name="sub_asset" placeholder="Enter Sub" min="0" required>
+                                              </div>
+                                        </div>
                                     </div>
+                                    
                                     <div class="form-group mb-3">
                                         <textarea class="form-control" id="desc" name="desc" placeholder="Enter Asset Description" required></textarea>
                                     </div>
@@ -261,7 +304,7 @@
                                         </div>
                                     </div>
 
-                                    <div class="row mb-3">
+                                    {{-- <div class="row mb-3">
                                         <div class="col-md-6">
                                             <div class="form-group">
                                                 <select name="plant" id="plant" class="form-control" required>
@@ -281,9 +324,9 @@
                                                 </select>
                                             </div>
                                         </div>
-                                    </div>
+                                    </div> --}}
                                     
-                                    <script>
+                                    {{-- <script>
                                         document.addEventListener('DOMContentLoaded', function () {
                                             var plantDropdown = document.getElementById('plant');
                                             var locDropdown = document.getElementById('loc');
@@ -311,33 +354,23 @@
                                                 });
                                             });
                                         });
-                                    </script>
+                                    </script> --}}
                                     
                                     
 
-                                    <div class="form-group mb-3">
+                                    {{-- <div class="form-group mb-3">
                                         <select name="dept" id="dept" class="form-control" required>
                                             <option value="">- Please Department-</option>
                                             @foreach ($dept as $data)
                                                 <option value="{{ $data->dept }}">{{ $data->dept }}</option>
                                             @endforeach
                                         </select>
-                                    </div>
-
-                                    <div class="row mb-3">
-                                        <div class="col-md-6">
-                                            <div class="form-group">
-                                                <input type="number" class="form-control" id="cost_center" name="cost_center" placeholder="Enter Cost Center" required>
-                                            </div>
-                                        </div>
-
-                                        <div class="col-md-6">
-                                            <div class="form-group">
+                                    </div> --}}
+                                    
+                                            <div class="form-group mb-3">
                                                 <input type="file" class="form-control" id="img" name="img" placeholder="Enter Image" required>
                                             </div>
-                                        </div>
-                                    </div>
-                                    
+                                  
                                     <div class="form-group mb-3">
                                         <input type="text" class="form-control" id="bv_end" name="bv_end" placeholder="Enter BV End Of Year" required>
                                     </div>                                    
@@ -403,10 +436,8 @@
                   <tr>
                     <th>No</th>
                     <th>Asset No</th>
-                    <th>Desc.</th>
-                    <th>Qty</th>
-                    <th>Acquisition date</th>
-                    <th>Location</th>
+                    <th>Date</th>
+                    <th>Status</th>
                     <th>Action</th>
                   </tr>
                   </thead>
@@ -417,23 +448,118 @@
                     @foreach ($assetDetailData as $data)
                     <tr>
                         <td>{{ $no++ }}</td>
-                        <td>{{ $data->asset_no }}</td>
-                        <td>{{ $data->desc }}</td>
-                        <td>{{ $data->qty}} ( <small>{{$data->uom}}</small> ) </td>
-                        <td>{{ $data->acq_date }}</td>
-                        <td>{{ $data->plant}} <br> ( <small>{{$data->loc}}</small> )</td>
+                        <td>{{ $data->asset_no}} - {{$data->sub_asset}} </td>
+                        <td>{{ date('d-M-Y', strtotime($data->date )) }}</td>
+                        <td>@if($data->status == 1)
+                            <!-- Button for active status -->
+                            <a class="btn btn-success btn-sm" href="{{url("/asset/detail/disposal/".encrypt($assetHeaderData->id).'/'.encrypt($data->id))}}">
+                                 Active
+                            </a>
+                        @else
+                            <!-- Button for disposal status -->
+                            <a class="btn btn-danger btn-sm" href="{{url("/asset/detail/active/".encrypt($assetHeaderData->id).'/'.encrypt($data->id))}}">
+                                <i class="fa-solid fa-x"></i> Disposal
+                            </a>
+                        @endif</td>
                         <td>
                             <button title="Edit Asset" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#modal-update{{ $data->id }}">
                                 <i class="fas fa-edit"></i>
                               </button>
-                              <a title="Detail Asset" class="btn btn-success btn-sm" href="{{url('asset/detail/'.encrypt($data->id))}}">
+                              <button title="Detail Sub Asset" class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#modal-detail{{ $data->id }}">
                                 <i class="fas fa-info"></i>
-                              </a>
+                              </button>
                             <button title="Delete Asset" class="btn btn-danger btn-sm" data-bs-toggle="modal" data-bs-target="#modal-delete{{ $data->id }}">
                                 <i class="fas fa-trash-alt"></i>
                               </button>   
                         </td>
                     </tr>
+
+                    <!-- Modal -->
+                    <div class="modal fade" id="modal-detail{{ $data->id }}" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                        <div class="modal-dialog modal-lg">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title" id="exampleModalLabel">Asset Detail</h5>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                </div>
+                                <div class="modal-body">
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <strong>Asset Number</strong><br>
+                                            <p>{{ $data->asset_no }} - {{ $data->sub_asset }}</p>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <strong>Description</strong><br>
+                                            <p>{{ $data->desc }}</p>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <strong>Quantity</strong><br>
+                                            <p>{{ $data->qty }} ({{$data->uom}})</p>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <strong>Asset Category</strong><br>
+                                            <p>{{ $data->asset_type }}</p>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <strong>Acquisition Date</strong><br>
+                                            <p>{{ date('d-M-Y', strtotime($data->date)) }}</p>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <strong>Acquisition Cost</strong><br>
+                                            <p>{{ 'Rp ' . number_format($data->cost, 0, ',', '.') }}</p>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <strong>PO No.</strong><br>
+                                            <p>{{ $data->po_no }}</p>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <strong>Serial No.</strong><br>
+                                            <p>{{ $data->serial_no }}</p>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <strong>Status</strong><br>
+                                            @if($data->status == 1)
+                                                <!-- Button for active status -->
+                                                <a class="btn btn-success btn-sm" href="{{url("/asset/detail/disposal/".encrypt($assetHeaderData->id).'/'.encrypt($data->id))}}">
+                                                    Active
+                                                </a>
+                                            @else
+                                                <!-- Button for disposal status -->
+                                                <a class="btn btn-danger btn-sm" href="{{url("/asset/detail/active/".encrypt($assetHeaderData->id).'/'.encrypt($data->id))}}">
+                                                    <i class="fa-solid fa-x"></i> Disposal
+                                                </a>
+                                            @endif
+                                        </div>
+                                        <div class="col-md-6">
+                                            <strong>BV End Of Year</strong><br>
+                                            <p>{{ 'Rp ' . number_format($assetHeaderData->bv_endofyear, 0, ',', '.') }}</p>
+                                        </div>
+                                    </div>
+                                    <!-- Add more fields as needed -->
+
+                                    <!-- Display the image -->
+                                    <div class="row">
+                                        <div class="col-md-12">
+                                            <strong>Image</strong><br>
+                                            <img src="{{ asset($data->img) }}" alt="Asset Image" class="img-fluid">
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-dark" data-bs-dismiss="modal">Close</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
 
                     {{-- Modal Update --}}
                     <div class="modal fade" id="modal-update{{ $data->id }}" tabindex="-1" aria-labelledby="modal-update{{ $data->id }}-label" aria-hidden="true">
@@ -443,15 +569,25 @@
                               <h4 class="modal-title" id="modal-update{{ $data->id }}-label">Edit Cost Center</h4>
                               <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                             </div>
-                            <form action="{{ url('/asset/update/'.$data->id) }}" method="POST">
+                            <form action="{{ url('/asset/detail/update/'.$data->id) }}" method="POST">
                               @csrf
                               @method('patch')
                               <div class="modal-body">
-                                <div class="form-group mb-3">
-                                  <input value="{{$data->asset_no}}" type="text" class="form-control" id="asset_no" name="asset_no" placeholder="Enter Person Asset Number" >
+                                <div class="row">
+                                    <div class="col-md-8">
+                                        <div class="form-group mb-3">
+                                            <input readonly value="{{$assetHeaderData->asset_no}}" type="text" class="form-control" id="asset_no" name="asset_no" placeholder="Enter Asset Number" required>
+                                          </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="form-group mb-3">
+                                            <input value="{{$data->sub_asset}}" type="number" class="form-control" id="sub_asset" name="sub_asset" placeholder="Enter Sub" min="0" required>
+                                          </div>
+                                    </div>
                                 </div>
+                                
                                 <div class="form-group mb-3">
-                                    <textarea class="form-control" id="desc" name="desc" placeholder="Enter Asset Description" >{{$data->desc}}</textarea>
+                                    <textarea class="form-control" id="desc" name="desc" placeholder="Enter Asset Description" required>{{$data->desc}}</textarea>
                                 </div>
 
                                 <div class="row mb-3">
@@ -461,7 +597,7 @@
                                     
                                     <div class="col-md-6">
                                         <div class="form-group">
-                                            <select name="uom" id="uom" class="form-control" >
+                                            <select name="uom" id="uom" class="form-control" required>
                                                 <option value="{{$data->uom}}">{{$data->uom}}</option>
                                                 @foreach ($dropdownUom as $uom)
                                                     <option value="{{ $uom->name_value }}">{{ $uom->name_value }}</option>
@@ -474,7 +610,7 @@
                                 <div class="row mb-3">
 
                                     <div class="col-md-6">
-                                        <input value="{{$data->acq_date}}" type="date" class="form-control" id="date" name="date" placeholder="Enter Date" >
+                                        <input value="{{$data->date}}" type="date" class="form-control" id="date" name="date" placeholder="Enter Date" required>
                                     </div>
 
                                     <div class="col-md-6">
@@ -491,8 +627,19 @@
                                 </div>
 
                                 <div class="form-group mb-3">
-                                    <input value="{{$data->acq_cost}}" type="number" class="form-control" id="cost_edit" name="cost_edit" placeholder="Enter Acquisition Cost" >
+                                    <input value="{{ number_format($data->cost) }}" type="text" class="form-control" id="costEdit" name="costEdit" placeholder="Enter Acquisition Cost" required>
                                 </div>
+
+                                <script>
+                                    document.addEventListener('DOMContentLoaded', function () {
+                                        // Format input as Rupiah
+                                        var rupiahInput = new Cleave('#costEdit', {
+                                            numeral: true,
+                                            numeralThousandsGroupStyle: 'thousand'
+                                            // You can customize other options based on your needs
+                                        });
+                                    });
+                                </script>
 
                                 <div class="row mb-3">
                                     <div class="col-md-6">
@@ -503,99 +650,25 @@
                                         <input value="{{$data->serial_no}}" type="text" class="form-control" id="serial_no" name="serial_no" placeholder="Enter Serial No." >
                                     </div>
                                 </div>
+                                
+                                    <div class="form-group mb-3">
+                                        <input type="file" class="form-control" id="img" name="img" placeholder="Enter Image">
+                                    </div>
+                              
+                                <div class="form-group mb-3">
+                                    <input value="{{number_format($data->bv_endofyear)}}" type="text" class="form-control" id="bv_endEdit" name="bv_endEdit" placeholder="Enter BV End Of Year" required>
+                                </div>                                    
 
-                                <div class="row mb-3">
-                                    <div class="col-md-6">
-                                        <div class="form-group">
-                                            <select name="plant" id="plantEdit" class="form-control">
-                                                <option value="{{$data->plant}}">{{$data->plant}}</option>
-                                                @foreach ($locHeader as $header)
-                                                    <option value="{{ $header->name }}">{{ $header->name }}</option>
-                                                @endforeach
-                                            </select>
-                                        </div>
-                                    </div>
-                                
-                                    <div class="col-md-6">
-                                        <div class="form-group">
-                                            <select name="loc" id="locEdit" class="form-control">
-                                                <option value="{{$data->loc}}">{{$data->loc}}</option>
-                                                <!-- Location options will be dynamically populated using JavaScript -->
-                                            </select>
-                                        </div>
-                                    </div>
-                                </div>
-                                
                                 <script>
                                     document.addEventListener('DOMContentLoaded', function () {
-                                        var plantDropdown = document.getElementById('plantEdit');
-                                        var locDropdown = document.getElementById('locEdit');
-                                        var selectedPlant = '{{$data->plant}}';
-                                        var selectedLoc = '{{$data->loc}}';
-                                
-                                        // Function to populate locations based on the selected plant
-                                        function populateLocations(selectedPlant) {
-                                            locDropdown.innerHTML = '<option value="">- Please Select Location -</option>';
-                                            var locDetails = [
-                                                @foreach ($locDetail as $detail)
-                                                    {
-                                                        plant: '{{ $detail->locHeader->name }}',
-                                                        location: '{{ $detail->name }}'
-                                                    },
-                                                @endforeach
-                                            ];
-                                
-                                            locDetails.forEach(function (detail) {
-                                                if (detail.plant === selectedPlant) {
-                                                    var option = document.createElement('option');
-                                                    option.value = detail.location;
-                                                    option.textContent = detail.location;
-                                                    if (detail.location === selectedLoc) {
-                                                        option.selected = true; // Select the previously saved location
-                                                    }
-                                                    locDropdown.appendChild(option);
-                                                }
-                                            });
-                                        }
-                                
-                                        // Initially populate locations based on the selected plant
-                                        populateLocations(selectedPlant);
-                                
-                                        // Change event for plant dropdown
-                                        plantDropdown.addEventListener('change', function () {
-                                            var selectedPlant = plantDropdown.value;
-                                            populateLocations(selectedPlant);
+                                        // Format input as Rupiah
+                                        var bvEndInput = new Cleave('#bv_endEdit', {
+                                            numeral: true,
+                                            numeralThousandsGroupStyle: 'thousand'
+                                            // You can customize other options based on your needs
                                         });
                                     });
                                 </script>
-                                
-                                
-                                <div class="form-group mb-3">
-                                    <select name="dept" id="dept" class="form-control" >
-                                        <option value="{{$data->dept}}">{{$data->dept}}</option>
-                                        @foreach ($dept as $item)
-                                            <option value="{{ $item->dept }}">{{ $item->dept }}</option>
-                                        @endforeach
-                                    </select>
-                                </div>
-
-                                <div class="row mb-3">
-                                    <div class="col-md-6">
-                                        <div class="form-group">
-                                            <input value="{{$data->cost_center}}" type="number" class="form-control" id="cost_center" name="cost_center" placeholder="Enter Cost Center" >
-                                        </div>
-                                    </div>
-
-                                    <div class="col-md-6">
-                                        <div class="form-group">
-                                            <input type="file" class="form-control" id="img" name="img" placeholder="Enter Image">
-                                        </div>
-                                    </div>
-                                </div>
-                                
-                                <div class="form-group mb-3">
-                                    <input value="{{$data->bv_endofyear}}"  type="number" class="form-control" id="bv_endEdit" name="bv_end" placeholder="Enter BV End Of Year" >
-                                </div>  
                                 
                                 
                               </div>
@@ -617,12 +690,12 @@
                             <h4 class="modal-title" id="modal-delete{{ $data->id }}-label">Delete Cost Center</h4>
                             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                             </div>
-                            <form action="{{ url('/cost_center/delete/'.$data->id) }}" method="POST">
+                            <form action="{{ url('/asset/detail/delete/'.$data->id) }}" method="POST">
                             @csrf
                             @method('delete')
                             <div class="modal-body">
                                 <div class="form-group">
-                                Are you sure you want to delete <label for="Dropdown">{{ $data->cost_ctr }}</label>?
+                                Are you sure you want to delete <label for="Dropdown">{{ $data->asset_no }} - {{$data->sub_asset}}</label>?
                                 </div>
                             </div>
                             <div class="modal-footer">

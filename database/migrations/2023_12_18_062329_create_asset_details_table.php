@@ -24,12 +24,12 @@ class CreateAssetDetailsTable extends Migration
             $table->string('uom'); // Varchar column for unit of measure
             $table->string('asset_type'); // Varchar column for asset type
             $table->date('date'); // Date column for date
-            $table->integer('cost'); // Integer column for cost
-            $table->string('po_no'); // Varchar column for purchase order number
-            $table->string('serial_no'); // Varchar column for serial number
+            $table->decimal('cost',15,0); // Integer column for cost
+            $table->string('po_no')->nullable();; // Varchar column for purchase order number
+            $table->string('serial_no')->nullable();; // Varchar column for serial number
             $table->string('img')->nullable(); // Nullable Varchar column for image
             $table->string('status'); // Varchar column for status
-            $table->integer('bv_endofyear'); // Integer column for book value at end of the year
+            $table->decimal('bv_endofyear',15,0); // Integer column for book value at end of the year
             $table->timestamps(); // Created_at and updated_at columns
         });
     }

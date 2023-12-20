@@ -63,7 +63,7 @@
                                   @csrf
                                   <div class="modal-body">
                                     <div class="form-group mb-3">
-                                      <input type="text" class="form-control" id="asset_no" name="asset_no" placeholder="Enter Person Asset Number" required>
+                                      <input type="text" class="form-control" id="asset_no" name="asset_no" placeholder="Enter Asset Number" required>
                                     </div>
                                     <div class="form-group mb-3">
                                         <textarea class="form-control" id="desc" name="desc" placeholder="Enter Asset Description" required></textarea>
@@ -196,7 +196,12 @@
                                     <div class="row mb-3">
                                         <div class="col-md-6">
                                             <div class="form-group">
-                                                <input type="number" class="form-control" id="cost_center" name="cost_center" placeholder="Enter Cost Center" required>
+                                                <select  id="cost_center" name="cost_center" class="form-control" required>
+                                                    <option value="">- Please Enter Cost Center-</option>
+                                                    @foreach ($costCenter as $data)
+                                                        <option value="{{ $data->cost_ctr }}">{{ $data->cost_ctr }}</option>
+                                                    @endforeach
+                                                </select>
                                             </div>
                                         </div>
 
@@ -309,7 +314,7 @@
                         <div class="modal-dialog">
                           <div class="modal-content">
                             <div class="modal-header">
-                              <h4 class="modal-title" id="modal-update{{ $data->id }}-label">Edit Cost Center</h4>
+                              <h4 class="modal-title" id="modal-update{{ $data->id }}-label">Edit Asset</h4>
                               <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                             </div>
                             <form action="{{ url('/asset/update/'.$data->id) }}" method="POST">
@@ -317,7 +322,7 @@
                               @method('patch')
                               <div class="modal-body">
                                 <div class="form-group mb-3">
-                                  <input value="{{$data->asset_no}}" type="text" class="form-control" id="asset_no" name="asset_no" placeholder="Enter Person Asset Number" >
+                                  <input value="{{$data->asset_no}}" type="text" class="form-control" id="asset_no" name="asset_no" placeholder="Enter Asset Number" >
                                 </div>
                                 <div class="form-group mb-3">
                                     <textarea class="form-control" id="desc" name="desc" placeholder="Enter Asset Description" >{{$data->desc}}</textarea>
@@ -451,7 +456,12 @@
                                 <div class="row mb-3">
                                     <div class="col-md-6">
                                         <div class="form-group">
-                                            <input value="{{$data->cost_center}}" type="number" class="form-control" id="cost_center" name="cost_center" placeholder="Enter Cost Center" >
+                                            <select  id="cost_center" name="cost_center" class="form-control" required>
+                                                <option value="{{$data->cost_center}}">{{$data->cost_center}}</option>
+                                                @foreach ($costCenter as $item)
+                                                    <option value="{{ $item->cost_ctr }}">{{ $item->cost_ctr }}</option>
+                                                @endforeach
+                                            </select>
                                         </div>
                                     </div>
 
