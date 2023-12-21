@@ -469,40 +469,44 @@ class AssetController extends Controller
     }
 
     public function detailActive($idHeader, $id)
-{
-    $idHeader = decrypt($idHeader);
-    $id = decrypt($id);
+    {
+        $idHeader = decrypt($idHeader);
+        $id = decrypt($id);
 
-    try {
-        // Find the AssetDetail model by ID
-        $assetDetail = AssetDetail::findOrFail($id);
+        try {
+            // Find the AssetDetail model by ID
+            $assetDetail = AssetDetail::findOrFail($id);
 
-        // Find the related AssetHeader model by ID
-        $assetHeader = AssetHeader::findOrFail($idHeader);
+            // Find the related AssetHeader model by ID
+            $assetHeader = AssetHeader::findOrFail($idHeader);
 
-        // Check if the AssetHeader status is 0 (disposed)
-        if ($assetHeader->status == 0) {
-            return redirect()->back()->with('failed', 'Cannot activate Asset Detail. The corresponding Asset is disposed.');
+            // Check if the AssetHeader status is 0 (disposed)
+            if ($assetHeader->status == 0) {
+                return redirect()->back()->with('failed', 'Cannot activate Asset Detail. The corresponding Asset is disposed.');
+            }
+
+            // Check if the status is already set to 1
+            if ($assetDetail->status != 1) {
+                // Update the status attribute to 1
+                $assetDetail->status = 1;
+
+                // Save the AssetDetail
+                $assetDetail->save();
+
+                return redirect()->back()->with('status', 'Asset Detail activated successfully');
+            } else {
+                // Status is already 1, no update needed
+                return redirect()->back()->with('status', 'Asset Detail is already active.');
+            }
+        } catch (\Exception $e) {
+            dd($e);
+            // Handle any exception that may occur during the update
+            return redirect()->back()->with('failed', 'Failed to activate Asset Detail. Please try again.');
         }
-
-        // Check if the status is already set to 1
-        if ($assetDetail->status != 1) {
-            // Update the status attribute to 1
-            $assetDetail->status = 1;
-
-            // Save the AssetDetail
-            $assetDetail->save();
-
-            return redirect()->back()->with('status', 'Asset Detail activated successfully');
-        } else {
-            // Status is already 1, no update needed
-            return redirect()->back()->with('status', 'Asset Detail is already active.');
-        }
-    } catch (\Exception $e) {
-        dd($e);
-        // Handle any exception that may occur during the update
-        return redirect()->back()->with('failed', 'Failed to activate Asset Detail. Please try again.');
-    }
 }
+
+    public function excelFormat(){
+        dd('hi');
+    }
   
 }

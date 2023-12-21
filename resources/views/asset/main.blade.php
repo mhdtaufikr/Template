@@ -50,6 +50,9 @@
                         <button  title="Add Asset" type="button" class="btn btn-dark btn-sm mb-2" data-bs-toggle="modal" data-bs-target="#modal-add">
                             <i class="fas fa-plus-square"></i> 
                           </button>
+                          <button  title="Import Asset" type="button" class="btn btn-info btn-sm mb-2" data-bs-toggle="modal" data-bs-target="#modal-import">
+                            Import Assets 
+                          </button>
                           
                           <!-- Modal -->
                           <div class="modal fade" id="modal-add" tabindex="-1" aria-labelledby="modal-add-label" aria-hidden="true">
@@ -237,6 +240,41 @@
                               </div>
                             </div>
                           </div>
+
+                          <!-- Modal -->
+                        <div class="modal fade" id="modal-import" tabindex="-1" aria-labelledby="modal-add-label" aria-hidden="true">
+                            <div class="modal-dialog">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title" id="modal-add-label">Import Asset</h5>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                    </div>
+                                    <form action="{{ url('/asset/import') }}" method="POST" enctype="multipart/form-data">
+                                        @csrf
+                                        <div class="modal-body">
+                                            <div class="mb-3">
+                                                <input type="file" class="form-control" id="csvFile" name="excel-file" accept=".csv">
+                                                <p class="text-danger">*file must be csv</p>
+                                            </div>
+
+                                            @error('excel-file')
+                                                <div class="alert alert-danger" role="alert">
+                                                    {{ $message }}
+                                                </div>
+                                            @enderror
+                                        </div>
+                                        <div class="modal-footer">
+                                            <a href="{{ url('/download/excel/format') }}" class="btn btn-link" target="_blank">
+                                                Download Excel Format
+                                            </a>
+                                            <button type="button" class="btn btn-dark" data-bs-dismiss="modal">Close</button>
+                                            <button type="submit" class="btn btn-primary">Submit</button>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+
                           
 
                     <div class="col-sm-12">
@@ -365,8 +403,19 @@
                                 </div>
 
                                 <div class="form-group mb-3">
-                                    <input value="{{$data->acq_cost}}" type="number" class="form-control" id="cost_edit" name="cost_edit" placeholder="Enter Acquisition Cost" >
+                                    <input value="{{number_format($data->acq_cost)}}" type="text" class="form-control" id="costEdit" name="cost_edit" placeholder="Enter Acquisition Cost" >
                                 </div>
+
+                                <script>
+                                    document.addEventListener('DOMContentLoaded', function () {
+                                        // Format input as Rupiah
+                                        var rupiahInput = new Cleave('#costEdit', {
+                                            numeral: true,
+                                            numeralThousandsGroupStyle: 'thousand'
+                                            // You can customize other options based on your needs
+                                        });
+                                    });
+                                </script>
 
                                 <div class="row mb-3">
                                     <div class="col-md-6">
@@ -473,9 +522,19 @@
                                 </div>
                                 
                                 <div class="form-group mb-3">
-                                    <input value="{{$data->bv_endofyear}}"  type="number" class="form-control" id="bv_endEdit" name="bv_end" placeholder="Enter BV End Of Year" >
+                                    <input value="{{$data->bv_endofyear}}"  type="text" class="form-control" id="bv_endEdit" name="bv_end" placeholder="Enter BV End Of Year" >
                                 </div>  
                                 
+                                <script>
+                                    document.addEventListener('DOMContentLoaded', function () {
+                                        // Format input as Rupiah
+                                        var bvEndInput = new Cleave('#bv_endEdit', {
+                                            numeral: true,
+                                            numeralThousandsGroupStyle: 'thousand'
+                                            // You can customize other options based on your needs
+                                        });
+                                    });
+                                </script>
                                 
                               </div>
                               <div class="modal-footer">

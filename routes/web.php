@@ -46,6 +46,8 @@ Route::middleware(['auth'])->group(function () {
     Route::delete('/asset/detail/delete/{id}', [AssetController::class, 'detailDelete']);
     Route::get('/asset/detail/disposal/{id_header}/{id}', [AssetController::class,'detailDisposal']);
     Route::get('/asset/detail/active/{id_header}/{id}', [AssetController::class,'detailActive']);
+    Route::get('/download/excel/format', [AssetController::class, 'excelFormat']);
+    
 
     //Dropdown Controller
     Route::get('/dropdown', [DropdownController::class, 'index'])->middleware(['checkRole:Super Admin']);
