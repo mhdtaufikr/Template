@@ -11,6 +11,8 @@ use App\Models\Department;
 use App\Models\LocHeader;
 use App\Models\LocDetail;
 use App\Models\CostCenter;
+use App\Exports\ExcelExport;
+use Maatwebsite\Excel\Facades\Excel;
 
 class AssetController extends Controller
 {
@@ -504,9 +506,9 @@ class AssetController extends Controller
             return redirect()->back()->with('failed', 'Failed to activate Asset Detail. Please try again.');
         }
 }
-
-    public function excelFormat(){
-        dd('hi');
+    public function excelFormat()
+    {
+        return Excel::download(new ExcelExport, 'Format.xlsx');
     }
   
 }

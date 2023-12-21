@@ -254,7 +254,7 @@
                                         <div class="modal-body">
                                             <div class="mb-3">
                                                 <input type="file" class="form-control" id="csvFile" name="excel-file" accept=".csv">
-                                                <p class="text-danger">*file must be csv</p>
+                                                <p class="text-danger">*file must be xlsx</p>
                                             </div>
 
                                             @error('excel-file')
@@ -264,7 +264,7 @@
                                             @enderror
                                         </div>
                                         <div class="modal-footer">
-                                            <a href="{{ url('/download/excel/format') }}" class="btn btn-link" target="_blank">
+                                            <a href="{{ url('/download/excel/format') }}" class="btn btn-link">
                                                 Download Excel Format
                                             </a>
                                             <button type="button" class="btn btn-dark" data-bs-dismiss="modal">Close</button>
