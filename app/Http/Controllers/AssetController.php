@@ -12,7 +12,10 @@ use App\Models\LocHeader;
 use App\Models\LocDetail;
 use App\Models\CostCenter;
 use App\Exports\ExcelExport;
+use App\Imports\AssetImport;
 use Maatwebsite\Excel\Facades\Excel;
+use Illuminate\Support\Facades\DB;
+use Throwable;
 
 class AssetController extends Controller
 {
@@ -108,7 +111,6 @@ class AssetController extends Controller
     public function update(Request $request, $id) {
         // Find the AssetHeader model by ID
         $assetHeader = AssetHeader::findOrFail($id);
-    
         $request->validate([
             'asset_no' => 'required|string|max:255',
             'desc' => 'required|string|max:255',
@@ -140,7 +142,7 @@ class AssetController extends Controller
                 $assetHeader->dept != $request->dept ||
                 $assetHeader->cost_center != $request->cost_center ||
                 $assetHeader->bv_endofyear != (int) str_replace(',', '', $request->bv_end) ||
-                ($request->hasFile('img') && $assetHeader->img != null)
+                ($request->hasFile('img'))
             ) {
                 // Update the attributes
                 $assetHeader->asset_no = $request->asset_no;
@@ -510,5 +512,36 @@ class AssetController extends Controller
     {
         return Excel::download(new ExcelExport, 'Format.xlsx');
     }
+
+
+
+    public function excelData(Request $request)
+    {
+        $request->validate([
+            'excel-file' => 'required|file|mimes:xlsx',
+        ]);
+
+        try {
+            // Start a database transaction
+            DB::beginTransaction();
+
+            // Import data using AssetImport class
+            Excel::import(new AssetImport, $request->file('excel-file'));
+
+            // If everything is successful, commit the transaction
+            DB::commit();
+
+            return redirect()->back()->with('status', 'Assets imported successfully');
+        } catch (Throwable $e) {
+            // If an error occurs, rollback the transaction
+            DB::rollBack();
+
+            // Log or handle the error as needed
+            // You can also use $e->getMessage() to get the error message
+
+            return redirect()->back()->with('failed', 'Error importing assets. Please check the data format.');
+        }
+    }
+
   
 }

@@ -47,6 +47,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/asset/detail/disposal/{id_header}/{id}', [AssetController::class,'detailDisposal']);
     Route::get('/asset/detail/active/{id_header}/{id}', [AssetController::class,'detailActive']);
     Route::get('/download/excel/format', [AssetController::class, 'excelFormat']);
+    Route::post('/asset/import', [AssetController::class, 'excelData']);
     
 
     //Dropdown Controller

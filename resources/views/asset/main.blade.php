@@ -297,7 +297,7 @@
                       <!--validasi form-->
                         @if (count($errors)>0)
                           <div class="alert alert-info alert-dismissible fade show" role="alert">
-                            <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                               <ul>
                                   <li><strong>Data Process Failed !</strong></li>
                                   @foreach ($errors->all() as $error)
@@ -332,7 +332,7 @@
                         <td>{{ $data->asset_no }}</td>
                         <td>{{ $data->desc }}</td>
                         <td>{{ $data->qty}} ( <small>{{$data->uom}}</small> ) </td>
-                        <td>{{ $data->acq_date }}</td>
+                        <td>{{ date('d-M-Y', strtotime($data->acq_date)) }}</td>
                         <td>{{ $data->plant}} <br> ( <small>{{$data->loc}}</small> )</td>
                         <td>
                             <button title="Edit Asset" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#modal-update{{ $data->id }}">
@@ -355,7 +355,7 @@
                               <h4 class="modal-title" id="modal-update{{ $data->id }}-label">Edit Asset</h4>
                               <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                             </div>
-                            <form action="{{ url('/asset/update/'.$data->id) }}" method="POST">
+                            <form action="{{ url('/asset/update/'.$data->id) }}" method="POST"  enctype="multipart/form-data">
                               @csrf
                               @method('patch')
                               <div class="modal-body">

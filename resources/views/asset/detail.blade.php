@@ -569,7 +569,7 @@
                               <h4 class="modal-title" id="modal-update{{ $data->id }}-label">Edit Cost Center</h4>
                               <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                             </div>
-                            <form action="{{ url('/asset/detail/update/'.$data->id) }}" method="POST">
+                            <form action="{{ url('/asset/detail/update/'.$data->id) }}" method="POST"  enctype="multipart/form-data">
                               @csrf
                               @method('patch')
                               <div class="modal-body">
