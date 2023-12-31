@@ -48,6 +48,8 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/asset/detail/active/{id_header}/{id}', [AssetController::class,'detailActive']);
     Route::get('/download/excel/format', [AssetController::class, 'excelFormat']);
     Route::post('/asset/import', [AssetController::class, 'excelData']);
+    Route::get('/asset/qr', [AssetController::class,'generateQRCodesAndReturnPDF']);
+
     
 
     //Dropdown Controller

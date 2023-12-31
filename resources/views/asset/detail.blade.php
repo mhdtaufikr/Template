@@ -227,17 +227,40 @@
 
                                   <div class="modal-body">
                                     <div class="row">
-                                        <div class="col-md-8">
+                                        <div class="col-md-3">
+                                            <!-- Add a checkbox -->
+                                            <div class="form-check">
+                                                <input type="checkbox" class="form-check-input" id="editAssetNo">
+                                                <label class="form-check-label small" for="editAssetNo">Edit Asset Number</label>
+                                            </div>
+                                        </div>
+                                    
+                                        <div class="col-md-6">
                                             <div class="form-group mb-3">
                                                 <input readonly value="{{$assetHeaderData->asset_no}}" type="text" class="form-control" id="asset_no" name="asset_no" placeholder="Enter Asset Number" required>
-                                              </div>
+                                            </div>
                                         </div>
-                                        <div class="col-md-4">
+                                    
+                                        <div class="col-md-3">
                                             <div class="form-group mb-3">
                                                 <input type="number" class="form-control" id="sub_asset" name="sub_asset" placeholder="Enter Sub" min="0" required>
-                                              </div>
+                                            </div>
                                         </div>
-                                    </div>
+                                    </div>  
+                                    <script>
+                                        document.addEventListener('DOMContentLoaded', function () {
+                                            // Get the checkbox and input field
+                                            var editCheckbox = document.getElementById('editAssetNo');
+                                            var assetNoInput = document.getElementById('asset_no');
+                                    
+                                            // Add an onclick event to the checkbox
+                                            editCheckbox.addEventListener('click', function () {
+                                                // Toggle the "readonly" attribute based on the checkbox state
+                                                assetNoInput.readOnly = !editCheckbox.checked;
+                                            });
+                                        });
+                                    </script>
+                                    
                                     
                                     <div class="form-group mb-3">
                                         <textarea class="form-control" id="desc" name="desc" placeholder="Enter Asset Description" required></textarea>

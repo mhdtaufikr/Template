@@ -16,6 +16,7 @@ use App\Imports\AssetImport;
 use Maatwebsite\Excel\Facades\Excel;
 use Illuminate\Support\Facades\DB;
 use Throwable;
+use PDF;
 
 class AssetController extends Controller
 {
@@ -542,6 +543,23 @@ class AssetController extends Controller
             return redirect()->back()->with('failed', 'Error importing assets. Please check the data format.');
         }
     }
+
+
+        public function generateQRCodesAndReturnPDF(Request $request)
+        {
+            $assetIds = explode(',', $request->input('assetIds'));
+
+            // Initialize the PDF
+            $pdf = PDF::loadView('asset.pdf', compact('assetIds'));
+
+            // Save the PDF (you may want to customize the storage path)
+            $pdfPath = public_path("pdfs/qr_codes.pdf");
+            $pdf->save($pdfPath);
+
+            return response()->file($pdfPath);
+        }
+
+    
 
   
 }

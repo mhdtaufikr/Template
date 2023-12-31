@@ -53,6 +53,57 @@
                           <button  title="Import Asset" type="button" class="btn btn-info btn-sm mb-2" data-bs-toggle="modal" data-bs-target="#modal-import">
                             Import Assets 
                           </button>
+                         <!-- Add this button before your table -->
+                        <button type="button" class="btn btn-secondary btn-sm mb-2" id="checkAllBtn">
+                            Check All
+                        </button>
+
+                <!-- Button to generate checklist -->
+                <a title="Generate Checklist" class="btn btn-primary btn-sm mb-2" href="#" onclick="generateChecklist(); return false;" id="generateChecklistBtn">
+                    Generate QR Code
+                </a>
+
+                <!-- Add this script at the end of your HTML file or in a separate script section -->
+                <script>
+                    function generateChecklist() {
+                        // Get all selected checkboxes
+                        var checkboxes = document.querySelectorAll('input[name="assetCheckbox[]"]:checked');
+
+                        // Check if at least one checkbox is selected
+                        if (checkboxes.length > 0) {
+                            // Create an array to store selected asset IDs
+                            var selectedAssetIds = [];
+
+                            // Iterate through selected checkboxes and add asset IDs to the array
+                            checkboxes.forEach(function (checkbox) {
+                                var assetId = checkbox.value;
+                                selectedAssetIds.push(assetId);
+                            });
+
+                            // Construct the URL with selected asset IDs as query parameters
+                            var url = "{{ url('/asset/qr') }}?assetIds=" + selectedAssetIds.join(',');
+
+                            // Open a new tab with the generated URL
+                            window.open(url, '_blank');
+                        } else {
+                            alert("Please select at least one asset to generate a checklist.");
+                        }
+                    }
+
+    document.addEventListener('DOMContentLoaded', function () {
+        // Check All button
+        document.getElementById('checkAllBtn').addEventListener('click', function () {
+            var checkboxes = document.querySelectorAll('input[name="assetCheckbox[]"]');
+            checkboxes.forEach(function (checkbox) {
+                checkbox.checked = true;
+            });
+        });
+    });
+</script>
+
+
+
+
                           
                           <!-- Modal -->
                           <div class="modal fade" id="modal-add" tabindex="-1" aria-labelledby="modal-add-label" aria-hidden="true">
@@ -319,6 +370,7 @@
                     <th>Qty</th>
                     <th>Acquisition date</th>
                     <th>Location</th>
+                    <th>Status</th>
                     <th>Action</th>
                   </tr>
                   </thead>
@@ -328,12 +380,30 @@
                     @endphp
                     @foreach ($assetData as $data)
                     <tr>
-                        <td>{{ $no++ }}</td>
-                        <td>{{ $data->asset_no }}</td>
-                        <td>{{ $data->desc }}</td>
+
+                        <td>  
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" name="assetCheckbox[]" value="{{ $data->id }}">
+                                {{ $no++ }}
+
+                            </div>
+                        </td>
+                        <td><strong>{{ $data->asset_no }}</strong> <br> ({{$data->cost_center}}) </td>
+                        <td>{{ $data->desc }} <br>({{$data->dept}})</td>
                         <td>{{ $data->qty}} ( <small>{{$data->uom}}</small> ) </td>
                         <td>{{ date('d-M-Y', strtotime($data->acq_date)) }}</td>
                         <td>{{ $data->plant}} <br> ( <small>{{$data->loc}}</small> )</td>
+                        <td>@if($data->status == 1)
+                            <!-- Button for active status -->
+                            <a class="btn btn-success btn-sm" href="{{url("/asset/disposal/".encrypt($data->id))}}">
+                                <i class="fas fa-check"></i>
+                            </a>
+                        @else
+                            <!-- Button for disposal status -->
+                            <a class="btn btn-danger btn-sm" href="{{url("/asset/active/".encrypt($data->id))}}">
+                                <i class="fas fa-times"></i> 
+                            </a>
+                        @endif</td>
                         <td>
                             <button title="Edit Asset" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#modal-update{{ $data->id }}">
                                 <i class="fas fa-edit"></i>
@@ -458,7 +528,7 @@
                                 
                                         // Function to populate locations based on the selected plant
                                         function populateLocations(selectedPlant) {
-                                            locDropdown.innerHTML = '<option value="">- Please Select Location -</option>';
+                                            locDropdown.innerHTML = '<option value="{{$data->loc}}">{{$data->loc}}</option>';
                                             var locDetails = [
                                                 @foreach ($locDetail as $detail)
                                                     {
