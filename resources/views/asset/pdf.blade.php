@@ -16,7 +16,7 @@
 
         .plate {
             border: 2px solid #000;
-            width: 9cm;
+            width: 9cm; 
             height: 4cm;
             overflow: hidden;
         }
