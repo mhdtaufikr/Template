@@ -39,13 +39,13 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/asset/store', [AssetController::class,'store']);
     Route::patch('/asset/update/{id}', [AssetController::class,'update']);
     Route::get('/asset/detail/{id}', [AssetController::class, 'detail']);
-    Route::get('/asset/disposal/{id}', [AssetController::class,'disposal']);
-    Route::get('/asset/active/{id}', [AssetController::class,'active']);
+    Route::post('/asset/disposal/{id}', [AssetController::class,'disposal']);
+    Route::post('/asset/active/{id}', [AssetController::class,'active']);
     Route::post('/asset/detail/store', [AssetController::class,'detailStore']);
     Route::patch('/asset/detail/update/{id}', [AssetController::class,'detailUpdate']);
     Route::delete('/asset/detail/delete/{id}', [AssetController::class, 'detailDelete']);
-    Route::get('/asset/detail/disposal/{id_header}/{id}', [AssetController::class,'detailDisposal']);
-    Route::get('/asset/detail/active/{id_header}/{id}', [AssetController::class,'detailActive']);
+    Route::post('/asset/detail/disposal/{id_header}/{id}', [AssetController::class,'detailDisposal']);
+    Route::post('/asset/detail/active/{id_header}/{id}', [AssetController::class,'detailActive']);
     Route::get('/download/excel/format', [AssetController::class, 'excelFormat']);
     Route::post('/asset/import', [AssetController::class, 'excelData']);
     Route::get('/asset/qr', [AssetController::class,'generateQRCodesAndReturnPDF']);

@@ -13,10 +13,13 @@ use App\Models\LocDetail;
 use App\Models\CostCenter;
 use App\Exports\ExcelExport;
 use App\Imports\AssetImport;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Maatwebsite\Excel\Facades\Excel;
 use Illuminate\Support\Facades\DB;
 use Throwable;
-use PDF;
+use Illuminate\Support\Facades\File;
+
+
 
 class AssetController extends Controller
 {
@@ -204,18 +207,24 @@ class AssetController extends Controller
         return view('asset.detail', compact('assetHeaderData','assetDetailData','dropdownUom','assetCategory','locHeader','locDetail','dept'));
     }
 
-    public function disposal($id){
+    public function disposal(Request $request, $id){
         $id = decrypt($id);
-    
+        
         try {
             // Find the AssetHeader model by ID
             $assetHeader = AssetHeader::findOrFail($id);
     
             // Check if the status is already set to 0
             if ($assetHeader->status != 0) {
+                // Get the remark from the request
+                $remark = $request->input('remark');
+    
                 // Update the status attribute to 0
                 $assetHeader->status = 0;
                 
+                // Set the remark in the model
+                $assetHeader->remarks = $remark;
+    
                 // Save the AssetHeader
                 $assetHeader->save();
     
@@ -228,12 +237,14 @@ class AssetController extends Controller
                 return redirect()->back()->with('status', 'Asset is already disposed.');
             }
         } catch (\Exception $e) {
+            dd($e);
             // Handle any exception that may occur during the update
             return redirect()->back()->with('failed', 'Failed to dispose asset. Please try again.');
         }
     }
     
-    public function active($id){
+    
+    public function active(Request $request, $id){
         $id = decrypt($id);
     
         try {
@@ -242,6 +253,12 @@ class AssetController extends Controller
     
             // Check if the status is already set to 1
             if ($assetHeader->status != 1) {
+
+                $remark = $request->input('remark');
+
+                // Set the remark in the model
+                $assetHeader->remarks = $remark;
+
                 // Update the status attribute to 1
                 $assetHeader->status = 1;
                 
@@ -445,7 +462,7 @@ class AssetController extends Controller
         }
     }
 
-    public function detailDisposal($idHeader,$id){
+    public function detailDisposal(Request $request ,$idHeader,$id){
         $idHeader = decrypt($idHeader);
         $id = decrypt($id);
     
@@ -457,6 +474,8 @@ class AssetController extends Controller
             if ($assetDetail->status != 0) {
                 // Update the status attribute to 1
                 $assetDetail->status = 0;
+
+                $assetDetail->remarks = $request->remark;
     
                 // Save the AssetHeader
                 $assetDetail->save();
@@ -473,7 +492,7 @@ class AssetController extends Controller
         }
     }
 
-    public function detailActive($idHeader, $id)
+    public function detailActive(Request $request,$idHeader, $id)
     {
         $idHeader = decrypt($idHeader);
         $id = decrypt($id);
@@ -494,6 +513,8 @@ class AssetController extends Controller
             if ($assetDetail->status != 1) {
                 // Update the status attribute to 1
                 $assetDetail->status = 1;
+
+                $assetDetail->remarks = $request->remark;
 
                 // Save the AssetDetail
                 $assetDetail->save();
@@ -544,20 +565,29 @@ class AssetController extends Controller
         }
     }
 
-
-        public function generateQRCodesAndReturnPDF(Request $request)
-        {
-            $assetIds = explode(',', $request->input('assetIds'));
-
-            // Initialize the PDF
-            $pdf = PDF::loadView('asset.pdf', compact('assetIds'));
-
-            // Save the PDF (you may want to customize the storage path)
-            $pdfPath = public_path("pdfs/qr_codes.pdf");
-            $pdf->save($pdfPath);
-
-            return response()->file($pdfPath);
-        }
+    public function generateQRCodesAndReturnPDF(Request $request)
+    {
+        $assetIds = explode(',', $request->input('assetIds'));
+    
+        // Fetch asset information from the database
+        $assets = AssetHeader::whereIn('id', $assetIds)->get();
+    
+        // Initialize an array to store the data to be compacted
+        $data = [
+            'assetIds' => $assetIds,
+            'assets' => $assets,
+        ];
+        // Initialize the PDF
+        $pdf = Pdf::loadView('asset.pdf', $data);
+    
+        // Save the PDF (you may want to customize the storage path)
+        $pdfPath = public_path("pdfs/qr_codes.pdf");
+        $pdf->save($pdfPath);
+    
+        return response()->file($pdfPath);
+    }
+    
+    
 
     
 

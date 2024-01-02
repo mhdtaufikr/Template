@@ -29,6 +29,7 @@ class CreateAssetDetailsTable extends Migration
             $table->string('serial_no')->nullable();; // Varchar column for serial number
             $table->string('img')->nullable(); // Nullable Varchar column for image
             $table->string('status'); // Varchar column for status
+            $table->string('remarks')->nullable(); // Nullable Varchar column for remarks
             $table->decimal('bv_endofyear',15,0); // Integer column for book value at end of the year
             $table->timestamps(); // Created_at and updated_at columns
         });

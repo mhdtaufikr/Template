@@ -54,7 +54,7 @@
                             Import Assets 
                           </button>
                          <!-- Add this button before your table -->
-                        <button type="button" class="btn btn-secondary btn-sm mb-2" id="checkAllBtn">
+                        <button type="button" class="btn btn-success btn-sm mb-2" id="checkAllBtn">
                             Check All
                         </button>
 
@@ -90,21 +90,17 @@
                         }
                     }
 
-    document.addEventListener('DOMContentLoaded', function () {
-        // Check All button
-        document.getElementById('checkAllBtn').addEventListener('click', function () {
-            var checkboxes = document.querySelectorAll('input[name="assetCheckbox[]"]');
-            checkboxes.forEach(function (checkbox) {
-                checkbox.checked = true;
-            });
-        });
-    });
-</script>
-
-
-
-
-                          
+                        document.addEventListener('DOMContentLoaded', function () {
+                            // Check All button
+                            document.getElementById('checkAllBtn').addEventListener('click', function () {
+                                var checkboxes = document.querySelectorAll('input[name="assetCheckbox[]"]');
+                                checkboxes.forEach(function (checkbox) {
+                                    checkbox.checked = true;
+                                });
+                            });
+                        });
+                    </script>
+ 
                           <!-- Modal -->
                           <div class="modal fade" id="modal-add" tabindex="-1" aria-labelledby="modal-add-label" aria-hidden="true">
                             <div class="modal-dialog">
@@ -393,17 +389,58 @@
                         <td>{{ $data->qty}} ( <small>{{$data->uom}}</small> ) </td>
                         <td>{{ date('d-M-Y', strtotime($data->acq_date)) }}</td>
                         <td>{{ $data->plant}} <br> ( <small>{{$data->loc}}</small> )</td>
-                        <td>@if($data->status == 1)
-                            <!-- Button for active status -->
-                            <a class="btn btn-success btn-sm" href="{{url("/asset/disposal/".encrypt($data->id))}}">
-                                <i class="fas fa-check"></i>
-                            </a>
-                        @else
-                            <!-- Button for disposal status -->
-                            <a class="btn btn-danger btn-sm" href="{{url("/asset/active/".encrypt($data->id))}}">
-                                <i class="fas fa-times"></i> 
-                            </a>
-                        @endif</td>
+                        <td>
+
+                            @if($data->status == 1)
+                                <!-- Button for active status -->
+                                <button class="btn btn-success btn-sm" onclick="openRemarksModal('{{ url("/asset/disposal/".encrypt($data->id)) }}')">
+                                    <i class="fas fa-check"></i>
+                                </button>
+                            @else
+                                <!-- Button for disposal status -->
+                                <button class="btn btn-danger btn-sm" onclick="openRemarksModal('{{ url("/asset/active/".encrypt($data->id)) }}')">
+                                    <i class="fas fa-times"></i> 
+                                </button>
+                            @endif
+                             <!-- Modal for Remarks -->
+            <div class="modal fade" id="remarksModal" tabindex="-1" aria-labelledby="remarksModalLabel" aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="remarksModalLabel">Enter Remarks</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            <form id="remarksForm" method="POST">
+                                @csrf
+                                <div class="mb-3">
+                                    <label for="remark" class="form-label">Remark</label>
+                                    <textarea class="form-control" id="remark" name="remark" rows="3" required></textarea>
+                                </div>
+                            </form>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                            <button type="button" class="btn btn-primary" onclick="submitRemarksForm()">Submit</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <script>
+                function openRemarksModal(url) {
+                    $('#remarksModal').modal('show');
+                    // Set the form action to the specified URL
+                    $('#remarksForm').attr('action', url);
+                }
+            
+                function submitRemarksForm() {
+                    // Validate and submit the form
+                    if ($('#remarksForm')[0].checkValidity()) {
+                        $('#remarksForm').submit();
+                    }
+                }
+            </script>
+                            </td>
                         <td>
                             <button title="Edit Asset" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#modal-update{{ $data->id }}">
                                 <i class="fas fa-edit"></i>

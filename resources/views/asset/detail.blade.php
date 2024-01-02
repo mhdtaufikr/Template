@@ -42,19 +42,57 @@
             <div class="card-header text-dark">
                <h3>Asset Detail</h3>
                 <!-- Button to trigger the modal -->
-                @if($assetHeaderData->status == 1)
+            @if($assetHeaderData->status == 1)
                 <!-- Button for active status -->
-                <a class="btn btn-success btn-sm" href="{{url("/asset/disposal/".encrypt($assetHeaderData->id))}}">
-                     Active
-                </a>
+                <button class="btn btn-success btn-sm" onclick="openRemarksModal('{{ url("/asset/disposal/".encrypt($assetHeaderData->id)) }}')">
+                    Active
+                </button>
             @else
                 <!-- Button for disposal status -->
-                <a class="btn btn-danger btn-sm" href="{{url("/asset/active/".encrypt($assetHeaderData->id))}}">
+                <button class="btn btn-danger btn-sm" onclick="openRemarksModal('{{ url("/asset/active/".encrypt($assetHeaderData->id)) }}')">
                     <i class="fa-solid fa-x"></i> Disposal
-                </a>
+                </button>
             @endif
-            
 
+            <!-- Modal for Remarks -->
+            <div class="modal fade" id="remarksModal" tabindex="-1" aria-labelledby="remarksModalLabel" aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="remarksModalLabel">Enter Remarks</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            <form id="remarksForm" method="POST">
+                                @csrf
+                                <div class="mb-3">
+                                    <label for="remark" class="form-label">Remark</label>
+                                    <textarea class="form-control" id="remark" name="remark" rows="3" required></textarea>
+                                </div>
+                            </form>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                            <button type="button" class="btn btn-primary" onclick="submitRemarksForm()">Submit</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <script>
+                function openRemarksModal(url) {
+                    $('#remarksModal').modal('show');
+                    // Set the form action to the specified URL
+                    $('#remarksForm').attr('action', url);
+                }
+            
+                function submitRemarksForm() {
+                    // Validate and submit the form
+                    if ($('#remarksForm')[0].checkValidity()) {
+                        $('#remarksForm').submit();
+                    }
+                }
+            </script>
+            
             <!-- Modal -->
             <div class="modal fade" id="imageModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
                 <div class="modal-dialog">
@@ -473,17 +511,21 @@
                         <td>{{ $no++ }}</td>
                         <td>{{ $data->asset_no}} - {{$data->sub_asset}} </td>
                         <td>{{ date('d-M-Y', strtotime($data->date )) }}</td>
-                        <td>@if($data->status == 1)
+                        <td> <!-- Button for Active/Disposal status -->
+                            @if($data->status == 1)
                             <!-- Button for active status -->
-                            <a class="btn btn-success btn-sm" href="{{url("/asset/detail/disposal/".encrypt($assetHeaderData->id).'/'.encrypt($data->id))}}">
-                                 Active
-                            </a>
+                            <button class="btn btn-success btn-sm"
+                                    onclick="openRemarksModalDetail('{{$data->id}}', '{{ url("/asset/detail/disposal/".encrypt($assetHeaderData->id).'/'.encrypt($data->id)) }}')">
+                                Active
+                            </button>
                         @else
                             <!-- Button for disposal status -->
-                            <a class="btn btn-danger btn-sm" href="{{url("/asset/detail/active/".encrypt($assetHeaderData->id).'/'.encrypt($data->id))}}">
+                            <button class="btn btn-danger btn-sm"
+                                    onclick="openRemarksModalDetail('{{$data->id}}', '{{ url("/asset/detail/active/".encrypt($assetHeaderData->id).'/'.encrypt($data->id)) }}')">
                                 <i class="fa-solid fa-x"></i> Disposal
-                            </a>
-                        @endif</td>
+                            </button>
+                        @endif
+                        </td>
                         <td>
                             <button title="Edit Asset" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#modal-update{{ $data->id }}">
                                 <i class="fas fa-edit"></i>
@@ -496,6 +538,31 @@
                               </button>   
                         </td>
                     </tr>
+
+                     <!-- Modal for Remarks (Detail) -->
+                    <div class="modal fade" id="remarksModalDetail{{$data->id}}" tabindex="-1" aria-labelledby="remarksModalDetailLabel{{$data->id}}" aria-hidden="true">
+                        <div class="modal-dialog">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title" id="remarksModalLabel">Enter Remarks</h5>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                </div>
+                                <div class="modal-body">
+                                    <form id="remarksFormDetail{{$data->id}}" method="POST">
+                                        @csrf
+                                        <div class="mb-3">
+                                            <label for="remarkDetail{{$data->id}}" class="form-label">Remark</label>
+                                            <textarea class="form-control" id="remarkDetail{{$data->id}}" name="remark" rows="3" required></textarea>
+                                        </div>
+                                    </form>
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                    <button type="button" class="btn btn-primary" onclick="submitFormDetail('{{$data->id}}')">Submit</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
 
                     <!-- Modal -->
                     <div class="modal fade" id="modal-detail{{ $data->id }}" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
@@ -718,7 +785,7 @@
                             @method('delete')
                             <div class="modal-body">
                                 <div class="form-group">
-                                Are you sure you want to delete <label for="Dropdown">{{ $data->asset_no }} - {{$data->sub_asset}}</label>?
+                                Are you sure you want to delete <label >{{ $data->asset_no }} - {{$data->sub_asset}}</label>?
                                 </div>
                             </div>
                             <div class="modal-footer">
@@ -753,6 +820,22 @@
 
      
 </main>
+
+<script>
+    function openRemarksModalDetail(id, url) {
+        $('#remarksModalDetail' + id).modal('show');
+        // Set the form action to the specified URL
+        $('#remarksFormDetail' + id).attr('action', url);
+    }
+
+    function submitFormDetail(id) {
+        // Validate and submit the form
+        if ($('#remarksFormDetail' + id)[0].checkValidity()) {
+            $('#remarksFormDetail' + id).submit();
+        }
+    }
+</script>
+
 <!-- For Datatables -->
 <script>
     $(document).ready(function() {
