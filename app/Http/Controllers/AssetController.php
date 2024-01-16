@@ -18,22 +18,33 @@ use Maatwebsite\Excel\Facades\Excel;
 use Illuminate\Support\Facades\DB;
 use Throwable;
 use Illuminate\Support\Facades\File;
+use App\Exports\ExcelExportDetail;
+use App\Imports\AssetDetailImport;
 
 
 
 class AssetController extends Controller
 {
     public function index(){
-        $assetData = AssetHeader::get();
+        $assetData = AssetHeader::with('details')->get();
         $dropdownUom = Dropdown::where('category','UOM')->get();
         $assetCategory = AssetCategory::get();
         $dept = Department::get();
         $locHeader = LocHeader::get();
         $locDetail = LocDetail::get();
         $costCenter = CostCenter::get();
-
-        return view("asset.main",compact("assetData","dropdownUom","assetCategory","dept","locHeader","locDetail","costCenter"));
+        $status = Dropdown::where('category','Status')->get();
+    
+        return view("asset.main", compact("assetData", "dropdownUom", "assetCategory", "dept", "locHeader", "locDetail", "costCenter",'status'));
     }
+
+    // AssetHeader model
+    public function details()
+    {
+        return $this->hasMany(AssetDetail::class, 'asset_header_id');
+    }
+
+    
 
     public function store(Request $request)
     {
@@ -197,6 +208,7 @@ class AssetController extends Controller
     public function detail($id){
         $id = decrypt($id);
 
+        $status = Dropdown::where('category','Status')->get();
         $assetHeaderData = AssetHeader::where('id', $id)->first();
         $assetDetailData = AssetDetail::where('asset_header_id', $id)->get();
         $dropdownUom = Dropdown::where('category','UOM')->get();
@@ -204,80 +216,43 @@ class AssetController extends Controller
         $locHeader = LocHeader::get();
         $locDetail = LocDetail::get();
         $dept = Department::get();
-        return view('asset.detail', compact('assetHeaderData','assetDetailData','dropdownUom','assetCategory','locHeader','locDetail','dept'));
+        return view('asset.detail', compact('assetHeaderData','assetDetailData','dropdownUom','assetCategory','locHeader','locDetail','dept','status'));
     }
 
-    public function disposal(Request $request, $id){
+    public function status(Request $request, $id){
         $id = decrypt($id);
         
         try {
             // Find the AssetHeader model by ID
             $assetHeader = AssetHeader::findOrFail($id);
     
-            // Check if the status is already set to 0
-            if ($assetHeader->status != 0) {
-                // Get the remark from the request
-                $remark = $request->input('remark');
+            // Get the status and remark from the request
+            $status = $request->input('status');
+            $remark = $request->input('remark');
     
-                // Update the status attribute to 0
-                $assetHeader->status = 0;
-                
-                // Set the remark in the model
-                $assetHeader->remarks = $remark;
+            // Update the status attribute
+            $assetHeader->status = $status;
     
-                // Save the AssetHeader
-                $assetHeader->save();
+            // Set the remark in the model
+            $assetHeader->remarks = $remark;
     
-                // Update status in associated AssetDetails
-                AssetDetail::where('asset_header_id', $id)->update(['status' => 0]);
+            // Save the AssetHeader
+            $assetHeader->save();
     
-                return redirect()->back()->with('status', 'Asset disposed successfully');
-            } else {
-                // Status is already 0, no update needed
-                return redirect()->back()->with('status', 'Asset is already disposed.');
-            }
+            // Update status in associated AssetDetails
+            AssetDetail::where('asset_header_id', $id)->update(['status' => $status]);
+    
+            $statusText = ($status == 1) ? 'Active' : (($status == 0) ? 'Deactive' : 'Disposal');
+    
+            return redirect()->back()->with('status', "Asset $statusText updated successfully");
         } catch (\Exception $e) {
-            dd($e);
             // Handle any exception that may occur during the update
-            return redirect()->back()->with('failed', 'Failed to dispose asset. Please try again.');
+            return redirect()->back()->with('failed', 'Failed to update asset status. Please try again.');
         }
     }
     
-    
-    public function active(Request $request, $id){
-        $id = decrypt($id);
-    
-        try {
-            // Find the AssetHeader model by ID
-            $assetHeader = AssetHeader::findOrFail($id);
-    
-            // Check if the status is already set to 1
-            if ($assetHeader->status != 1) {
 
-                $remark = $request->input('remark');
-
-                // Set the remark in the model
-                $assetHeader->remarks = $remark;
-
-                // Update the status attribute to 1
-                $assetHeader->status = 1;
-                
-                // Save the AssetHeader
-                $assetHeader->save();
     
-                // Update status in associated AssetDetails
-                AssetDetail::where('asset_header_id', $id)->update(['status' => 1]);
-    
-                return redirect()->back()->with('status', 'Asset activated successfully');
-            } else {
-                // Status is already 1, no update needed
-                return redirect()->back()->with('status', 'Asset is already active.');
-            }
-        } catch (\Exception $e) {
-            // Handle any exception that may occur during the update
-            return redirect()->back()->with('failed', 'Failed to activate asset. Please try again.');
-        }
-    }
     
 
     public function detailStore(Request $request){
@@ -462,80 +437,79 @@ class AssetController extends Controller
         }
     }
 
-    public function detailDisposal(Request $request ,$idHeader,$id){
+    public function statusDetail(Request $request, $idHeader, $id){
         $idHeader = decrypt($idHeader);
         $id = decrypt($id);
     
-        try {
-            // Find the AssetHeader model by ID
-            $assetDetail = AssetDetail::findOrFail($id);
-    
-            // Check if the status is already set to 1
-            if ($assetDetail->status != 0) {
-                // Update the status attribute to 1
-                $assetDetail->status = 0;
-
-                $assetDetail->remarks = $request->remark;
-    
-                // Save the AssetHeader
-                $assetDetail->save();
-    
-                return redirect()->back()->with('status', 'Asset Detail disposed successfully');
-            } else {
-                // Status is already 1, no update needed
-                return redirect()->back()->with('status', 'Asset Detail is already disposed.');
-            }
-        } catch (\Exception $e) {
-            dd($e);
-            // Handle any exception that may occur during the update
-            return redirect()->back()->with('failed', 'Failed to activate asset. Please try again.');
-        }
-    }
-
-    public function detailActive(Request $request,$idHeader, $id)
-    {
-        $idHeader = decrypt($idHeader);
-        $id = decrypt($id);
-
         try {
             // Find the AssetDetail model by ID
             $assetDetail = AssetDetail::findOrFail($id);
-
-            // Find the related AssetHeader model by ID
-            $assetHeader = AssetHeader::findOrFail($idHeader);
-
-            // Check if the AssetHeader status is 0 (disposed)
-            if ($assetHeader->status == 0) {
-                return redirect()->back()->with('failed', 'Cannot activate Asset Detail. The corresponding Asset is disposed.');
-            }
-
-            // Check if the status is already set to 1
-            if ($assetDetail->status != 1) {
-                // Update the status attribute to 1
-                $assetDetail->status = 1;
-
-                $assetDetail->remarks = $request->remark;
-
+    
+            // Get the status and remark from the request
+            $status = $request->input('status');
+            $remark = $request->input('remark');
+    
+            // Check if the status is different from the current status
+            if ($assetDetail->status != $status) {
+                // Update the status attribute
+                $assetDetail->status = $status;
+    
+                // Set the remark in the model
+                $assetDetail->remarks = $remark;
+    
                 // Save the AssetDetail
                 $assetDetail->save();
-
-                return redirect()->back()->with('status', 'Asset Detail activated successfully');
+    
+                $statusText = ($status == 1) ? 'Active' : (($status == 0) ? 'Deactive' : 'Disposal');
+                return redirect()->back()->with('status', "Asset Detail $statusText updated successfully");
             } else {
-                // Status is already 1, no update needed
-                return redirect()->back()->with('status', 'Asset Detail is already active.');
+                // Status is the same, no update needed
+                $statusText = ($status == 1) ? 'Active' : (($status == 0) ? 'Deactive' : 'Disposal');
+                return redirect()->back()->with('status', "Asset Detail is already $statusText.");
             }
         } catch (\Exception $e) {
-            dd($e);
             // Handle any exception that may occur during the update
-            return redirect()->back()->with('failed', 'Failed to activate Asset Detail. Please try again.');
+            return redirect()->back()->with('failed', 'Failed to update asset detail status. Please try again.');
         }
-}
+    }
+    
     public function excelFormat()
     {
         return Excel::download(new ExcelExport, 'Format.xlsx');
     }
 
+    public function excelFormatDetail()
+    {
+        return Excel::download(new ExcelExportDetail, 'Format.xlsx');
+    }
 
+    public function excelDataDetail(Request $request, $id){
+        $request->validate([
+            'excel-file' => 'required|file|mimes:xlsx',
+        ]);
+    
+        try {
+            // Start a database transaction
+            DB::beginTransaction();
+    
+            // Import data using AssetDetailImport class
+            Excel::import(new AssetDetailImport($id), $request->file('excel-file'));
+    
+            // If everything is successful, commit the transaction
+            DB::commit();
+    
+            return redirect()->back()->with('status', 'Assets imported successfully');
+        } catch (Throwable $e) {
+            dd($e);
+            // If an error occurs, rollback the transaction
+            DB::rollBack();
+    
+            // Log or handle the error as needed
+            // You can also use $e->getMessage() to get the error message
+    
+            return redirect()->back()->with('failed', 'Error importing assets. Please check the data format.');
+        }
+    }
 
     public function excelData(Request $request)
     {
@@ -586,10 +560,93 @@ class AssetController extends Controller
     
         return response()->file($pdfPath);
     }
-    
-    
 
-    
+    public function assetPublic($id){
+        $id = decrypt($id);
 
+        $assetHeaderData = AssetHeader::where('id', $id)->first();
+        $assetDetailData = AssetDetail::where('asset_header_id', $id)->get();
+        $dropdownUom = Dropdown::where('category','UOM')->get();
+        $assetCategory = AssetCategory::get();
+        $locHeader = LocHeader::get();
+        $locDetail = LocDetail::get();
+        $dept = Department::get();
+        return view('public.asset', compact('assetHeaderData','assetDetailData','dropdownUom','assetCategory','locHeader','locDetail','dept'));
+
+    }
+
+    public function searchBy(Request $request){
+        // Debugging line to display the form data
+        // dd($request->all()); // Comment out or remove this line
+    
+        // Retrieving data for dropdowns
+        $dropdownUom = Dropdown::where('category','UOM')->get();
+        $assetCategory = AssetCategory::get();
+        $dept = Department::get();
+        $locHeader = LocHeader::get();
+        $locDetail = LocDetail::get();
+        $costCenter = CostCenter::get();
+    
+        // Retrieving selected search criteria
+        $searchBy = $request->input('searchBy');
+    
+        // Additional variables for department and loc_detail_id
+        $departmentId = $request->input('department');
+        $locHeaderId = $request->input('destination');
+        $locDetailId = $request->input('location'); // assuming you have a form input for locDetail
+    
+        // Initializing $assetData
+        $assetData = null;
+    
+        // Additional variables to store the names
+        $locHeaderName = null;
+        $locDetailName = null;
+    
+        // Querying names based on IDs
+        if ($locHeaderId) {
+            $locHeaderName = LocHeader::find($locHeaderId)->name;
+        }
+    
+        if ($locDetailId) {
+            $locDetailName = LocDetail::find($locDetailId)->name;
+        }
+        // Switch statement to handle different search criteria
+        switch ($searchBy) {
+           
+            case 'assetNo':
+                $assetData = AssetHeader::where('asset_no', $request->input('assetNo'))->get();
+                break;
+    
+            case 'destination':
+                // Search by loc_header_id and loc_detail_id if provided
+                $assetData = AssetHeader::where('plant', $locHeaderName);
+                if ($locDetailId) {
+                    $assetData->where('loc', $locDetailName);
+                }
+    
+                $assetData = $assetData->get();
+               
+                break;
+    
+            case 'department':
+                // Search by department
+                $assetData = AssetHeader::where('dept', $departmentId)->get();
+                break;
+    
+            case 'dateRange':
+                $startDate = $request->input('startDate');
+                $endDate = $request->input('endDate');
+    
+                $assetData = AssetHeader::whereBetween('acq_date', [$startDate, $endDate])->get();
+                break;
+    
+            default:
+                break;
+        }
+    
+        // Returning the view with the retrieved data and names
+        return view("asset.main", compact("assetData", "dropdownUom", "assetCategory", "dept", "locHeader", "locDetail", "costCenter", "locHeaderName", "locDetailName"));
+    }
+    
   
 }

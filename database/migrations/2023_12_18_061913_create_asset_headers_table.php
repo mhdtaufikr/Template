@@ -22,17 +22,18 @@ class CreateAssetHeadersTable extends Migration
             $table->string('asset_type'); // Varchar column for asset type
             $table->date('acq_date'); // Date column for acquisition date
             $table->decimal('acq_cost', 15, 0); // Integer column for acquisition cost
-            $table->string('po_no')->nullable(); // Varchar column for purchase order number
-            $table->string('serial_no')->nullable(); // Varchar column for serial number
+            $table->string('po_no')->nullable(); // Nullable Varchar column for purchase order number
+            $table->string('serial_no')->nullable(); // Nullable Varchar column for serial number
             $table->string('dept'); // Varchar column for department
             $table->string('plant'); // Varchar column for plant
             $table->string('loc'); // Varchar column for location
             $table->string('cost_center'); // Varchar column for cost center
             $table->string('flag')->nullable(); // Nullable Varchar column for flag
+            $table->string('segment'); // Nullable Varchar column for segment
             $table->string('img')->nullable(); // Nullable Varchar column for image
             $table->string('status'); // Varchar column for status
             $table->string('remarks')->nullable(); // Nullable Varchar column for remarks
-            $table->decimal('bv_endofyear', 15, 0); // Integer column for book value at end of the year
+            $table->decimal('bv_endofyear', 15, 0); // Integer column for book value at the end of the year
             $table->timestamps(); // Created_at and updated_at columns
         });
     }

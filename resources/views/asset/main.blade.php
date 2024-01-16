@@ -46,6 +46,108 @@
               <!-- /.card-header -->
               <div class="card-body">
                 <div class="row">
+                    <div class="col-sm-4 mb-4">
+                        <form action="/asset/search" method="GET">
+                            <div class="input-group input-group-sm">
+                                <select class="form-control" name="searchBy" id="searchBy" onchange="toggleSearchInputs()">
+                                    <option value="">Search By</option>
+                                    <option value="assetNo">Asset No</option>
+                                    <option value="destination">Location</option>
+                                    <option value="department">Department</option>
+                                    <option value="dateRange">Date Range</option>
+                                </select>
+                    
+                                <input name="assetNo" type="text" class="form-control" id="searchAssetNo" placeholder="Enter Asset No" style="display: none;">
+                    
+                                <select name="destination" class="form-control" id="searchDestination" style="display: none;">
+                                    <option value="">Select Plant</option>
+                                    @foreach ($locHeader as $item)
+                                        <option value="{{$item->id}}">{{$item->name}}</option>
+                                    @endforeach
+                                </select>
+                    
+                                <select name="department" class="form-control" id="searchdepartment" style="display: none;">
+                                    <option value="">Select Department</option>
+                                    @foreach ($dept as $item)
+                                        <option value="{{$item->dept}}">{{$item->dept}}</option>
+                                    @endforeach
+                                </select>
+                    
+                                <select name="location" class="form-control" id="searchlocation" style="display: none;">
+                                    <option value="">Select Location</option>
+                                    <!-- Options will be dynamically populated using jQuery -->
+                                </select>
+                    
+                                <input name="startDate" type="date" class="form-control" id="startDate" style="display: none;">
+                                <input name="endDate" type="date" class="form-control" id="endDate" style="display: none;">
+                    
+                                <button class="btn btn-dark btn-sm" type="submit">Search</button>
+                            </div>
+                        </form>
+                    </div>
+                    
+                    <script>
+                        function toggleSearchInputs() {
+                            var searchBy = $('#searchBy').val();
+                            var searchAssetNo = $('#searchAssetNo');
+                            var searchDestination = $('#searchDestination');
+                            var searchStartDate = $('#startDate');
+                            var searchEndDate = $('#endDate');
+                            var searchDepartment = $('#searchdepartment');
+                            var searchLocation = $('#searchlocation');
+                    
+                            // Hide all input fields
+                            searchAssetNo.hide();
+                            searchDestination.hide();
+                            searchStartDate.hide();
+                            searchEndDate.hide();
+                            searchDepartment.hide();
+                            searchLocation.hide();
+                    
+                            // Show the selected input field based on searchBy value
+                            if (searchBy === 'assetNo') {
+                                searchAssetNo.show();
+                            } else if (searchBy === 'destination') {
+                                searchDestination.show();
+                            } else if (searchBy === 'dateRange') {
+                                searchStartDate.show();
+                                searchEndDate.show();
+                            } else if (searchBy === 'department') {
+                                searchDepartment.show();
+                            } else if (searchBy === 'location') {
+                                // Display the plant dropdown immediately
+                                searchLocation.show();
+                            }
+                        }
+                    
+                        // Add an event listener to dynamically populate locDetailDropdown
+                        $('#searchDestination').change(function() {
+                            var locHeaderId = $(this).val();
+                            var locDetailDropdown = $('#searchlocation');
+                    
+                            // Fetch loc_details based on loc_header selection using Laravel AJAX or other methods
+                            // Update locDetailDropdown options dynamically
+                            // For simplicity, let's assume you have the locDetails data available in a JavaScript variable
+                    
+                            var locDetailsData = {!! json_encode($locDetail->toArray()) !!}; // Convert PHP array to JavaScript variable
+                    
+                            // Clear existing options
+                            locDetailDropdown.empty().append('<option value="">Select Location</option>');
+                    
+                            // Populate locDetailDropdown with options based on locHeaderId
+                            $.each(locDetailsData, function(index, item) {
+                                if (item.loc_header_id == locHeaderId) {
+                                    locDetailDropdown.append('<option value="' + item.id + '">' + item.name + '</option>');
+                                }
+                            });
+                    
+                            // Show locDetailDropdown
+                            locDetailDropdown.show();
+                        });
+                    </script>
+                    
+                    
+                    
                     <div class="mb-3 col-sm-12">
                         <button  title="Add Asset" type="button" class="btn btn-dark btn-sm mb-2" data-bs-toggle="modal" data-bs-target="#modal-add">
                             <i class="fas fa-plus-square"></i> 
@@ -53,53 +155,15 @@
                           <button  title="Import Asset" type="button" class="btn btn-info btn-sm mb-2" data-bs-toggle="modal" data-bs-target="#modal-import">
                             Import Assets 
                           </button>
-                         <!-- Add this button before your table -->
-                        <button type="button" class="btn btn-success btn-sm mb-2" id="checkAllBtn">
-                            Check All
-                        </button>
+                         <!-- Add this checkbox before your table -->
+                       
 
                 <!-- Button to generate checklist -->
                 <a title="Generate Checklist" class="btn btn-primary btn-sm mb-2" href="#" onclick="generateChecklist(); return false;" id="generateChecklistBtn">
                     Generate QR Code
                 </a>
 
-                <!-- Add this script at the end of your HTML file or in a separate script section -->
-                <script>
-                    function generateChecklist() {
-                        // Get all selected checkboxes
-                        var checkboxes = document.querySelectorAll('input[name="assetCheckbox[]"]:checked');
-
-                        // Check if at least one checkbox is selected
-                        if (checkboxes.length > 0) {
-                            // Create an array to store selected asset IDs
-                            var selectedAssetIds = [];
-
-                            // Iterate through selected checkboxes and add asset IDs to the array
-                            checkboxes.forEach(function (checkbox) {
-                                var assetId = checkbox.value;
-                                selectedAssetIds.push(assetId);
-                            });
-
-                            // Construct the URL with selected asset IDs as query parameters
-                            var url = "{{ url('/asset/qr') }}?assetIds=" + selectedAssetIds.join(',');
-
-                            // Open a new tab with the generated URL
-                            window.open(url, '_blank');
-                        } else {
-                            alert("Please select at least one asset to generate a checklist.");
-                        }
-                    }
-
-                        document.addEventListener('DOMContentLoaded', function () {
-                            // Check All button
-                            document.getElementById('checkAllBtn').addEventListener('click', function () {
-                                var checkboxes = document.querySelectorAll('input[name="assetCheckbox[]"]');
-                                checkboxes.forEach(function (checkbox) {
-                                    checkbox.checked = true;
-                                });
-                            });
-                        });
-                    </script>
+               
  
                           <!-- Modal -->
                           <div class="modal fade" id="modal-add" tabindex="-1" aria-labelledby="modal-add-label" aria-hidden="true">
@@ -360,12 +424,13 @@
                 <table id="tableUser" class="table table-bordered table-striped">
                   <thead>
                   <tr>
-                    <th>No</th>
+                    <th> <input type="checkbox"  id="checkAllBtn">  </th>
                     <th>Asset No</th>
                     <th>Desc.</th>
                     <th>Qty</th>
                     <th>Acquisition date</th>
                     <th>Location</th>
+                    <th>Sub-Asset</th>
                     <th>Status</th>
                     <th>Action</th>
                   </tr>
@@ -378,68 +443,78 @@
                     <tr>
 
                         <td>  
-                            <div class="form-check">
-                                <input class="form-check-input" type="checkbox" name="assetCheckbox[]" value="{{ $data->id }}">
-                                {{ $no++ }}
-
-                            </div>
+                            <input class="form-check-input" type="checkbox" name="assetCheckbox[]" value="{{ $data->id }}">
                         </td>
-                        <td><strong>{{ $data->asset_no }}</strong> <br> ({{$data->cost_center}}) </td>
-                        <td>{{ $data->desc }} <br>({{$data->dept}})</td>
+                        <td><strong>{{ $data->asset_no }}</strong></td>
+                        <td>{{ $data->desc }} </td>
                         <td>{{ $data->qty}} ( <small>{{$data->uom}}</small> ) </td>
                         <td>{{ date('d-M-Y', strtotime($data->acq_date)) }}</td>
                         <td>{{ $data->plant}} <br> ( <small>{{$data->loc}}</small> )</td>
                         <td>
+                            <button class="btn btn-danger btn-sm details-btn" data-bs-toggle="modal" data-bs-target="#detailsModal{{ $data->id }}">
+                                BOM
+                            </button>
+                        </td>
+                        <td>
 
-                            @if($data->status == 1)
-                                <!-- Button for active status -->
-                                <button class="btn btn-success btn-sm" onclick="openRemarksModal('{{ url("/asset/disposal/".encrypt($data->id)) }}')">
-                                    <i class="fas fa-check"></i>
-                                </button>
-                            @else
-                                <!-- Button for disposal status -->
-                                <button class="btn btn-danger btn-sm" onclick="openRemarksModal('{{ url("/asset/active/".encrypt($data->id)) }}')">
-                                    <i class="fas fa-times"></i> 
-                                </button>
-                            @endif
-                             <!-- Modal for Remarks -->
-            <div class="modal fade" id="remarksModal" tabindex="-1" aria-labelledby="remarksModalLabel" aria-hidden="true">
-                <div class="modal-dialog">
-                    <div class="modal-content">
-                        <div class="modal-header">
-                            <h5 class="modal-title" id="remarksModalLabel">Enter Remarks</h5>
-                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                        </div>
-                        <div class="modal-body">
-                            <form id="remarksForm" method="POST">
-                                @csrf
-                                <div class="mb-3">
-                                    <label for="remark" class="form-label">Remark</label>
-                                    <textarea class="form-control" id="remark" name="remark" rows="3" required></textarea>
+                            @php
+                                $statusColor = ($data->status == 1) ? 'btn-success' : (($data->status == 0) ? 'btn-warning' : 'btn-danger');
+                                $statusText = ($data->status == 1) ? 'Active' : (($data->status == 0) ? 'Deactive' : 'Disposal');
+                            @endphp
+
+                            <button class="btn btn-sm {{ $statusColor }}" onclick="openRemarksModal('{{ url("/asset/status/".encrypt($data->id)) }}', {{ $data->status }})">
+                               {{ $statusText }}
+                            </button>
+
+                            <!-- Modal for Remarks -->
+                                <div class="modal fade" id="remarksModal" tabindex="-1" aria-labelledby="remarksModalLabel" aria-hidden="true">
+                                    <div class="modal-dialog">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                                <h5 class="modal-title" id="remarksModalLabel">Update Status and Enter Remarks</h5>
+                                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                            </div>
+                                            <div class="modal-body">
+                                                <form id="remarksForm" method="POST">
+                                                    @csrf
+                                                    <div class="mb-3">
+                                                        <label for="status" class="form-label">Status</label>
+                                                        <select class="form-select" id="status" name="status" required>
+                                                            @foreach ($status as $item)
+                                                            <option value="{{$item->code_format}}">{{$item->name_value}}</option>
+                                                            @endforeach
+                                                        </select>
+                                                    </div>
+                                                    <div class="mb-3">
+                                                        <label for="remark" class="form-label">Remark</label>
+                                                        <textarea class="form-control" id="remark" name="remark" rows="3" required></textarea>
+                                                    </div>
+                                                </form>
+                                            </div>
+                                            <div class="modal-footer">
+                                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                                <button type="button" class="btn btn-primary" onclick="submitRemarksForm()">Submit</button>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
-                            </form>
-                        </div>
-                        <div class="modal-footer">
-                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                            <button type="button" class="btn btn-primary" onclick="submitRemarksForm()">Submit</button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <script>
-                function openRemarksModal(url) {
-                    $('#remarksModal').modal('show');
-                    // Set the form action to the specified URL
-                    $('#remarksForm').attr('action', url);
-                }
-            
-                function submitRemarksForm() {
-                    // Validate and submit the form
-                    if ($('#remarksForm')[0].checkValidity()) {
-                        $('#remarksForm').submit();
-                    }
-                }
-            </script>
+
+                                <script>
+                                    function openRemarksModal(url, status) {
+                                        $('#remarksModal').modal('show');
+                                        // Set the form action to the specified URL
+                                        $('#remarksForm').attr('action', url);
+                                        // Set the initial value for the status dropdown
+                                        $('#status').val(status);
+                                    }
+
+                                    function submitRemarksForm() {
+                                        // Validate and submit the form
+                                        if ($('#remarksForm')[0].checkValidity()) {
+                                            $('#remarksForm').submit();
+                                        }
+                                    }
+                                </script>
                             </td>
                         <td>
                             <button title="Edit Asset" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#modal-update{{ $data->id }}">
@@ -453,6 +528,10 @@
                               </button>   
                         </td>
                     </tr>
+                   
+
+
+
 
                     {{-- Modal Update --}}
                     <div class="modal fade" id="modal-update{{ $data->id }}" tabindex="-1" aria-labelledby="modal-update{{ $data->id }}-label" aria-hidden="true">
@@ -683,6 +762,47 @@
                     @endforeach
                   </tbody>
                 </table>
+                @foreach ($assetData as $data)
+                    <!-- Modal for details -->
+                    <div class="modal fade" id="detailsModal{{ $data->id }}" tabindex="-1" aria-labelledby="detailsModalLabel{{ $data->id }}" aria-hidden="true">
+                        <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-lg">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title" id="detailsModalLabel{{ $data->id }}">Details</h5>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                </div>
+                                <div class="modal-body">
+                                    <table id='detail{{ $data->id }}' class="table">
+                                        <thead>
+                                            <tr>
+                                                <th>Asset No</th>
+                                                <th>Description</th>
+                                                <th>Qty</th>
+                                                <th>Acquisition date</th>
+                                                <!-- Add more columns based on your AssetDetail model -->
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @foreach ($data->details as $detail)
+                                                <tr>
+                                                    <td>{{ $detail->asset_no }} - {{ $detail->sub_asset }}</td>
+                                                    <td>{{ $detail->desc }}</td>
+                                                    <td>{{ $detail->qty }} ({{ $detail->uom }})</td>
+                                                    <td>{{ date('d-M-Y', strtotime($detail->acq_date)) }}</td>
+                                                    <!-- Add more cells based on your AssetDetail model -->
+                                                </tr>
+                                            @endforeach
+                                        </tbody>
+                                    </table>
+                                </div>
+                                <div class="modal-footer">
+                                    <!-- You can add footer buttons or additional content here -->
+                                    <!-- Example: <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button> -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                @endforeach
               </div>
               </div>
               <!-- /.card-body -->
@@ -704,13 +824,77 @@
 </main>
 <!-- For Datatables -->
 <script>
-    $(document).ready(function() {
-      var table = $("#tableUser").DataTable({
-        "responsive": true, 
-        "lengthChange": false, 
-        "autoWidth": false,
-        // "buttons": ["copy", "csv", "excel", "pdf", "print", "colvis"]
-      });
-    });
+  $(document).ready(function () {
+                      var table = $("#tableUser").DataTable({
+                          "responsive": false,
+                          "lengthChange": false,
+                          "autoWidth": false,
+                          "order": [],
+                          "dom": 'Bfrtip',
+                          "buttons": [{
+                              title: 'Asset Management',
+                              text: '<i class="fas fa-file-excel"></i> Export to Excel',
+                              extend: 'excel',
+                              className: 'btn btn-success btn-sm mb-2'
+                          }]
+                      });
+                  });
   </script>
+    <script>
+        $(document).ready(function () {
+            // Use a class selector to initialize DataTable on all tables
+            $(".table").DataTable({
+                "responsive": false,
+                "lengthChange": false,
+                "autoWidth": false,
+                "order": [],
+                "dom": 'Bfrtip',
+                "bDestroy": true,
+                "buttons": [{
+                    title: 'Asset Management',
+                    text: '<i class="fas fa-file-excel"></i> Export to Excel',
+                    extend: 'excel',
+                    className: 'btn btn-success btn-sm mb-2'
+                }]
+            });
+        });
+    </script>
+    <!-- Add this script at the end of your HTML file or in a separate script section -->
+ <script>
+    function generateChecklist() {
+        // Get all selected checkboxes
+        var checkboxes = document.querySelectorAll('input[name="assetCheckbox[]"]:checked');
+
+        // Check if at least one checkbox is selected
+        if (checkboxes.length > 0) {
+            // Create an array to store selected asset IDs
+            var selectedAssetIds = [];
+
+            // Iterate through selected checkboxes and add asset IDs to the array
+            checkboxes.forEach(function (checkbox) {
+                var assetId = checkbox.value;
+                selectedAssetIds.push(assetId);
+            });
+
+            // Construct the URL with selected asset IDs as query parameters
+            var url = "{{ url('/asset/qr') }}?assetIds=" + selectedAssetIds.join(',');
+
+            // Open a new tab with the generated URL
+            window.open(url, '_blank');
+        } else {
+            alert("Please select at least one asset to generate a checklist.");
+        }
+    }
+
+    document.addEventListener('DOMContentLoaded', function () {
+    // Check All checkbox
+    document.getElementById('checkAllBtn').addEventListener('change', function () {
+        var checkboxes = document.querySelectorAll('input[name="assetCheckbox[]"]');
+        checkboxes.forEach(function (checkbox) {
+            checkbox.checked = document.getElementById('checkAllBtn').checked;
+        });
+    });
+});
+    </script>
+
 @endsection

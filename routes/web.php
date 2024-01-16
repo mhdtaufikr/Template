@@ -30,6 +30,9 @@ Route::get('/', [AuthController::class, 'login'])->name('login');
 Route::post('/auth/login', [AuthController::class, 'postLogin']);
 Route::get('/logout', [AuthController::class, 'logout']);
 
+//public Detail
+Route::get('mkm/{id}', [AssetController::class,'assetPublic']);
+
 Route::middleware(['auth'])->group(function () {
     //Home Controller
     Route::get('/home', [HomeController::class, 'index']);
@@ -39,16 +42,17 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/asset/store', [AssetController::class,'store']);
     Route::patch('/asset/update/{id}', [AssetController::class,'update']);
     Route::get('/asset/detail/{id}', [AssetController::class, 'detail']);
-    Route::post('/asset/disposal/{id}', [AssetController::class,'disposal']);
-    Route::post('/asset/active/{id}', [AssetController::class,'active']);
+    Route::post('/asset/status/{id}', [AssetController::class,'status']);
     Route::post('/asset/detail/store', [AssetController::class,'detailStore']);
     Route::patch('/asset/detail/update/{id}', [AssetController::class,'detailUpdate']);
     Route::delete('/asset/detail/delete/{id}', [AssetController::class, 'detailDelete']);
-    Route::post('/asset/detail/disposal/{id_header}/{id}', [AssetController::class,'detailDisposal']);
-    Route::post('/asset/detail/active/{id_header}/{id}', [AssetController::class,'detailActive']);
+    Route::post('/asset/status/detail/{id_header}/{id}', [AssetController::class,'statusDetail']);
     Route::get('/download/excel/format', [AssetController::class, 'excelFormat']);
+    Route::get('/download/excel/format/detail', [AssetController::class, 'excelFormatDetail']);
     Route::post('/asset/import', [AssetController::class, 'excelData']);
     Route::get('/asset/qr', [AssetController::class,'generateQRCodesAndReturnPDF']);
+    route::get('/asset/search', [AssetController::class,'searchBy']);
+    Route::post('/asset/detail/import/{id}', [AssetController::class, 'excelDataDetail']);
 
     
 
