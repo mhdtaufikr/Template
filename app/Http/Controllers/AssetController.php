@@ -20,6 +20,7 @@ use Throwable;
 use Illuminate\Support\Facades\File;
 use App\Exports\ExcelExportDetail;
 use App\Imports\AssetDetailImport;
+use Illuminate\Support\Facades\View;
 
 
 
@@ -561,8 +562,30 @@ class AssetController extends Controller
         return response()->file($pdfPath);
     }
 
+    public function generateQRCodesDetailAndReturnPDF($id, Request $request)
+{
+    $assetIds = explode(',', $request->input('assetIds'));
+
+    // Fetch asset information from the database
+    $assets = AssetDetail::whereIn('id', $assetIds)->where('asset_header_id', $id)->get();
+
+    // Initialize an array to store the data to be compacted
+    $data = [
+        'assetIds' => $assetIds,
+        'assets' => $assets,
+    ];
+
+    // Use the existing PDF view for details
+    $pdf = Pdf::loadView('asset.qr_codes_detail',$data);
+
+    // Save the PDF (you may want to customize the storage path)
+    $pdfPath = public_path("pdfs/qr_codes_detail.pdf");
+    $pdf->save($pdfPath);
+
+    return response()->file($pdfPath);
+}
+
     public function assetPublic($id){
-        $id = decrypt($id);
 
         $assetHeaderData = AssetHeader::where('id', $id)->first();
         $assetDetailData = AssetDetail::where('asset_header_id', $id)->get();
@@ -572,6 +595,13 @@ class AssetController extends Controller
         $locDetail = LocDetail::get();
         $dept = Department::get();
         return view('public.asset', compact('assetHeaderData','assetDetailData','dropdownUom','assetCategory','locHeader','locDetail','dept'));
+
+    }
+
+    public function assetPublicDtl($id){
+
+        $assetDetailData = AssetDetail::where('id', $id)->first();
+        return view('public.assetdtl', compact('assetDetailData'));
 
     }
 

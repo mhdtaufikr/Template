@@ -32,6 +32,7 @@ Route::get('/logout', [AuthController::class, 'logout']);
 
 //public Detail
 Route::get('mkm/{id}', [AssetController::class,'assetPublic']);
+Route::get('mkm/dtl/{id}', [AssetController::class,'assetPublicDtl']);
 
 Route::middleware(['auth'])->group(function () {
     //Home Controller
@@ -51,6 +52,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/download/excel/format/detail', [AssetController::class, 'excelFormatDetail']);
     Route::post('/asset/import', [AssetController::class, 'excelData']);
     Route::get('/asset/qr', [AssetController::class,'generateQRCodesAndReturnPDF']);
+    Route::get('/asset/qr/detail/{id}', [AssetController::class, 'generateQRCodesDetailAndReturnPDF']);
     route::get('/asset/search', [AssetController::class,'searchBy']);
     Route::post('/asset/detail/import/{id}', [AssetController::class, 'excelDataDetail']);
 

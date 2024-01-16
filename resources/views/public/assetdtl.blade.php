@@ -81,8 +81,8 @@
                         <div class="card-header text-dark">
                         <h3>Asset Detail</h3>
                         @php
-                        $statusColor = ($assetHeaderData->status == 1) ? 'btn-success' : (($assetHeaderData->status == 0) ? 'btn-warning' : 'btn-danger');
-                        $statusText = ($assetHeaderData->status == 1) ? 'Active' : (($assetHeaderData->status == 0) ? 'Deactive' : 'Disposal');
+                        $statusColor = ($assetDetailData->status == 1) ? 'btn-success' : (($assetDetailData->status == 0) ? 'btn-warning' : 'btn-danger');
+                        $statusText = ($assetDetailData->status == 1) ? 'Active' : (($assetDetailData->status == 0) ? 'Deactive' : 'Disposal');
                         @endphp
 
                     <button class="btn btn-sm {{ $statusColor }}" >
@@ -150,7 +150,7 @@
                                 var imageModal = new bootstrap.Modal(document.getElementById('imageModal'));
                                 var modalImage = document.getElementById('modalImage');
                                 var seeImageButton = document.querySelector('.btn-see-image');
-                                var imgPath = '{{ asset($assetHeaderData->img) }}';
+                                var imgPath = '{{ asset($assetDetailData->img) }}';
             
                                 // Set the image source dynamically when the modal is shown
                                 imageModal._element.addEventListener('shown.bs.modal', function (event) {
@@ -163,197 +163,55 @@
                         </script>
                     </div>
                         <div class="card-body">
-                            <div class="row">
-                                <div class="col-md-4">
-                                    <strong>Asset No.</strong><br>
-                                    <p>{{$assetHeaderData->asset_no}} <br> <button class="btn btn-info btn-sm" data-bs-toggle="modal" data-bs-target="#imageModal">
-                                        See Image
-                                    </button></p>
-                                </div>
-                                <div class="col-md-4">
-                                    <strong>Description</strong><br>
-                                    <p>{{$assetHeaderData->desc}}</p>
-                                </div>
-                                <div class="col-md-4">
-                                    <strong>Quantity</strong><br>
-                                    <p>{{$assetHeaderData->qty}} ({{$assetHeaderData->uom}} )</p>
-                                </div>
-                            </div>
-                            <div class="row">
-                                <div class="col-md-4">
-                                    <strong>Asset Category</strong><br>
-                                    <p>{{$assetHeaderData->asset_type}}</p>
-                                </div>
-                                <div class="col-md-4">
-                                    <strong>Acquisition Date</strong><br>
-                                    <p>{{ date('d-M-Y', strtotime($assetHeaderData->acq_date)) }}</p>
-                                </div>                    
-                                <div class="col-md-4">
-                                    <strong>Acquisition Cost</strong><br>
-                                    <p>{{ 'Rp ' . number_format($assetHeaderData->acq_cost, 0, ',', '.') }}</p>
-                                </div>                    
-                            </div>
-            
-                            <div class="row">
-                                <div class="col-md-4">
-                                    <strong>PO No.</strong><br>
-                                    <p>{{$assetHeaderData->po_no}} </p>
-                                </div>
-                                <div class="col-md-4">
-                                    <strong>Serial No. </strong><br>
-                                    <p>{{$assetHeaderData->serial_no}}</p>
-                                </div>
-                                <div class="col-md-4">
-                                    <strong>Department</strong><br>
-                                    <p>{{$assetHeaderData->dept}} </p>
-                                </div>
-                            </div>
-            
-            
-                            <div class="row">
-                                <div class="col-md-4">
-                                    <strong>Location</strong><br>
-                                    <p>{{$assetHeaderData->plant}} ({{$assetHeaderData->loc}})</p>
-                                </div>
-                                <div class="col-md-4">
-                                    <strong>Cost Center</strong><br>
-                                    <p>{{$assetHeaderData->cost_center}} </p>
-                                </div>
-                                <div class="col-md-4">
-                                    <strong>BV End Of Year</strong><br>
-                                    <p>{{ 'Rp ' . number_format($assetHeaderData->bv_endofyear, 0, ',', '.') }}</p>
-                                </div>                    
-                            </div>
-            
-                        </div>
-                    </div>
-            
-            
-                    <div class="row">
-                    <div class="col-12">
-                        <div class="card">
-                        <div class="card-header">
-                            <h3 class="card-title">List of Asset Detail</h3>
-                        </div>
-                        
-                        
-                        <!-- /.card-header -->
-                        <div class="card-body">
-                            <div class="row">
-                                <div class="mb-3 col-sm-12">
-                            </div>
-                            <div class="table-responsive"> 
-                            <table id="tableUser" class="table table-bordered table-striped">
-                            <thead>
-                            <tr>
-                                <th>Asset No</th>
-                                <th>Description</th>
-                                <th>Qty</th>
-                                <th>Acquisition date</th>
-                                <th>Status</th>
-                                <th>Action</th>
-                            
-                            </tr>
-                            </thead>
-                            <tbody>
-                                @foreach ($assetDetailData as $data)
-                                <tr>
-                                    <td>{{ $data->asset_no}} - {{$data->sub_asset}} </td>
-                                    <td>{{ $data->desc}} </td>
-                                    <td>{{ $data->qty }} ({{ $data->uom }})</td>
-                                    <td>{{ date('d-M-Y', strtotime($data->date )) }}</td>
-                                    <td> <!-- Button for Active/Disposal status -->
-                                        @php
-                                        $statusColor = ($assetHeaderData->status == 1) ? 'btn-success' : (($assetHeaderData->status == 0) ? 'btn-warning' : 'btn-danger');
-                                        $statusText = ($assetHeaderData->status == 1) ? 'Active' : (($assetHeaderData->status == 0) ? 'Deactive' : 'Disposal');
-                                        @endphp
-                    
-                                    <button class="btn btn-sm {{ $statusColor }}" >
-                                    {{ $statusText }}
-                                    </button>
-                                    </td>
-                                    <td>
-                                        <button title="Detail Sub Asset" class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#modal-detail{{ $data->id }}">
-                                            <i class="fas fa-info"></i>
-                                        </button> 
-                                    </td>
-                                </tr>
-                                @endforeach
-                            </tbody>
-                            </table>
-                        </div>
-                        </div>
-                        <!-- /.card-body -->
-                        </div>
-                        <!-- /.card -->
-                    </div>
-                    <!-- /.col -->
-                    </div>
-                    <!-- /.row -->
-                </div>
-                <!-- /.container-fluid -->
-                </section>
-                <!-- /.content -->
-            </div>
-            <!-- /.content-wrapper -->
-            </div>
-
-            @foreach ($assetDetailData as $data)
-            <!-- Modal -->
-            <div class="modal fade" id="modal-detail{{ $data->id }}" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-                <div class="modal-dialog modal-lg">
-                    <div class="modal-content">
-                        <div class="modal-header">
-                            <h5 class="modal-title" id="exampleModalLabel">Asset Detail</h5>
-                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                        </div>
-                        <div class="modal-body">
+                           
+                                
+                           
                             <div class="row">
                                 <div class="col-md-6">
                                     <strong>Asset Number</strong><br>
-                                    <p>{{ $data->asset_no }} - {{ $data->sub_asset }}</p>
+                                    <p>{{ $assetDetailData->asset_no }} - {{ $assetDetailData->sub_asset }}</p>
                                 </div>
                                 <div class="col-md-6">
                                     <strong>Description</strong><br>
-                                    <p>{{ $data->desc }}</p>
+                                    <p>{{ $assetDetailData->desc }}</p>
                                 </div>
                             </div>
                             <div class="row">
                                 <div class="col-md-6">
                                     <strong>Quantity</strong><br>
-                                    <p>{{ $data->qty }} ({{$data->uom}})</p>
+                                    <p>{{ $assetDetailData->qty }} ({{$assetDetailData->uom}})</p>
                                 </div>
                                 <div class="col-md-6">
                                     <strong>Asset Category</strong><br>
-                                    <p>{{ $data->asset_type }}</p>
+                                    <p>{{ $assetDetailData->asset_type }}</p>
                                 </div>
                             </div>
                             <div class="row">
                                 <div class="col-md-6">
                                     <strong>Acquisition Date</strong><br>
-                                    <p>{{ date('d-M-Y', strtotime($data->date)) }}</p>
+                                    <p>{{ date('d-M-Y', strtotime($assetDetailData->date)) }}</p>
                                 </div>
                                 <div class="col-md-6">
                                     <strong>Acquisition Cost</strong><br>
-                                    <p>{{ 'Rp ' . number_format($data->cost, 0, ',', '.') }}</p>
+                                    <p>{{ 'Rp ' . number_format($assetDetailData->cost, 0, ',', '.') }}</p>
                                 </div>
                             </div>
                             <div class="row">
                                 <div class="col-md-6">
                                     <strong>PO No.</strong><br>
-                                    <p>{{ $data->po_no }}</p>
+                                    <p>{{ $assetDetailData->po_no }}</p>
                                 </div>
                                 <div class="col-md-6">
                                     <strong>Serial No.</strong><br>
-                                    <p>{{ $data->serial_no }}</p>
+                                    <p>{{ $assetDetailData->serial_no }}</p>
                                 </div>
                             </div>
                             <div class="row">
                                 <div class="col-md-6">
                                     <strong>Status</strong><br>
                                     @php
-                                    $statusColor = ($data->status == 1) ? 'btn-success' : (($data->status == 0) ? 'btn-warning' : 'btn-danger');
-                                    $statusText = ($data->status == 1) ? 'Active' : (($data->status == 0) ? 'Deactive' : 'Disposal');
+                                    $statusColor = ($assetDetailData->status == 1) ? 'btn-success' : (($assetDetailData->status == 0) ? 'btn-warning' : 'btn-danger');
+                                    $statusText = ($assetDetailData->status == 1) ? 'Active' : (($assetDetailData->status == 0) ? 'Deactive' : 'Disposal');
                                     @endphp
             
                                 <button class="btn btn-sm {{ $statusColor }}" >
@@ -362,24 +220,26 @@
                                 </div>
                                 <div class="col-md-6">
                                     <strong>BV End Of Year</strong><br>
-                                    <p>{{ 'Rp ' . number_format($assetHeaderData->bv_endofyear, 0, ',', '.') }}</p>
+                                    <p>{{ 'Rp ' . number_format($assetDetailData->bv_endofyear, 0, ',', '.') }}</p>
                                 </div>
                             </div>
                             <!-- Add more fields as needed -->
                             <div class="row">
-                                <div class="col-md-12">
+                                <div class="text-center col-md-12">
                                     <strong>Image</strong><br>
-                                    <img src="{{ asset($data->img) }}" alt="Asset Image" class="img-fluid">
+                                    <img src="{{ asset($assetDetailData->img) }}" alt="Asset Image" class="img-fluid">
                                 </div>
                             </div>
                         </div>
-                        <div class="modal-footer">
-                            <button type="button" class="btn btn-dark" data-bs-dismiss="modal">Close</button>
-                        </div>
                     </div>
-                </div>
+                <!-- /.container-fluid -->
+                </section>
+                <!-- /.content -->
             </div>
-            @endforeach
+            <!-- /.content-wrapper -->
+            </div>
+
+           
             
             <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.1/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
             <script src={{asset('assets/js/scripts.js')}} ></script>

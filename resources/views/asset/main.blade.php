@@ -763,45 +763,85 @@
                   </tbody>
                 </table>
                 @foreach ($assetData as $data)
-                    <!-- Modal for details -->
-                    <div class="modal fade" id="detailsModal{{ $data->id }}" tabindex="-1" aria-labelledby="detailsModalLabel{{ $data->id }}" aria-hidden="true">
-                        <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-lg">
-                            <div class="modal-content">
-                                <div class="modal-header">
-                                    <h5 class="modal-title" id="detailsModalLabel{{ $data->id }}">Details</h5>
-                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                                </div>
-                                <div class="modal-body">
-                                    <table id='detail{{ $data->id }}' class="table">
-                                        <thead>
-                                            <tr>
-                                                <th>Asset No</th>
-                                                <th>Description</th>
-                                                <th>Qty</th>
-                                                <th>Acquisition date</th>
-                                                <!-- Add more columns based on your AssetDetail model -->
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            @foreach ($data->details as $detail)
-                                                <tr>
-                                                    <td>{{ $detail->asset_no }} - {{ $detail->sub_asset }}</td>
-                                                    <td>{{ $detail->desc }}</td>
-                                                    <td>{{ $detail->qty }} ({{ $detail->uom }})</td>
-                                                    <td>{{ date('d-M-Y', strtotime($detail->acq_date)) }}</td>
-                                                    <!-- Add more cells based on your AssetDetail model -->
-                                                </tr>
-                                            @endforeach
-                                        </tbody>
-                                    </table>
-                                </div>
-                                <div class="modal-footer">
-                                    <!-- You can add footer buttons or additional content here -->
-                                    <!-- Example: <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button> -->
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+                     <!-- Modal for details -->
+    <div class="modal fade" id="detailsModal{{ $data->id }}" tabindex="-1" aria-labelledby="detailsModalLabel{{ $data->id }}" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="detailsModalLabel{{ $data->id }}">Details</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <a title="Generate Checklist" class="btn btn-primary btn-sm mb-2" href="#" onclick="generateChecklistDetail('{{ $data->id }}'); return false;" id="generateChecklistBtn{{ $data->id }}">
+                        Generate QR Code
+                    </a>
+                    <table id='detail{{ $data->id }}' class="table">
+                        <thead>
+                            <tr>
+                                <th>
+                                    <input type="checkbox" id="checkAllBtn{{ $data->id }}" class="check-all">
+                                </th>
+                                <th>Asset No</th>
+                                <th>Description</th>
+                                <th>Qty</th>
+                                <th>Acquisition date</th>
+                                <!-- Add more columns based on your AssetDetail model -->
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach ($data->details as $detail)
+                                <tr>
+                                    <td>
+                                        <input type="checkbox" class="form-check-input checkbox-detail" name="assetCheckboxDetail[{{ $data->id }}][]" value="{{ $detail->id }}">
+                                    </td>
+                                    <td>{{ $detail->asset_no }} - {{ $detail->sub_asset }}</td>
+                                    <td>{{ $detail->desc }}</td>
+                                    <td>{{ $detail->qty }} ({{ $detail->uom }})</td>
+                                    <td>{{ date('d-M-Y', strtotime($detail->acq_date)) }}</td>
+                                    <!-- Add more cells based on your AssetDetail model -->
+                                </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                </div>
+                <div class="modal-footer">
+                    <!-- You can add footer buttons or additional content here -->
+                    <!-- Example: <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button> -->
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // Check All checkbox
+            document.getElementById('checkAllBtn{{ $data->id }}').addEventListener('change', function () {
+                var checkboxes = document.querySelectorAll('input[name="assetCheckboxDetail[{{ $data->id }}][]"]');
+                checkboxes.forEach(function (checkbox) {
+                    checkbox.checked = document.getElementById('checkAllBtn{{ $data->id }}').checked;
+                });
+            });
+        });
+    </script>
+    <script>
+        function generateChecklistDetail(id) {
+            var checkboxes = document.querySelectorAll('input[name="assetCheckboxDetail[' + id + '][]"]:checked');
+    
+            if (checkboxes.length > 0) {
+                var selectedAssetIds = [];
+    
+                checkboxes.forEach(function (checkbox) {
+                    var assetId = checkbox.value;
+                    selectedAssetIds.push(assetId);
+                });
+    
+                var url = "{{ url('/asset/qr/detail') }}/" + id + "?assetIds=" + selectedAssetIds.join(',');
+    
+                window.open(url, '_blank');
+            } else {
+                alert("Please select at least one asset to generate a checklist.");
+            }
+        }
+    </script>
                 @endforeach
               </div>
               </div>

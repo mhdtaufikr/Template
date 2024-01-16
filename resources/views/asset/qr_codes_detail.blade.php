@@ -94,8 +94,7 @@
         // Generate the QR code
         $qrCode = QrCode::size(100)
         ->margin(5) // Adjust the margin to increase the size of the pixels
-        ->generate("http://172.17.223.237/mkm/{$decryptedId}");
-
+        ->generate("http://172.17.223.237/mkm/dtl/{$decryptedId}");
     ?>
     <table class="table table-bordered plate custom-table">
         <thead>
@@ -109,7 +108,7 @@
                     <img src="data:image/png;base64, {!! base64_encode($qrCode) !!}" alt="QR Code for Asset ID: {{ $decryptedId }}">
                 </td>
                 <td style="width:70%" id="additionalInfo">
-                    <h1>{{ $asset->asset_no }}</h1>
+                    <h1>{{ $asset->asset_no }} - {{$asset->sub_asset}}</h1>
                     <p style="margin-bottom: 0">Lorem ipsum dolor sit, amet consectetur adipisicin</p>
                     <p style="margin: 0"> TDRA 39/40 <br>{{ date('d/m/Y', strtotime($asset->acq_date)) }}</p>
                 </td>
