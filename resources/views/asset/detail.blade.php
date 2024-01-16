@@ -247,7 +247,7 @@
                 <div class="col-12">
                     <div class="card">
                     <div class="card-header">
-                        <h3 class="card-title">List of Asset Detail</h3>
+                        <h3 class="card-title">Bill of Materials</h3>
                     </div>
                     
                     
