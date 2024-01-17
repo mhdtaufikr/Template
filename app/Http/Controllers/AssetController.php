@@ -35,17 +35,39 @@ class AssetController extends Controller
         $locDetail = LocDetail::get();
         $costCenter = CostCenter::get();
         $status = Dropdown::where('category','Status')->get();
+        
     
         return view("asset.main", compact("assetData", "dropdownUom", "assetCategory", "dept", "locHeader", "locDetail", "costCenter",'status'));
     }
+
+    public function delete($id){
+        try {
+            $assetHeader = AssetHeader::findOrFail($id);
+            $assetDetail = AssetDetail::where('asset_header_id', $id)->get();
+            
+            // Delete the associated image file
+            if ($assetHeader->img) {
+                unlink(public_path($assetHeader->img));
+            }
+    
+            // Delete the assetDetails
+            $assetDetail->each->delete(); // Remove the parentheses here
+            $assetHeader->delete();
+    
+            return redirect()->back()->with('status', 'Asset detail deleted successfully');
+        } catch (\Exception $e) {
+            dd($e);
+            // Handle any exception that may occur during the delete
+            return redirect()->back()->with('failed', 'Failed to delete asset detail. Please try again.');
+        }
+    }
+    
 
     // AssetHeader model
     public function details()
     {
         return $this->hasMany(AssetDetail::class, 'asset_header_id');
     }
-
-    
 
     public function store(Request $request)
     {
@@ -57,7 +79,6 @@ class AssetController extends Controller
             'uom' => 'required|string|max:255',
             'date' => 'required|date',
             'cost' => 'required',
-            'asset_type' => 'required',
             'plant' => 'required|string|max:255',
             'loc' => 'required|string|max:255',
             'dept' => 'required|string|max:255',
@@ -92,14 +113,15 @@ class AssetController extends Controller
             // Default value if no image is provided
             $imgPath = null;
         }
-    
+            $assetType = substr($request->asset_no, 0, 2);
+            $assetCategory = AssetCategory::where('class', $assetType)->first();
             // Create a new AssetHeader instance and fill it with the validated data
             $assetHeader = new AssetHeader([
                 'asset_no' => $request->asset_no,
                 'desc'  => $request->desc,
                 'qty' => $request->qty,
                 'uom' => $request->uom,
-                'asset_type' => $request->asset_type,
+                'asset_type' => $assetCategory->desc,
                 'acq_date' => $request->date,
                 'acq_cost' => $cost,
                 'po_no' => $request->po_no,
@@ -251,9 +273,6 @@ class AssetController extends Controller
             return redirect()->back()->with('failed', 'Failed to update asset status. Please try again.');
         }
     }
-    
-
-    
     
 
     public function detailStore(Request $request){
@@ -476,13 +495,22 @@ class AssetController extends Controller
     
     public function excelFormat()
     {
-        return Excel::download(new ExcelExport, 'Format.xlsx');
+        // Add your desired note to be displayed in cell E2
+        $note = "ex : 31/01/2017";
+
+        // Download Excel file with the note in cell E2
+        return Excel::download(new ExcelExport($note), 'Format.xlsx');
     }
 
     public function excelFormatDetail()
     {
-        return Excel::download(new ExcelExportDetail, 'Format.xlsx');
+        // Add your desired note to be displayed in cell E2
+        $note = "ex : 31/01/2017";
+    
+        // Download Excel file with the note in cell E2
+        return Excel::download(new ExcelExportDetail($note), 'FormatDetail.xlsx');
     }
+    
 
     public function excelDataDetail(Request $request, $id){
         $request->validate([

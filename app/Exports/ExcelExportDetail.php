@@ -2,18 +2,21 @@
 
 namespace App\Exports;
 
+use Illuminate\Support\Collection;
 use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\WithHeadings;
-use Illuminate\Support\Collection;
+use Maatwebsite\Excel\Concerns\WithEvents;
+use Maatwebsite\Excel\Events\AfterSheet;
 
-class ExcelExportDetail implements FromCollection, WithHeadings
+class ExcelExportDetail implements FromCollection, WithHeadings, WithEvents
 {
-    private $id;
+    protected $note;
 
+    public function __construct($note)
+    {
+        $this->note = $note;
+    }
 
-    /**
-    * @return \Illuminate\Support\Collection
-    */
     public function collection()
     {
         // Return a collection with a single row containing the values
@@ -45,7 +48,6 @@ class ExcelExportDetail implements FromCollection, WithHeadings
             'Description',
             'Qty',
             'UOM',
-            'Asset Category',
             'Date',
             'Accuisition Cost',
             'PO No.',
@@ -54,6 +56,16 @@ class ExcelExportDetail implements FromCollection, WithHeadings
             'Status',
             'Remarks',
             'BV End of Year',
+        ];
+    }
+
+    public function registerEvents(): array
+    {
+        return [
+            AfterSheet::class => function (AfterSheet $event) {
+                // Add a note to cell E2
+                $event->sheet->getDelegate()->getComment('F2')->getText()->createTextRun($this->note);
+            },
         ];
     }
 }

@@ -44,6 +44,7 @@ Route::middleware(['auth'])->group(function () {
     Route::patch('/asset/update/{id}', [AssetController::class,'update']);
     Route::get('/asset/detail/{id}', [AssetController::class, 'detail']);
     Route::post('/asset/status/{id}', [AssetController::class,'status']);
+    Route::delete('/asset/delete/{id}', [AssetController::class, 'delete']);
     Route::post('/asset/detail/store', [AssetController::class,'detailStore']);
     Route::patch('/asset/detail/update/{id}', [AssetController::class,'detailUpdate']);
     Route::delete('/asset/detail/delete/{id}', [AssetController::class, 'detailDelete']);

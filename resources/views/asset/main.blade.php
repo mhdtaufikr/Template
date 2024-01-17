@@ -149,6 +149,7 @@
                     
                     
                     <div class="mb-3 col-sm-12">
+                        @if(\Auth::user()->role === 'Super Admin')
                         <button  title="Add Asset" type="button" class="btn btn-dark btn-sm mb-2" data-bs-toggle="modal" data-bs-target="#modal-add">
                             <i class="fas fa-plus-square"></i> 
                           </button>
@@ -157,13 +158,13 @@
                           </button>
                          <!-- Add this checkbox before your table -->
                        
-
+                          @endif
                 <!-- Button to generate checklist -->
                 <a title="Generate Checklist" class="btn btn-primary btn-sm mb-2" href="#" onclick="generateChecklist(); return false;" id="generateChecklistBtn">
                     Generate QR Code
                 </a>
 
-               
+          
  
                           <!-- Modal -->
                           <div class="modal fade" id="modal-add" tabindex="-1" aria-labelledby="modal-add-label" aria-hidden="true">
@@ -175,6 +176,7 @@
                                 </div>
                                 <form action="{{ url('/asset/store') }}" method="POST" enctype="multipart/form-data">
                                   @csrf
+                                  
                                   <div class="modal-body">
                                     <div class="form-group mb-3">
                                       <input type="text" class="form-control" id="asset_no" name="asset_no" placeholder="Enter Asset Number" required>
@@ -184,11 +186,10 @@
                                     </div>
 
                                     <div class="row mb-3">
-                                        <div class="col-md-6">
+                                        <div class="col-md-4">
                                             <input type="number" class="form-control" id="qty" name="qty" placeholder="Enter Qty" required min="0">
                                         </div>
-                                        
-                                        <div class="col-md-6">
+                                        <div class="col-md-4">
                                             <div class="form-group">
                                                 <select name="uom" id="uom" class="form-control" required>
                                                     <option value="">- Please Select UOM -</option>
@@ -198,26 +199,11 @@
                                                 </select>
                                             </div>
                                         </div>
-                                    </div>
-
-                                    <div class="row mb-3">
-
-                                        <div class="col-md-6">
+                                        <div class="col-md-4">
                                             <input type="date" class="form-control" id="date" name="date" placeholder="Enter Date" required>
                                         </div>
-
-                                        <div class="col-md-6">
-                                            <div class="form-group">
-                                                <select name="asset_type" id="asset_type" class="form-control" required>
-                                                    <option value="">- Please Select Asset Category -</option>
-                                                    @foreach ($assetCategory as $data)
-                                                        <option value="{{ $data->class }}">{{ $data->class }}</option>
-                                                    @endforeach
-                                                </select>
-                                            </div>
-                                        </div>
-                                        
                                     </div>
+
 
                                     <div class="form-group mb-3">
                                         <input type="text" class="form-control" id="cost" name="cost" placeholder="Enter Acquisition Cost" required>
@@ -436,9 +422,6 @@
                   </tr>
                   </thead>
                   <tbody>
-                    @php
-                      $no=1;
-                    @endphp
                     @foreach ($assetData as $data)
                     <tr>
 
@@ -465,7 +448,7 @@
                             <button class="btn btn-sm {{ $statusColor }}" onclick="openRemarksModal('{{ url("/asset/status/".encrypt($data->id)) }}', {{ $data->status }})">
                                {{ $statusText }}
                             </button>
-
+                            @if(\Auth::user()->role === 'Super Admin')
                             <!-- Modal for Remarks -->
                                 <div class="modal fade" id="remarksModal" tabindex="-1" aria-labelledby="remarksModalLabel" aria-hidden="true">
                                     <div class="modal-dialog">
@@ -498,7 +481,7 @@
                                         </div>
                                     </div>
                                 </div>
-
+                                @endif
                                 <script>
                                     function openRemarksModal(url, status) {
                                         $('#remarksModal').modal('show');
@@ -516,17 +499,22 @@
                                     }
                                 </script>
                             </td>
-                        <td>
+                            
+                        <td>@if(\Auth::user()->role === 'Super Admin')
                             <button title="Edit Asset" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#modal-update{{ $data->id }}">
                                 <i class="fas fa-edit"></i>
                               </button>
+                              @endif
                               <a title="Detail Asset" class="btn btn-success btn-sm" href="{{url('asset/detail/'.encrypt($data->id))}}">
                                 <i class="fas fa-info"></i>
                               </a>
+                              @if(\Auth::user()->role === 'Super Admin')
                             <button title="Delete Asset" class="btn btn-danger btn-sm" data-bs-toggle="modal" data-bs-target="#modal-delete{{ $data->id }}">
                                 <i class="fas fa-trash-alt"></i>
-                              </button>   
+                              </button> 
+                              @endif  
                         </td>
+                    
                     </tr>
                    
 
@@ -553,11 +541,11 @@
                                 </div>
 
                                 <div class="row mb-3">
-                                    <div class="col-md-6">
+                                    <div class="col-md-4">
                                         <input value="{{$data->qty}}" type="number" class="form-control" id="qty" name="qty" placeholder="Enter Qty" required min="0">
                                     </div>
                                     
-                                    <div class="col-md-6">
+                                    <div class="col-md-4">
                                         <div class="form-group">
                                             <select name="uom" id="uom" class="form-control" >
                                                 <option value="{{$data->uom}}">{{$data->uom}}</option>
@@ -567,25 +555,9 @@
                                             </select>
                                         </div>
                                     </div>
-                                </div>
-
-                                <div class="row mb-3">
-
-                                    <div class="col-md-6">
+                                    <div class="col-md-4">
                                         <input value="{{$data->acq_date}}" type="date" class="form-control" id="date" name="date" placeholder="Enter Date" >
                                     </div>
-
-                                    <div class="col-md-6">
-                                        <div class="form-group">
-                                            <select name="asset_type" id="asset_type" class="form-control" required>
-                                                <option value="{{$data->asset_type}}">{{$data->asset_type}}</option>
-                                                @foreach ($assetCategory as $item)
-                                                    <option value="{{ $item->class }}">{{ $item->class }}</option>
-                                                @endforeach
-                                            </select>
-                                        </div>
-                                    </div>
-                                    
                                 </div>
 
                                 <div class="form-group mb-3">
@@ -738,15 +710,15 @@
                         <div class="modal-dialog">
                         <div class="modal-content">
                             <div class="modal-header">
-                            <h4 class="modal-title" id="modal-delete{{ $data->id }}-label">Delete Cost Center</h4>
+                            <h4 class="modal-title" id="modal-delete{{ $data->id }}-label">Delete Asset</h4>
                             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                             </div>
-                            <form action="{{ url('/cost_center/delete/'.$data->id) }}" method="POST">
-                            @csrf
-                            @method('delete')
+                            <form action="{{ url('/asset/delete/'.$data->id) }}" method="POST">
+                                @csrf
+                                @method('delete')
                             <div class="modal-body">
                                 <div class="form-group">
-                                Are you sure you want to delete <label for="Dropdown">{{ $data->cost_ctr }}</label>?
+                                Are you sure you want to delete <label for="Dropdown">{{ $data->asset_no }}</label>?
                                 </div>
                             </div>
                             <div class="modal-footer">
@@ -764,84 +736,84 @@
                 </table>
                 @foreach ($assetData as $data)
                      <!-- Modal for details -->
-    <div class="modal fade" id="detailsModal{{ $data->id }}" tabindex="-1" aria-labelledby="detailsModalLabel{{ $data->id }}" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-lg">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="detailsModalLabel{{ $data->id }}">Bill of Materials</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <a title="Generate Checklist" class="btn btn-primary btn-sm mb-2" href="#" onclick="generateChecklistDetail('{{ $data->id }}'); return false;" id="generateChecklistBtn{{ $data->id }}">
-                        Generate QR Code
-                    </a>
-                    <table id='detail{{ $data->id }}' class="table">
-                        <thead>
-                            <tr>
-                                <th>
-                                    <input type="checkbox" id="checkAllBtn{{ $data->id }}" class="check-all">
-                                </th>
-                                <th>Asset No</th>
-                                <th>Description</th>
-                                <th>Qty</th>
-                                <th>Acquisition date</th>
-                                <!-- Add more columns based on your AssetDetail model -->
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @foreach ($data->details as $detail)
-                                <tr>
-                                    <td>
-                                        <input type="checkbox" class="form-check-input checkbox-detail" name="assetCheckboxDetail[{{ $data->id }}][]" value="{{ $detail->id }}">
-                                    </td>
-                                    <td>{{ $detail->asset_no }} - {{ $detail->sub_asset }}</td>
-                                    <td>{{ $detail->desc }}</td>
-                                    <td>{{ $detail->qty }} ({{ $detail->uom }})</td>
-                                    <td>{{ date('d-M-Y', strtotime($detail->acq_date)) }}</td>
-                                    <!-- Add more cells based on your AssetDetail model -->
-                                </tr>
-                            @endforeach
-                        </tbody>
-                    </table>
-                </div>
-                <div class="modal-footer">
-                    <!-- You can add footer buttons or additional content here -->
-                    <!-- Example: <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button> -->
-                </div>
-            </div>
-        </div>
-    </div>
-    <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            // Check All checkbox
-            document.getElementById('checkAllBtn{{ $data->id }}').addEventListener('change', function () {
-                var checkboxes = document.querySelectorAll('input[name="assetCheckboxDetail[{{ $data->id }}][]"]');
-                checkboxes.forEach(function (checkbox) {
-                    checkbox.checked = document.getElementById('checkAllBtn{{ $data->id }}').checked;
-                });
-            });
-        });
-    </script>
-    <script>
-        function generateChecklistDetail(id) {
-            var checkboxes = document.querySelectorAll('input[name="assetCheckboxDetail[' + id + '][]"]:checked');
-    
-            if (checkboxes.length > 0) {
-                var selectedAssetIds = [];
-    
-                checkboxes.forEach(function (checkbox) {
-                    var assetId = checkbox.value;
-                    selectedAssetIds.push(assetId);
-                });
-    
-                var url = "{{ url('/asset/qr/detail') }}/" + id + "?assetIds=" + selectedAssetIds.join(',');
-    
-                window.open(url, '_blank');
-            } else {
-                alert("Please select at least one asset to generate a checklist.");
-            }
-        }
-    </script>
+                    <div class="modal fade" id="detailsModal{{ $data->id }}" tabindex="-1" aria-labelledby="detailsModalLabel{{ $data->id }}" aria-hidden="true">
+                        <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-lg">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title" id="detailsModalLabel{{ $data->id }}">Bill of Materials</h5>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                </div>
+                                <div class="modal-body">
+                                    <a title="Generate Checklist" class="btn btn-primary btn-sm mb-2" href="#" onclick="generateChecklistDetail('{{ $data->id }}'); return false;" id="generateChecklistBtn{{ $data->id }}">
+                                        Generate QR Code
+                                    </a>
+                                    <table id='detail{{ $data->id }}' class="table">
+                                        <thead>
+                                            <tr>
+                                                <th>
+                                                    <input type="checkbox" id="checkAllBtn{{ $data->id }}" class="check-all">
+                                                </th>
+                                                <th>Asset No</th>
+                                                <th>Description</th>
+                                                <th>Qty</th>
+                                                <th>Acquisition date</th>
+                                                <!-- Add more columns based on your AssetDetail model -->
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @foreach ($data->details as $detail)
+                                                <tr>
+                                                    <td>
+                                                        <input type="checkbox" class="form-check-input checkbox-detail" name="assetCheckboxDetail[{{ $data->id }}][]" value="{{ $detail->id }}">
+                                                    </td>
+                                                    <td>{{ $detail->asset_no }} - {{ $detail->sub_asset }}</td>
+                                                    <td>{{ $detail->desc }}</td>
+                                                    <td>{{ $detail->qty }} ({{ $detail->uom }})</td>
+                                                    <td>{{ date('d-M-Y', strtotime($detail->acq_date)) }}</td>
+                                                    <!-- Add more cells based on your AssetDetail model -->
+                                                </tr>
+                                            @endforeach
+                                        </tbody>
+                                    </table>
+                                </div>
+                                <div class="modal-footer">
+                                    <!-- You can add footer buttons or additional content here -->
+                                    <!-- Example: <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button> -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <script>
+                        document.addEventListener('DOMContentLoaded', function () {
+                            // Check All checkbox
+                            document.getElementById('checkAllBtn{{ $data->id }}').addEventListener('change', function () {
+                                var checkboxes = document.querySelectorAll('input[name="assetCheckboxDetail[{{ $data->id }}][]"]');
+                                checkboxes.forEach(function (checkbox) {
+                                    checkbox.checked = document.getElementById('checkAllBtn{{ $data->id }}').checked;
+                                });
+                            });
+                        });
+                    </script>
+                    <script>
+                        function generateChecklistDetail(id) {
+                            var checkboxes = document.querySelectorAll('input[name="assetCheckboxDetail[' + id + '][]"]:checked');
+                    
+                            if (checkboxes.length > 0) {
+                                var selectedAssetIds = [];
+                    
+                                checkboxes.forEach(function (checkbox) {
+                                    var assetId = checkbox.value;
+                                    selectedAssetIds.push(assetId);
+                                });
+                    
+                                var url = "{{ url('/asset/qr/detail') }}/" + id + "?assetIds=" + selectedAssetIds.join(',');
+                    
+                                window.open(url, '_blank');
+                            } else {
+                                alert("Please select at least one asset to generate a checklist.");
+                            }
+                        }
+                    </script>
                 @endforeach
               </div>
               </div>
@@ -864,22 +836,37 @@
 </main>
 <!-- For Datatables -->
 <script>
-  $(document).ready(function () {
-                      var table = $("#tableUser").DataTable({
-                          "responsive": false,
-                          "lengthChange": false,
-                          "autoWidth": false,
-                          "order": [],
-                          "dom": 'Bfrtip',
-                          "buttons": [{
-                              title: 'Asset Management',
-                              text: '<i class="fas fa-file-excel"></i> Export to Excel',
-                              extend: 'excel',
-                              className: 'btn btn-success btn-sm mb-2'
-                          }]
-                      });
-                  });
-  </script>
+    $(document).ready(function () {
+        var table = $("#tableUser").DataTable({
+            "responsive": false,
+            "lengthChange": false,
+            "autoWidth": false,
+            "order": [],
+            "dom": 'Bfrtip',
+            "buttons": [
+                {
+                    title: 'Asset Management',
+                    text: '<i class="fas fa-file-excel"></i> Export to Excel',
+                    extend: 'excel',
+                    className: 'btn btn-success btn-sm mb-2',
+                    exportOptions: {
+                        columns: function (idx, data, node) {
+                            // Get the total number of columns in the DataTable
+                            var totalColumns = node[0].length;
+
+                            // Create an array of column indices from 0 to totalColumns - 1
+                            var allColumns = Array.from({ length: totalColumns }, (_, i) => i);
+
+                            return allColumns;
+                        }
+                    }
+                }
+            ]
+        });
+    });
+</script>
+
+    
     <script>
         $(document).ready(function () {
             // Use a class selector to initialize DataTable on all tables

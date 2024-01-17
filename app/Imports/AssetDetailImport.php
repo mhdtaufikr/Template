@@ -7,6 +7,7 @@ use Illuminate\Support\Collection;
 use Maatwebsite\Excel\Concerns\ToCollection;
 use Maatwebsite\Excel\Concerns\WithHeadingRow;
 use Carbon\Carbon;
+use App\Models\AssetCategory;
 
 class AssetDetailImport implements ToCollection, WithHeadingRow
 {
@@ -30,7 +31,8 @@ class AssetDetailImport implements ToCollection, WithHeadingRow
             // Convert Excel date to a human-readable date
             $excelDate = $row['date'];
             $date = Carbon::createFromFormat('m/d/Y', '01/01/1900')->addDays($excelDate - 2)->toDateString();
-
+            $assetType = substr($row['asset_no'], 0, 2);
+            $assetCategory = AssetCategory::where('class', $assetType)->first();
             // Add the data directly to the $assetDetails array
             $assetDetails[] = [
                 'asset_header_id' => $this->assetHeaderId,
@@ -39,7 +41,7 @@ class AssetDetailImport implements ToCollection, WithHeadingRow
                 'desc' => $row['description'],
                 'qty' => $row['qty'],
                 'uom' => $row['uom'],
-                'asset_type' => $row['asset_category'],
+                'asset_type' => $assetCategory,
                 'date' => $date,
                 'cost' => $row['accuisition_cost'], // Adjust column names if needed
                 'po_no' => $row['po_no'],

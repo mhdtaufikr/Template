@@ -50,7 +50,7 @@
                 <button class="btn btn-sm {{ $statusColor }}" onclick="openRemarksModal('{{ url("/asset/status/".encrypt($assetHeaderData->id)) }}', {{ $assetHeaderData->status }})">
                    {{ $statusText }}
                 </button>
-
+                @if(\Auth::user()->role === 'Super Admin')
                     <!-- Modal for Remarks -->
                     <div class="modal fade" id="remarksModal" tabindex="-1" aria-labelledby="remarksModalLabel" aria-hidden="true">
                         <div class="modal-dialog">
@@ -83,7 +83,7 @@
                             </div>
                         </div>
                     </div>
-
+                        @endif
                     <script>
                         function openRemarksModal(url, status) {
                             $('#remarksModal').modal('show');
@@ -255,13 +255,14 @@
                     <div class="card-body">
                         <div class="row">
                             <div class="mb-3 col-sm-12">
+                                @if(\Auth::user()->role === 'Super Admin')
                                 <button  title="Add Asset" type="button" class="btn btn-dark btn-sm mb-2" data-bs-toggle="modal" data-bs-target="#modal-add">
                                     <i class="fas fa-plus-square"></i> 
                                 </button>
                                 <button  title="Import Asset" type="button" class="btn btn-info btn-sm mb-2" data-bs-toggle="modal" data-bs-target="#modal-import">
                                     Import Assets 
                                   </button>
-
+                                  @endif
                                     <!-- Modal -->
                                 <div class="modal fade" id="modal-import" tabindex="-1" aria-labelledby="modal-add-label" aria-hidden="true">
                                     <div class="modal-dialog">
@@ -565,20 +566,25 @@
                                     </button>
                                 </td>
                                 <td>
+                                    @if(\Auth::user()->role === 'Super Admin')
                                     <button title="Edit Asset" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#modal-update{{ $data->id }}">
                                         <i class="fas fa-edit"></i>
                                     </button>
+                                    @endif
                                     <button title="Detail Sub Asset" class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#modal-detail{{ $data->id }}">
                                         <i class="fas fa-info"></i>
                                     </button>
+                                    @if(\Auth::user()->role === 'Super Admin')
                                     <button title="Delete Asset" class="btn btn-danger btn-sm" data-bs-toggle="modal" data-bs-target="#modal-delete{{ $data->id }}">
                                         <i class="fas fa-trash-alt"></i>
-                                    </button>   
+                                    </button>  
+                                    @endif 
                                 </td>
                             </tr>
                             @endforeach
 
                             @foreach ($assetDetailData as $data)
+                            @if(\Auth::user()->role === 'Super Admin')
                             <!-- Modal for Remarks (Detail) -->
                             <div class="modal fade" id="remarksModalDetail{{$data->id}}" tabindex="-1" aria-labelledby="remarksModalDetailLabel{{$data->id}}" aria-hidden="true">
                                 <div class="modal-dialog">
@@ -611,6 +617,7 @@
                                     </div>
                                 </div>
                             </div>
+                            @endif
                         @endforeach
 
                         <script>
@@ -888,13 +895,20 @@
 
 <!-- For Datatables -->
 <script>
-    $(document).ready(function() {
-      var table = $("#tableUser").DataTable({
-        "responsive": true, 
-        "lengthChange": false, 
-        "autoWidth": false,
-        // "buttons": ["copy", "csv", "excel", "pdf", "print", "colvis"]
-      });
-    });
-  </script>
+    $(document).ready(function () {
+                        var table = $("#tableUser").DataTable({
+                            "responsive": false,
+                            "lengthChange": false,
+                            "autoWidth": false,
+                            "order": [],
+                            "dom": 'Bfrtip',
+                            "buttons": [{
+                                title: 'Asset Management',
+                                text: '<i class="fas fa-file-excel"></i> Export to Excel',
+                                extend: 'excel',
+                                className: 'btn btn-success btn-sm mb-2'
+                            }]
+                        });
+                    });
+    </script>
 @endsection
