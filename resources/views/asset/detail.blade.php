@@ -247,7 +247,7 @@
                 <div class="col-12">
                     <div class="card">
                     <div class="card-header">
-                        <h3 class="card-title">Bill of Materials</h3>
+                        <h3 class="card-title">Sub Asset</h3>
                     </div>
                     
                     
@@ -263,6 +263,9 @@
                                     Import Assets 
                                   </button>
                                   @endif
+                                  <a title="Generate Checklist" class="btn btn-primary btn-sm mb-2" href="#" onclick="generateChecklistDetail('{{ $assetHeaderData->id }}'); return false;" id="generateChecklistBtn{{ $assetHeaderData->id }}">
+                                    Generate QR Code
+                                </a>
                                     <!-- Modal -->
                                 <div class="modal fade" id="modal-import" tabindex="-1" aria-labelledby="modal-add-label" aria-hidden="true">
                                     <div class="modal-dialog">
@@ -542,7 +545,9 @@
                         <table id="tableUser" class="table table-bordered table-striped">
                         <thead>
                         <tr>
-                            <th>No</th>
+                            <th>
+                                <input type="checkbox" id="checkAllBtn{{ $assetHeaderData->id }}" class="check-all">
+                            </th>
                             <th>Asset No</th>
                             <th>Date</th>
                             <th>Status</th>
@@ -555,7 +560,9 @@
                             @endphp
                             @foreach ($assetDetailData as $data)
                             <tr>
-                                <td>{{ $no++ }}</td>
+                                <td>
+                                    <input type="checkbox" class="form-check-input checkbox-detail" name="assetCheckboxDetail[{{ $assetHeaderData->id }}][]" value="{{ $data->id }}">
+                                </td>
                                 <td>{{ $data->asset_no}} - {{$data->sub_asset}} </td>
                                 <td>{{ date('d-M-Y', strtotime($data->date )) }}</td>
                                 <td>  
@@ -581,6 +588,37 @@
                                     @endif 
                                 </td>
                             </tr>
+                            <script>
+                                document.addEventListener('DOMContentLoaded', function () {
+                                    // Check All checkbox
+                                    document.getElementById('checkAllBtn{{ $data->id }}').addEventListener('change', function () {
+                                        var checkboxes = document.querySelectorAll('input[name="assetCheckboxDetail[{{ $data->id }}][]"]');
+                                        checkboxes.forEach(function (checkbox) {
+                                            checkbox.checked = document.getElementById('checkAllBtn{{ $data->id }}').checked;
+                                        });
+                                    });
+                                });
+                            </script>
+                            <script>
+                                function generateChecklistDetail(id) {
+                                    var checkboxes = document.querySelectorAll('input[name="assetCheckboxDetail[' + id + '][]"]:checked');
+                            
+                                    if (checkboxes.length > 0) {
+                                        var selectedAssetIds = [];
+                            
+                                        checkboxes.forEach(function (checkbox) {
+                                            var assetId = checkbox.value;
+                                            selectedAssetIds.push(assetId);
+                                        });
+                            
+                                        var url = "{{ url('/asset/qr/detail') }}/" + id + "?assetIds=" + selectedAssetIds.join(',');
+                            
+                                        window.open(url, '_blank');
+                                    } else {
+                                        alert("Please select at least one asset to generate a checklist.");
+                                    }
+                                }
+                            </script>
                             @endforeach
 
                             @foreach ($assetDetailData as $data)

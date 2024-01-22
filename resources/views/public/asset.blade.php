@@ -233,7 +233,7 @@
                     <div class="col-12">
                         <div class="card">
                         <div class="card-header">
-                            <h3 class="card-title">Bill of Materials</h3>
+                            <h3 class="card-title">Sub Asset</h3>
                         </div>
                         
                         

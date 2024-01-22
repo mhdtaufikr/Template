@@ -595,16 +595,14 @@ class AssetController extends Controller
     public function generateQRCodesDetailAndReturnPDF($id, Request $request)
 {
     $assetIds = explode(',', $request->input('assetIds'));
-
+    
     // Fetch asset information from the database
     $assets = AssetDetail::whereIn('id', $assetIds)->where('asset_header_id', $id)->get();
-
     // Initialize an array to store the data to be compacted
     $data = [
         'assetIds' => $assetIds,
         'assets' => $assets,
     ];
-
     // Use the existing PDF view for details
     $pdf = Pdf::loadView('asset.qr_codes_detail',$data);
 
