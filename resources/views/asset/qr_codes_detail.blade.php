@@ -94,7 +94,7 @@
         // Generate the QR code
         $qrCode = QrCode::size(100)
         ->margin(5) // Adjust the margin to increase the size of the pixels
-        ->generate("http://172.17.223.237/mkm/dtl/{$decryptedId}");
+        ->generate("http://172.17.215.32/mkm/dtl/{$decryptedId}");
     ?>
     <table class="table table-bordered plate custom-table">
         <thead>

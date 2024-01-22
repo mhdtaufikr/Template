@@ -177,7 +177,7 @@
                         <div class="col-md-4">
                             <strong>Asset No.</strong><br>
                             <p>{{$assetHeaderData->asset_no}} <br> <button class="btn btn-info btn-sm" data-bs-toggle="modal" data-bs-target="#imageModal">
-                                See Image
+                                View
                             </button></p>
                             
                         </div>

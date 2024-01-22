@@ -22,6 +22,8 @@ use App\Exports\ExcelExportDetail;
 use App\Imports\AssetDetailImport;
 use Illuminate\Support\Facades\View;
 
+use App\Exports\AssetExport;
+
 
 
 class AssetController extends Controller
@@ -638,7 +640,8 @@ class AssetController extends Controller
         // dd($request->all()); // Comment out or remove this line
     
         // Retrieving data for dropdowns
-        $dropdownUom = Dropdown::where('category','UOM')->get();
+        $status = Dropdown::where('category', 'Status')->get();
+        $dropdownUom = Dropdown::where('category', 'UOM')->get();
         $assetCategory = AssetCategory::get();
         $dept = Department::get();
         $locHeader = LocHeader::get();
@@ -652,6 +655,7 @@ class AssetController extends Controller
         $departmentId = $request->input('department');
         $locHeaderId = $request->input('destination');
         $locDetailId = $request->input('location'); // assuming you have a form input for locDetail
+        $assetCategorySearch = $request->input('assetCategory'); // New variable
     
         // Initializing $assetData
         $assetData = null;
@@ -668,9 +672,10 @@ class AssetController extends Controller
         if ($locDetailId) {
             $locDetailName = LocDetail::find($locDetailId)->name;
         }
+    
         // Switch statement to handle different search criteria
         switch ($searchBy) {
-           
+    
             case 'assetNo':
                 $assetData = AssetHeader::where('asset_no', $request->input('assetNo'))->get();
                 break;
@@ -683,7 +688,6 @@ class AssetController extends Controller
                 }
     
                 $assetData = $assetData->get();
-               
                 break;
     
             case 'department':
@@ -698,13 +702,100 @@ class AssetController extends Controller
                 $assetData = AssetHeader::whereBetween('acq_date', [$startDate, $endDate])->get();
                 break;
     
+            case 'assetCategory': // New case for Asset Category
+                $assetData = AssetHeader::where('asset_type', $assetCategorySearch)->get();
+                break;
+    
             default:
                 break;
         }
     
         // Returning the view with the retrieved data and names
-        return view("asset.main", compact("assetData", "dropdownUom", "assetCategory", "dept", "locHeader", "locDetail", "costCenter", "locHeaderName", "locDetailName"));
+        return view("asset.main", compact("status", "assetData", "dropdownUom", "assetCategory", "dept", "locHeader", "locDetail", "costCenter", "locHeaderName", "locDetailName"));
+    }
+
+
+    public function exportToExcel(Request $request)
+    {
+        // Retrieving selected search criteria
+        $searchBy = $request->input('searchBy');
+        $departmentId = $request->input('department');
+        $locHeaderId = $request->input('destination');
+        $locDetailId = $request->input('location');
+        $assetCategorySearch = $request->input('assetCategory');
+    
+        // Additional variables to store the names
+        $locHeaderName = null;
+        $locDetailName = null;
+    
+        // Querying names based on IDs
+        if ($locHeaderId) {
+            $locHeaderName = LocHeader::find($locHeaderId)->name;
+        }
+    
+        if ($locDetailId) {
+            $locDetailName = LocDetail::find($locDetailId)->name;
+        }
+    
+        // Initialize arrays to store header and detail assets
+        $headerAssets = [];
+        $detailAssets = [];
+    
+        
+        if ($searchBy === null) {
+            // Retrieve all records
+            $headerAssets = AssetHeader::all();
+        } else {
+            switch ($searchBy) {
+                case 'assetNo':
+                    $headerAssets = AssetHeader::where('asset_no', $request->input('assetNo'))->get();
+                    break;
+        
+                case 'destination':
+                    $headerAssets = AssetHeader::where('plant', $locHeaderName);
+                    if ($locDetailId) {
+                        $headerAssets->where('loc', $locDetailName);
+                    }
+                    $headerAssets = $headerAssets->get();
+                    break;
+        
+                case 'department':
+                    $headerAssets = AssetHeader::where('dept', $departmentId)->get();
+                    break;
+        
+                case 'dateRange':
+                    $startDate = $request->input('startDate');
+                    $endDate = $request->input('endDate');
+                    $headerAssets = AssetHeader::whereBetween('acq_date', [$startDate, $endDate])->get();
+                    break;
+        
+                case 'assetCategory':
+                    $headerAssets = AssetHeader::where('asset_type', $assetCategorySearch)->get();
+                    break;
+        
+                default:
+                    break;
+            }
+        }
+        
+    
+        // Query detail assets for each header asset
+        foreach ($headerAssets as $headerAsset) {
+            $detailAssets[] = AssetDetail::where('asset_header_id', $headerAsset->id)->get();
+        }
+    
+        // Combine header and detail assets into a single dataset
+        $combinedAssets = collect([
+            'headerAssets' => $headerAssets,
+            'detailAssets' => $detailAssets,
+        ]);
+    
+        // Export to Excel (You need to implement the logic for exporting to Excel)
+        // You can use Laravel Excel or any other package for exporting to Excel
+        // Example using Laravel Excel:
+        return Excel::download(new AssetExport($combinedAssets), 'assets.xlsx');
     }
     
-  
+
+    
 }

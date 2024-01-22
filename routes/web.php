@@ -56,6 +56,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/asset/qr/detail/{id}', [AssetController::class, 'generateQRCodesDetailAndReturnPDF']);
     route::get('/asset/search', [AssetController::class,'searchBy']);
     Route::post('/asset/detail/import/{id}', [AssetController::class, 'excelDataDetail']);
+    Route::get('/asset/export', [AssetController::class, 'exportToExcel']);
 
     
 
