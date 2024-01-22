@@ -50,7 +50,7 @@ class AssetExport implements FromCollection, WithHeadings
                 foreach ($detailAssets as $detailAsset) {
                     if ($detailAsset->asset_header_id == $headerAsset->id) {
                         $detailRow = $row;
-                        $detailRow['Detail Asset ID'] = $detailAsset->id;
+                        $detailRow['Detail Asset No'] = $detailAsset->asset_no;
                         $detailRow['Sub Asset'] = $detailAsset->sub_asset;
                         $detailRow['Detail Desc'] = $detailAsset->desc;
                         $detailRow['Detail Quantity'] = $detailAsset->qty;
@@ -100,7 +100,7 @@ class AssetExport implements FromCollection, WithHeadings
             'Status',
             'Remarks',
             'Book Value at the End of Year',
-            'Detail Asset ID',
+            'Detail Asset No',
             'Sub Asset',
             'Detail Desc',
             'Detail Quantity',

@@ -635,84 +635,130 @@ class AssetController extends Controller
 
     }
 
-    public function searchBy(Request $request){
-        // Debugging line to display the form data
-        // dd($request->all()); // Comment out or remove this line
-    
-        // Retrieving data for dropdowns
-        $status = Dropdown::where('category', 'Status')->get();
-        $dropdownUom = Dropdown::where('category', 'UOM')->get();
-        $assetCategory = AssetCategory::get();
-        $dept = Department::get();
-        $locHeader = LocHeader::get();
-        $locDetail = LocDetail::get();
-        $costCenter = CostCenter::get();
-    
-        // Retrieving selected search criteria
-        $searchBy = $request->input('searchBy');
-    
-        // Additional variables for department and loc_detail_id
-        $departmentId = $request->input('department');
-        $locHeaderId = $request->input('destination');
-        $locDetailId = $request->input('location'); // assuming you have a form input for locDetail
-        $assetCategorySearch = $request->input('assetCategory'); // New variable
-    
-        // Initializing $assetData
-        $assetData = null;
-    
-        // Additional variables to store the names
-        $locHeaderName = null;
-        $locDetailName = null;
-    
-        // Querying names based on IDs
-        if ($locHeaderId) {
-            $locHeaderName = LocHeader::find($locHeaderId)->name;
-        }
-    
-        if ($locDetailId) {
-            $locDetailName = LocDetail::find($locDetailId)->name;
-        }
-    
-        // Switch statement to handle different search criteria
-        switch ($searchBy) {
-    
-            case 'assetNo':
-                $assetData = AssetHeader::where('asset_no', $request->input('assetNo'))->get();
-                break;
-    
-            case 'destination':
-                // Search by loc_header_id and loc_detail_id if provided
-                $assetData = AssetHeader::where('plant', $locHeaderName);
-                if ($locDetailId) {
-                    $assetData->where('loc', $locDetailName);
-                }
-    
-                $assetData = $assetData->get();
-                break;
-    
-            case 'department':
-                // Search by department
-                $assetData = AssetHeader::where('dept', $departmentId)->get();
-                break;
-    
-            case 'dateRange':
-                $startDate = $request->input('startDate');
-                $endDate = $request->input('endDate');
-    
-                $assetData = AssetHeader::whereBetween('acq_date', [$startDate, $endDate])->get();
-                break;
-    
-            case 'assetCategory': // New case for Asset Category
-                $assetData = AssetHeader::where('asset_type', $assetCategorySearch)->get();
-                break;
-    
-            default:
-                break;
-        }
-    
-        // Returning the view with the retrieved data and names
-        return view("asset.main", compact("status", "assetData", "dropdownUom", "assetCategory", "dept", "locHeader", "locDetail", "costCenter", "locHeaderName", "locDetailName"));
+    public function searchBy(Request $request)
+{
+    // Validation
+    $request->validate([
+        'searchBy' => 'required',
+        // Add other validation rules for your form fields
+    ]);
+
+    // Retrieve data for dropdowns
+    $status = Dropdown::where('category', 'Status')->get();
+    $dropdownUom = Dropdown::where('category', 'UOM')->get();
+    $assetCategory = AssetCategory::get();
+    $dept = Department::get();
+    $locHeader = LocHeader::get();
+    $locDetail = LocDetail::get();
+    $costCenter = CostCenter::get();
+
+    // Retrieve selected search criteria
+    $searchBy = $request->input('searchBy');
+
+    // Additional variables for department and loc_detail_id
+    $departmentId = $request->input('department');
+    $locHeaderId = $request->input('destination');
+    $locDetailId = $request->input('location');
+    $assetCategorySearch = $request->input('assetCategory');
+
+    // Initializing $assetData
+    $assetData = null;
+
+    // Additional variables to store the names
+    $locHeaderName = $locDetailName = null;
+
+    // Querying names based on IDs
+    $locHeaderName = $locHeaderId ? LocHeader::find($locHeaderId)->name : null;
+    $locDetailName = $locDetailId ? LocDetail::find($locDetailId)->name : null;
+
+    // Switch statement to handle different search criteria
+    switch ($searchBy) {
+        case 'assetNo':
+            $assetData = $this->searchByAssetNo($request);
+            break;
+
+        case 'destination':
+            $assetData = $this->searchByDestination($request, $locHeaderName, $locDetailName);
+            break;
+
+        case 'department':
+            $assetData = $this->searchByDepartment($departmentId);
+            break;
+
+        case 'dateRange':
+            $assetData = $this->searchByDateRange($request);
+            break;
+
+        case 'assetCategory':
+            $assetData = $this->searchByAssetCategory($assetCategorySearch);
+            break;
+
+        default:
+            break;
     }
+
+    // Returning the view with the retrieved data and names
+    return view("asset.main", compact("status", "assetData", "dropdownUom", "assetCategory", "dept", "locHeader", "locDetail", "costCenter", "locHeaderName", "locDetailName"));
+}
+
+private function searchByAssetNo(Request $request)
+{
+    // Try to find AssetHeader by asset_no
+    $assetHeader = AssetHeader::where('asset_no', $request->input('assetNo'))->first();
+    if ($assetHeader) {
+        // If AssetHeader found, return it
+        return collect([$assetHeader]);
+    } else {
+        // If AssetHeader not found, look for it in details
+        $headerId = AssetDetail::where('asset_no', $request->input('assetNo'))
+            ->pluck('asset_header_id')
+            ->first();
+            
+
+        if ($headerId) {
+            // If header_id found in details, query AssetHeader by header_id
+            $assetHeader = AssetHeader::find($headerId);
+
+            if ($assetHeader) {
+                return collect([$assetHeader]);
+            }
+        }
+    }
+
+    // If still not found, return an empty collection
+    return collect();
+}
+
+
+private function searchByDestination(Request $request, $locHeaderName, $locDetailName)
+{
+    $query = AssetHeader::where('plant', $locHeaderName);
+
+    if ($locDetailName) {
+        $query->where('loc', $locDetailName);
+    }
+
+    return $query->get();
+}
+
+private function searchByDepartment($departmentId)
+{
+    return AssetHeader::where('dept', $departmentId)->get();
+}
+
+private function searchByDateRange(Request $request)
+{
+    $startDate = $request->input('startDate');
+    $endDate = $request->input('endDate');
+
+    return AssetHeader::whereBetween('acq_date', [$startDate, $endDate])->get();
+}
+
+private function searchByAssetCategory($assetCategorySearch)
+{
+    return AssetHeader::where('asset_type', $assetCategorySearch)->get();
+}
+
 
 
     public function exportToExcel(Request $request)
