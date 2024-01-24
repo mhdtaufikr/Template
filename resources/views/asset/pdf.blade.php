@@ -98,17 +98,13 @@
 
     ?>
     <table class="table table-bordered plate custom-table">
-        <thead>
-            <tr>
-                <th colspan="2" id="header">Asset By PT.MKM</th>
-            </tr>
-        </thead>
         <tbody>
             <tr>
                 <td style="width:30%" id="qrCode">
                     <img src="data:image/png;base64, {!! base64_encode($qrCode) !!}" alt="QR Code for Asset ID: {{ $decryptedId }}">
                 </td>
                 <td style="width:70%" id="additionalInfo">
+                    <h2>Asset By PT.MKM</h2>
                     <h1>{{ $asset->asset_no }}</h1>
                     <p style="margin-bottom: 0">Lorem ipsum dolor sit, amet consectetur adipisicin</p>
                     <p style="margin: 0"> TDRA 39/40 <br>{{ date('d/m/Y', strtotime($asset->acq_date)) }}</p>

@@ -759,86 +759,180 @@ private function searchByAssetCategory($assetCategorySearch)
 
 
 
-    public function exportToExcel(Request $request)
-    {
-        // Retrieving selected search criteria
-        $searchBy = $request->input('searchBy');
-        $departmentId = $request->input('department');
-        $locHeaderId = $request->input('destination');
-        $locDetailId = $request->input('location');
-        $assetCategorySearch = $request->input('assetCategory');
-    
-        // Additional variables to store the names
-        $locHeaderName = null;
-        $locDetailName = null;
-    
-        // Querying names based on IDs
-        if ($locHeaderId) {
-            $locHeaderName = LocHeader::find($locHeaderId)->name;
-        }
-    
-        if ($locDetailId) {
-            $locDetailName = LocDetail::find($locDetailId)->name;
-        }
-    
-        // Initialize arrays to store header and detail assets
-        $headerAssets = [];
-        $detailAssets = [];
-    
-        
-        if ($searchBy === null) {
-            // Retrieve all records
-            $headerAssets = AssetHeader::all();
-        } else {
-            switch ($searchBy) {
-                case 'assetNo':
-                    $headerAssets = AssetHeader::where('asset_no', $request->input('assetNo'))->get();
-                    break;
-        
-                case 'destination':
-                    $headerAssets = AssetHeader::where('plant', $locHeaderName);
-                    if ($locDetailId) {
-                        $headerAssets->where('loc', $locDetailName);
-                    }
-                    $headerAssets = $headerAssets->get();
-                    break;
-        
-                case 'department':
-                    $headerAssets = AssetHeader::where('dept', $departmentId)->get();
-                    break;
-        
-                case 'dateRange':
-                    $startDate = $request->input('startDate');
-                    $endDate = $request->input('endDate');
-                    $headerAssets = AssetHeader::whereBetween('acq_date', [$startDate, $endDate])->get();
-                    break;
-        
-                case 'assetCategory':
-                    $headerAssets = AssetHeader::where('asset_type', $assetCategorySearch)->get();
-                    break;
-        
-                default:
-                    break;
-            }
-        }
-        
-    
-        // Query detail assets for each header asset
-        foreach ($headerAssets as $headerAsset) {
-            $detailAssets[] = AssetDetail::where('asset_header_id', $headerAsset->id)->get();
-        }
-    
-        // Combine header and detail assets into a single dataset
-        $combinedAssets = collect([
-            'headerAssets' => $headerAssets,
-            'detailAssets' => $detailAssets,
-        ]);
-    
-        // Export to Excel (You need to implement the logic for exporting to Excel)
-        // You can use Laravel Excel or any other package for exporting to Excel
-        // Example using Laravel Excel:
-        return Excel::download(new AssetExport($combinedAssets), 'assets.xlsx');
+public function exportToExcel(Request $request)
+{
+    // Retrieving selected search criteria
+    $searchBy = $request->input('searchBy');
+    $departmentId = $request->input('department');
+    $locHeaderId = $request->input('destination');
+    $locDetailId = $request->input('location');
+    $assetCategorySearch = $request->input('assetCategory');
+
+    // Additional variables to store the names
+    $locHeaderName = null;
+    $locDetailName = null;
+
+    // Querying names based on IDs
+    if ($locHeaderId) {
+        $locHeaderName = LocHeader::find($locHeaderId)->name;
     }
+
+    if ($locDetailId) {
+        $locDetailName = LocDetail::find($locDetailId)->name;
+    }
+
+    // Initialize a collection to store both header and detail assets
+    $exportData = collect();
+
+    if ($searchBy === null) {
+        // Retrieve all records
+        $headerAssets = AssetHeader::all();
+    } else {
+        switch ($searchBy) {
+            case 'assetNo':
+                $headerAssets = AssetHeader::where('asset_no', $request->input('assetNo'))->get();
+                break;
+
+            case 'destination':
+                $headerAssets = AssetHeader::where('plant', $locHeaderName);
+                if ($locDetailId) {
+                    $headerAssets->where('loc', $locDetailName);
+                }
+                $headerAssets = $headerAssets->get();
+                break;
+
+            case 'department':
+                $headerAssets = AssetHeader::where('dept', $departmentId)->get();
+                break;
+
+            case 'dateRange':
+                $startDate = $request->input('startDate');
+                $endDate = $request->input('endDate');
+                $headerAssets = AssetHeader::whereBetween('acq_date', [$startDate, $endDate])->get();
+                break;
+
+            case 'assetCategory':
+                $headerAssets = AssetHeader::where('asset_type', $assetCategorySearch)->get();
+                break;
+
+            default:
+                break;
+        }
+    }
+
+   // Common array structure for both header and detail assets
+$commonRow = [
+    'Header Asset ID' => null,
+    'Asset No' => null,
+    'Sub Asset' => null,
+    'Detail Desc' => null,
+    'Detail Quantity' => null,
+    'Detail Unit of Measure' => null,
+    'Detail Asset Type' => null,
+    'Detail Date' => null,
+    'Detail Cost' => null,
+    'Detail Purchase Order No' => null,
+    'Detail Serial No' => null,
+    'Detail Image' => null,
+    'Detail Status' => null,
+    'Detail Remarks' => null,
+    'Detail Book Value at End of Year' => null,
+    'Department' => null,
+    'Plant' => null,
+    'Location' => null,
+    'Cost Center' => null,
+    'Flag' => null,
+    'Segment' => null,
+    'Image' => null,
+    'Status' => null,
+    'Remarks' => null,
+    'Book Value at the End of Year' => null,
+    'created_at' => null,
+    'updated_at' => null,
+    // Add more common columns as needed
+];
+
+foreach ($headerAssets as $headerAsset) {
+    // Fill in the values for header asset in the common row
+    $commonRow['Header Asset ID'] = $headerAsset->id;
+    $commonRow['Asset No'] = $headerAsset->asset_no;
+    $commonRow['Sub Asset'] = null; // No sub-asset for header
+    $commonRow['Detail Desc'] = $headerAsset->desc;
+    $commonRow['Detail Quantity'] = $headerAsset->qty;
+    $commonRow['Detail Unit of Measure'] = $headerAsset->uom;
+    $commonRow['Detail Asset Type'] = $headerAsset->asset_type;
+    $commonRow['Detail Date'] = $headerAsset->acq_date;
+    $commonRow['Detail Cost'] = $headerAsset->acq_cost;
+    $commonRow['Detail Purchase Order No'] = $headerAsset->po_no;
+    $commonRow['Detail Serial No'] = $headerAsset->serial_no;
+    $commonRow['Detail Image'] = $headerAsset->img;
+    $commonRow['Detail Status'] = $headerAsset->status;
+    $commonRow['Detail Remarks'] = $headerAsset->remarks;
+    $commonRow['Detail Book Value at End of Year'] = $headerAsset->bv_endofyear;
+    $commonRow['Department'] = $headerAsset->dept;
+    $commonRow['Plant'] = $headerAsset->plant;
+    $commonRow['Location'] = $headerAsset->loc;
+    $commonRow['Cost Center'] = $headerAsset->cost_center;
+    $commonRow['Flag'] = $headerAsset->flag;
+    $commonRow['Segment'] = $headerAsset->segment;
+    $commonRow['Image'] = $headerAsset->img;
+    $commonRow['Status'] = $headerAsset->status;
+    $commonRow['Remarks'] = $headerAsset->remarks;
+    $commonRow['Book Value at the End of Year'] = $headerAsset->bv_endofyear;
+    $commonRow['created_at'] = $headerAsset->created_at;
+    $commonRow['updated_at'] = $headerAsset->updated_at;
+
+    // Add the header row to the collection
+    $exportData->push($commonRow);
+
+    // Find detail assets for the current header asset
+    $detailAssets = AssetDetail::where('asset_header_id', $headerAsset->id)->get();
+
+    // Check if there are detail assets
+    if ($detailAssets->isNotEmpty()) {
+        foreach ($detailAssets as $detailAsset) {
+            // Fill in the values for detail asset in the common row
+            $commonRow['Header Asset ID'] = null; // No repeated header ID for details
+            $commonRow['Asset No'] = $detailAsset->asset_no;
+            $commonRow['Sub Asset'] = $detailAsset->sub_asset;
+            $commonRow['Detail Desc'] = $detailAsset->desc;
+            $commonRow['Detail Quantity'] = $detailAsset->qty;
+            $commonRow['Detail Unit of Measure'] = $detailAsset->uom;
+            $commonRow['Detail Asset Type'] = $detailAsset->asset_type;
+            $commonRow['Detail Date'] = $detailAsset->acq_date;
+            $commonRow['Detail Cost'] = $detailAsset->acq_cost;
+            $commonRow['Detail Purchase Order No'] = $detailAsset->po_no;
+            $commonRow['Detail Serial No'] = $detailAsset->serial_no;
+            $commonRow['Detail Image'] = $detailAsset->img;
+            $commonRow['Detail Status'] = $detailAsset->status;
+            $commonRow['Detail Remarks'] = $detailAsset->remarks;
+            $commonRow['Detail Book Value at End of Year'] = $detailAsset->bv_endofyear;
+            $commonRow['Department'] = $headerAsset->dept; // No department for details
+            $commonRow['Plant'] = $headerAsset->plant; // No plant for details
+            $commonRow['Location'] = $headerAsset->loc; // No location for details
+            $commonRow['Cost Center'] = $headerAsset->cost_center; // No cost center for details
+            $commonRow['Flag'] = $headerAsset->flag; // No flag for details
+            $commonRow['Segment'] = $headerAsset->segment; // No segment for details
+            $commonRow['Image'] = $detailAsset->img; // No image for details
+            $commonRow['Status'] = $detailAsset->status; // No status for details
+            $commonRow['Remarks'] = $detailAsset->remarks; // No remarks for details
+            $commonRow['Book Value at the End of Year'] = $detailAsset->bv_endofyear; // No book value for details
+            $commonRow['created_at'] = $detailAsset->created_at;
+            $commonRow['updated_at'] = $detailAsset->updated_at;
+
+            // Add the detail row to the collection
+            $exportData->push($commonRow);
+        }
+    }
+}
+
+// Export to Excel (You need to implement the logic for exporting to Excel)
+// Example using Laravel Excel:
+return Excel::download(new AssetExport($exportData), 'assets.xlsx');
+
+    
+}
+
     
 
     
