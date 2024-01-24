@@ -557,7 +557,7 @@
                     <th>Qty</th>
                     <th>Acquisition date</th>
                     <th>Location</th>
-                    <th>Sub-Asset</th>
+                    <th>Sub</th>
                     <th>Status</th>
                     <th>Action</th>
                   </tr>
@@ -576,7 +576,7 @@
                         <td>{{ $data->plant}} <br> ( <small>{{$data->loc}}</small> )</td>
                         <td>
                             <button class="btn btn-info btn-sm details-btn" data-bs-toggle="modal" data-bs-target="#detailsModal{{ $data->id }}">
-                                Sub - Asset
+                                 Sub 
                             </button>
                         </td>
                         <td>

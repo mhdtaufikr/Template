@@ -560,6 +560,7 @@ class AssetController extends Controller
 
             return redirect()->back()->with('status', 'Assets imported successfully');
         } catch (Throwable $e) {
+            dd($e);
             // If an error occurs, rollback the transaction
             DB::rollBack();
 
@@ -822,7 +823,7 @@ public function exportToExcel(Request $request)
 
    // Common array structure for both header and detail assets
 $commonRow = [
-    'Header Asset ID' => null,
+    'Main Asset' => null,
     'Asset No' => null,
     'Sub Asset' => null,
     'Detail Desc' => null,
@@ -854,7 +855,7 @@ $commonRow = [
 
 foreach ($headerAssets as $headerAsset) {
     // Fill in the values for header asset in the common row
-    $commonRow['Header Asset ID'] = $headerAsset->id;
+    $commonRow['Main Asset'] = $headerAsset->asset_no;
     $commonRow['Asset No'] = $headerAsset->asset_no;
     $commonRow['Sub Asset'] = null; // No sub-asset for header
     $commonRow['Detail Desc'] = $headerAsset->desc;
@@ -892,7 +893,7 @@ foreach ($headerAssets as $headerAsset) {
     if ($detailAssets->isNotEmpty()) {
         foreach ($detailAssets as $detailAsset) {
             // Fill in the values for detail asset in the common row
-            $commonRow['Header Asset ID'] = null; // No repeated header ID for details
+            $commonRow['Main Asset'] = $headerAsset->asset_no; // No repeated header ID for details
             $commonRow['Asset No'] = $detailAsset->asset_no;
             $commonRow['Sub Asset'] = $detailAsset->sub_asset;
             $commonRow['Detail Desc'] = $detailAsset->desc;

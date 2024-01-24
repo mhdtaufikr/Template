@@ -26,19 +26,22 @@ class ExcelExport implements FromCollection, WithHeadings, WithEvents
     }
 
     public function headings(): array
-    {
-        return [
-            'Asset No', 'Description', 'Quantity', 'UOM', 'Acquisition Date', 'Acquisition Cost',
-            'PO No', 'Serial No', 'Department', 'Plant', 'Location', 'Cost Center', 'Image', 'Status', 'BV End of Year'
-        ];
-    }
+{
+    return [
+        'Main Asset', 'Asset No', 'Sub Asset', 'Asset Description', 'Quantity', 'Bun',
+        'Asset Type', 'First Acq.', 'Acquis. Val.', 'PO No.', 'Serial No', 'Status',
+        'Remarks', 'Book Value at End of Year', 'Department', 'Plant', 'Location',
+        'Cost Center', 'Part No.'
+    ];
+}
+
 
     public function registerEvents(): array
     {
         return [
             AfterSheet::class => function (AfterSheet $event) {
                 // Add a note to cell E2
-                $richText = $event->sheet->getDelegate()->getComment('E2')->getText();
+                $richText = $event->sheet->getDelegate()->getComment('H2')->getText();
                 $richText->createTextRun($this->note);
             },
         ];
