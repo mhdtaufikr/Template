@@ -83,6 +83,8 @@
             font-size: 10px;
             text-align: left; /* Center additional info text */
         }
+        @page { margin-left: 0;
+        margin-top: 0; }
     </style>
 </head>
 
@@ -104,7 +106,7 @@
                     <img src="data:image/png;base64, {!! base64_encode($qrCode) !!}" alt="QR Code for Asset ID: {{ $decryptedId }}">
                 </td>
                 <td style="width:70%" id="additionalInfo">
-                    <h2>Asset By PT.MKM</h2>
+                    <h3>Asset By PT.MKM</h3>
                     <h1>{{ $asset->asset_no }}</h1>
                     <p style="margin-bottom: 0">Lorem ipsum dolor sit, amet consectetur adipisicin</p>
                     <p style="margin: 0"> TDRA 39/40 <br>{{ date('d/m/Y', strtotime($asset->acq_date)) }}</p>
@@ -112,7 +114,7 @@
             </tr>
         </tbody>
     </table>
-    <br><br>
+    <div style="page-break-before: always;"></div>
 @endforeach
 </body>
 

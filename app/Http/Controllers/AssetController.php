@@ -584,7 +584,7 @@ class AssetController extends Controller
             'assets' => $assets,
         ];
         // Initialize the PDF
-        $pdf = Pdf::loadView('asset.pdf', $data);
+        $pdf = Pdf::loadView('asset.pdf', $data)->setPaper('a4', 'landscape');
     
         // Save the PDF (you may want to customize the storage path)
         $pdfPath = public_path("pdfs/qr_codes.pdf");
