@@ -83,8 +83,8 @@
             font-size: 10px;
             text-align: left; /* Center additional info text */
         }
-        @page { margin-left: 0;
-        margin-top: 0; }
+        @page { margin-left: 20;
+        margin-top: -5; }
     </style>
 </head>
 
@@ -106,8 +106,8 @@
                     <img src="data:image/png;base64, {!! base64_encode($qrCode) !!}" alt="QR Code for Asset ID: {{ $decryptedId }}">
                 </td>
                 <td style="width:70%" id="additionalInfo">
-                    <h3>Asset By PT.MKM</h3>
-                    <h1>{{ $asset->asset_no }}</h1>
+                    <h3 style="margin-bottom: 0;margin-top: 2px">Asset By PT.MKM</h3>
+                    <h1 style="margin-bottom: 0">{{ $asset->asset_no }}</h1>
                     <p style="margin-bottom: 0">Lorem ipsum dolor sit, amet consectetur adipisicin</p>
                     <p style="margin: 0"> TDRA 39/40 <br>{{ date('d/m/Y', strtotime($asset->acq_date)) }}</p>
                 </td>
