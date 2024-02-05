@@ -220,7 +220,7 @@
                                     <p>{{$assetHeaderData->cost_center}} </p>
                                 </div>
                                 <div class="col-md-4">
-                                    <strong>BV End Of Year</strong><br>
+                                   <strong>BV End Of Year {{ now()->year }}</strong><br>
                                     <p>{{ 'Rp ' . number_format($assetHeaderData->bv_endofyear, 0, ',', '.') }}</p>
                                 </div>                    
                             </div>
@@ -361,7 +361,7 @@
                                 </button>
                                 </div>
                                 <div class="col-md-6">
-                                    <strong>BV End Of Year</strong><br>
+                                   <strong>BV End Of Year {{ now()->year }}</strong><br>
                                     <p>{{ 'Rp ' . number_format($assetHeaderData->bv_endofyear, 0, ',', '.') }}</p>
                                 </div>
                             </div>

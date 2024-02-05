@@ -83,6 +83,8 @@
             font-size: 10px;
             text-align: left; /* Center additional info text */
         }
+        @page { margin-left: 20;
+        margin-top: -5; }
     </style>
 </head>
 
@@ -94,7 +96,7 @@
         // Generate the QR code
         $qrCode = QrCode::size(100)
         ->margin(5) // Adjust the margin to increase the size of the pixels
-        ->generate("http://172.17.215.44/mkm/dtl/{$decryptedId}");
+        ->generate("$rule{$decryptedId}");
     ?>
     <table class="table table-bordered plate custom-table">
         <tbody>
@@ -103,15 +105,16 @@
                     <img src="data:image/png;base64, {!! base64_encode($qrCode) !!}" alt="QR Code for Asset ID: {{ $decryptedId }}">
                 </td>
                 <td style="width:70%" id="additionalInfo">
-                    <h2>Asset By PT.MKM</h2>
-                    <h1>{{ $asset->asset_no }} - {{$asset->sub_asset}}</h1>
-                    <p style="margin-bottom: 0">Lorem ipsum dolor sit, amet consectetur adipisicin</p>
-                    <p style="margin: 0"> TDRA 39/40 <br>{{ date('d/m/Y', strtotime($asset->acq_date)) }}</p>
+                    <h3 style="margin-bottom: 0; margin-top:4px">Asset By PT.MKM</h3>
+                    <h1 style="margin-bottom: 0">{{ $asset->asset_no }} - {{$asset->sub_asset}}</h1>
+                    <p style="margin-bottom: 0">{{ Illuminate\Support\Str::limit($asset->desc, 50) }}</p>
+
+                    <p style="margin: 0"> {{$segment}}<br>{{ date('d/m/Y', strtotime($asset->acq_date)) }}</p>
                 </td>
             </tr>
         </tbody>
     </table>
-    <br><br>
+    <div style="page-break-before: always;"></div>
 @endforeach
 </body>
 

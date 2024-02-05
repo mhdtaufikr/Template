@@ -29,7 +29,7 @@ class ExcelExport implements FromCollection, WithHeadings, WithEvents
 {
     return [
         'Main Asset', 'Asset No', 'Sub Asset', 'Asset Description', 'Quantity', 'Bun',
-        'Asset Type', 'First Acq.', 'Acquis. Val.', 'PO No.', 'Serial No', 'Status',
+         'First Acq.', 'Acquis. Val.', 'PO No.', 'Serial No', 'Status',
         'Remarks', 'Book Value at End of Year', 'Department', 'Plant', 'Location',
         'Cost Center', 'Part No.'
     ];
@@ -41,8 +41,9 @@ class ExcelExport implements FromCollection, WithHeadings, WithEvents
         return [
             AfterSheet::class => function (AfterSheet $event) {
                 // Add a note to cell E2
-                $richText = $event->sheet->getDelegate()->getComment('H2')->getText();
-                $richText->createTextRun($this->note);
+               $event->sheet->getDelegate()->getComment('H1')->getText()->createTextRun($this->note);
+               $event->sheet->getDelegate()->getComment('L1')->getText()->createTextRun("2 = disposal, 0 = deactive, 1 = active");
+
             },
         ];
     }

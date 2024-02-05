@@ -21,6 +21,7 @@ use Illuminate\Support\Facades\File;
 use App\Exports\ExcelExportDetail;
 use App\Imports\AssetDetailImport;
 use Illuminate\Support\Facades\View;
+use App\Models\Rule;
 
 use App\Exports\AssetExport;
 
@@ -158,7 +159,6 @@ class AssetController extends Controller
             'uom' => 'required|string|max:255',
             'date' => 'required|date',
             'cost_edit' => 'required',
-            'asset_type' => 'required',
             'plant' => 'required|string|max:255',
             'loc' => 'required|string|max:255',
             'dept' => 'required|string|max:255',
@@ -166,6 +166,18 @@ class AssetController extends Controller
             'img' => 'nullable|file|mimes:jpeg,png,jpg,gif|max:2048', // Assuming it's an image file
             'bv_end' => 'required',
         ]);
+
+         // Get the first two numbers of 'asset_no'
+         $assetClass = substr($request->asset_no , 0, 2);
+
+         // Query 'asset_categories' to get the 'class'
+         $assetCategory = AssetCategory::where('class', $assetClass)->first();
+
+        if ($assetCategory === null) {
+            return redirect()->back()->with('failed', 'Asset type not found.');
+        }
+
+        $assetCategory = $assetCategory->desc;
     
         try {
             // Check if any changes have been made to the model attributes
@@ -191,7 +203,7 @@ class AssetController extends Controller
                 $assetHeader->uom = $request->uom;
                 $assetHeader->acq_date = $request->date;
                 $assetHeader->acq_cost = (int) str_replace(',', '', $request->cost_edit);
-                $assetHeader->asset_type = $request->asset_type;
+                $assetHeader->asset_type = $assetCategory;
                 $assetHeader->plant = $request->plant;
                 $assetHeader->loc = $request->loc;
                 $assetHeader->dept = $request->dept;
@@ -244,17 +256,18 @@ class AssetController extends Controller
         return view('asset.detail', compact('assetHeaderData','assetDetailData','dropdownUom','assetCategory','locHeader','locDetail','dept','status'));
     }
 
-    public function status(Request $request, $id){
+    public function status(Request $request, $id) {
         $id = decrypt($id);
-        
+    
         try {
             // Find the AssetHeader model by ID
             $assetHeader = AssetHeader::findOrFail($id);
     
-            // Get the status and remark from the request
+            // Get the status from the request
             $status = $request->input('status');
-            $remark = $request->input('remark');
     
+            // Append the current month and year to the existing remark
+            $remark = $request->input('remark') . ' (' . now()->format('F Y') . ')';
             // Update the status attribute
             $assetHeader->status = $status;
     
@@ -275,6 +288,7 @@ class AssetController extends Controller
             return redirect()->back()->with('failed', 'Failed to update asset status. Please try again.');
         }
     }
+    
     
 
     public function detailStore(Request $request){
@@ -352,7 +366,6 @@ class AssetController extends Controller
     {
         try {
             $assetDetail = AssetDetail::findOrFail($id);
-    
             // Validate the request data
             $request->validate([
                 'asset_no' => 'required|string|max:255',
@@ -361,18 +374,18 @@ class AssetController extends Controller
                 'qty' => 'required|numeric',
                 'uom' => 'required|string|max:255',
                 'date' => 'required|date',
-                'asset_type' => 'required|numeric',
+                'asset_type' => 'required',
                 'costEdit' => 'required',
                 'po_no' => 'nullable|string|max:255',
                 'serial_no' => 'nullable|string|max:255',
                 'img' => 'nullable|file|mimes:jpeg,png,jpg,gif|max:2048',
                 'bv_endEdit' => 'required',
             ]);
-    
+  
             // Remove commas from the 'costEdit' and 'bv_endEdit' fields and turn them into integers
             $cost = (int) str_replace(',', '', $request->costEdit);
             $bvEnd = (int) str_replace(',', '', $request->bv_endEdit);
-    
+
             // Compare current values with the new values
             $changes = [
                 'asset_no' => $request->asset_no,
@@ -434,6 +447,7 @@ class AssetController extends Controller
                 return redirect()->back()->with('failed', 'No changes made');
             }
         } catch (\Exception $e) {
+            dd($e);
             // Handle any exception that may occur during the update
             return redirect()->back()->with('failed', 'Failed to update asset detail. Please try again.');
         }
@@ -469,7 +483,7 @@ class AssetController extends Controller
     
             // Get the status and remark from the request
             $status = $request->input('status');
-            $remark = $request->input('remark');
+            $remark = $request->input('remark') . ' (' . now()->format('F Y') . ')';
     
             // Check if the status is different from the current status
             if ($assetDetail->status != $status) {
@@ -577,11 +591,14 @@ class AssetController extends Controller
     
         // Fetch asset information from the database
         $assets = AssetHeader::whereIn('id', $assetIds)->get();
-    
+        $rules = Rule::where('rule_name','UrlQr')->first()->rule_value;
+        $segment = $assets->first()->segment;
         // Initialize an array to store the data to be compacted
         $data = [
             'assetIds' => $assetIds,
             'assets' => $assets,
+            'segment' => $segment,
+            'rule'  => $rules,
         ];
         // Initialize the PDF
         $pdf = Pdf::loadView('asset.pdf', $data)->setPaper('a4', 'landscape');
@@ -599,13 +616,18 @@ class AssetController extends Controller
     
     // Fetch asset information from the database
     $assets = AssetDetail::whereIn('id', $assetIds)->where('asset_header_id', $id)->get();
+    $assetsHeader = AssetHeader::where('id', $assets->first()->asset_header_id)->first();
+    $rules = Rule::where('rule_name','UrlQrDetail')->first()->rule_value;
+    $segment = $assetsHeader->segment;
     // Initialize an array to store the data to be compacted
     $data = [
         'assetIds' => $assetIds,
         'assets' => $assets,
+        'segment' => $segment,
+        'rule'  => $rules,
     ];
     // Use the existing PDF view for details
-    $pdf = Pdf::loadView('asset.qr_codes_detail',$data);
+    $pdf = Pdf::loadView('asset.qr_codes_detail',$data)->setPaper('a4', 'landscape');;
 
     // Save the PDF (you may want to customize the storage path)
     $pdfPath = public_path("pdfs/qr_codes_detail.pdf");

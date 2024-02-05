@@ -10,7 +10,7 @@ class AssetHeader extends Model
 {
     protected $fillable = [
         'asset_no', 'desc', 'qty', 'uom', 'asset_type', 'acq_date', 'acq_cost',
-        'po_no', 'serial_no', 'dept', 'plant', 'loc', 'cost_center', 'img', 'status', 'bv_endofyear'
+        'po_no', 'serial_no', 'dept', 'plant', 'loc', 'cost_center','segment', 'img', 'status', 'bv_endofyear'
     ];
 
     public function details(): HasMany

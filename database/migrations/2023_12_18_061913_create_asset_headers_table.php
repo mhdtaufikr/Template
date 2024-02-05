@@ -28,7 +28,6 @@ class CreateAssetHeadersTable extends Migration
             $table->string('plant'); // Varchar column for plant
             $table->string('loc'); // Varchar column for location
             $table->string('cost_center'); // Varchar column for cost center
-            $table->string('flag')->nullable(); // Nullable Varchar column for flag
             $table->string('segment'); // Nullable Varchar column for segment
             $table->string('img')->nullable(); // Nullable Varchar column for image
             $table->string('status'); // Varchar column for status

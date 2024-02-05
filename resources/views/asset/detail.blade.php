@@ -233,9 +233,13 @@
                             <p>{{$assetHeaderData->cost_center}} </p>
                         </div>
                         <div class="col-md-4">
-                            <strong>BV End Of Year</strong><br>
+                           <strong>BV End Of Year {{ now()->year }}</strong><br>
                             <p>{{ 'Rp ' . number_format($assetHeaderData->bv_endofyear, 0, ',', '.') }}</p>
                         </div>                    
+                    </div>
+                    <div>
+                        <strong>Remarks</strong><br>
+                        <p>Latest Update : {{ $assetHeaderData->remarks }}</p>
                     </div>
 
                 </div>
@@ -259,9 +263,9 @@
                                 <button  title="Add Asset" type="button" class="btn btn-dark btn-sm mb-2" data-bs-toggle="modal" data-bs-target="#modal-add">
                                     <i class="fas fa-plus-square"></i> 
                                 </button>
-                                <button  title="Import Asset" type="button" class="btn btn-info btn-sm mb-2" data-bs-toggle="modal" data-bs-target="#modal-import">
+                                {{-- <button  title="Import Asset" type="button" class="btn btn-info btn-sm mb-2" data-bs-toggle="modal" data-bs-target="#modal-import">
                                     Import Assets 
-                                  </button>
+                                  </button> --}}
                                   @endif
                                   <a title="Generate Checklist" class="btn btn-primary btn-sm mb-2" href="#" onclick="generateChecklistDetail('{{ $assetHeaderData->id }}'); return false;" id="generateChecklistBtn{{ $assetHeaderData->id }}">
                                     Generate QR Code
@@ -741,9 +745,13 @@
                                                     @endif
                                                 </div>
                                                 <div class="col-md-6">
-                                                    <strong>BV End Of Year</strong><br>
+                                                   <strong>BV End Of Year {{ now()->year }}</strong><br>
                                                     <p>{{ 'Rp ' . number_format($assetHeaderData->bv_endofyear, 0, ',', '.') }}</p>
                                                 </div>
+                                            </div>
+                                            <div>
+                                                <strong>Remarks</strong><br>
+                                                <p>Latest Update : {{ $data->remarks }}</p>
                                             </div>
                                             <!-- Add more fields as needed -->
 
@@ -766,7 +774,7 @@
                                 <div class="modal-dialog">
                                 <div class="modal-content">
                                     <div class="modal-header">
-                                    <h4 class="modal-title" id="modal-update{{ $data->id }}-label">Edit Cost Center</h4>
+                                    <h4 class="modal-title" id="modal-update{{ $data->id }}-label">Edit Detail Asset</h4>
                                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                     </div>
                                     <form action="{{ url('/asset/detail/update/'.$data->id) }}" method="POST"  enctype="multipart/form-data">
@@ -818,7 +826,7 @@
                                                     <select name="asset_type" id="asset_type" class="form-control" required>
                                                         <option value="{{$data->asset_type}}">{{$data->asset_type}}</option>
                                                         @foreach ($assetCategory as $item)
-                                                            <option value="{{ $item->class }}">{{ $item->class }}</option>
+                                                            <option value="{{ $item->desc }}">{{ $item->desc }}</option>
                                                         @endforeach
                                                     </select>
                                                 </div>
@@ -940,12 +948,7 @@
                             "autoWidth": false,
                             "order": [],
                             "dom": 'Bfrtip',
-                            "buttons": [{
-                                title: 'Asset Management',
-                                text: '<i class="fas fa-file-excel"></i> Export to Excel',
-                                extend: 'excel',
-                                className: 'btn btn-success btn-sm mb-2'
-                            }]
+                            "buttons": []
                         });
                     });
     </script>
