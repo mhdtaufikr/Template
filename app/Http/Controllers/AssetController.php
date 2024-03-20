@@ -651,74 +651,73 @@ class AssetController extends Controller
     }
 
     public function searchBy(Request $request)
-{
-    // Validation
-    $request->validate([
-        'searchBy' => 'required',
-        // Add other validation rules for your form fields
-    ]);
+    {
+        // Validation
+        $request->validate([
+            'searchBy' => 'required',
+            // Add other validation rules for your form fields
+        ]);
 
-    // Retrieve data for dropdowns
-    $status = Dropdown::where('category', 'Status')->get();
-    $dropdownUom = Dropdown::where('category', 'UOM')->get();
-    $assetCategory = AssetCategory::get();
-    $dept = Department::get();
-    $locHeader = LocHeader::get();
-    $locDetail = LocDetail::get();
-    $costCenter = CostCenter::get();
+        // Retrieve data for dropdowns
+        $status = Dropdown::where('category', 'Status')->get();
+        $dropdownUom = Dropdown::where('category', 'UOM')->get();
+        $assetCategory = AssetCategory::get();
+        $dept = Department::get();
+        $locHeader = LocHeader::get();
+        $locDetail = LocDetail::get();
+        $costCenter = CostCenter::get();
 
-    // Retrieve selected search criteria
-    $searchBy = $request->input('searchBy');
+        // Retrieve selected search criteria
+        $searchBy = $request->input('searchBy');
 
-    // Additional variables for department and loc_detail_id
-    $departmentId = $request->input('department');
-    $locHeaderId = $request->input('destination');
-    $locDetailId = $request->input('location');
-    $assetCategorySearch = $request->input('assetCategory');
+        // Additional variables for department and loc_detail_id
+        $departmentId = $request->input('department');
+        $locHeaderId = $request->input('destination');
+        $locDetailId = $request->input('location');
+        $assetCategorySearch = $request->input('assetCategory');
 
-    // Initializing $assetData as a query builder instance
-    $assetData = AssetHeader::query();
+        // Initializing $assetData as pagination
+        $assetData = null;
 
-    // Additional variables to store the names
-    $locHeaderName = $locDetailName = null;
+        // Additional variables to store the names
+        $locHeaderName = $locDetailName = null;
 
-    // Querying names based on IDs
-    $locHeaderName = $locHeaderId ? LocHeader::find($locHeaderId)->name : null;
-    $locDetailName = $locDetailId ? LocDetail::find($locDetailId)->name : null;
+        // Querying names based on IDs
+        $locHeaderName = $locHeaderId ? LocHeader::find($locHeaderId)->name : null;
+        $locDetailName = $locDetailId ? LocDetail::find($locDetailId)->name : null;
 
-    // Switch statement to handle different search criteria and build the query
-    switch ($searchBy) {
-        case 'assetNo':
-            $assetData->where('asset_no', $request->input('asset_no'));
-            break;
+        // Switch statement to handle different search criteria
+        switch ($searchBy) {
+            case 'assetNo':
+                $assetData = $this->searchByAssetNo($request);
+                break;
 
-        case 'destination':
-            // Add your logic to filter by destination
-            break;
+            case 'destination':
+                $assetData = $this->searchByDestination($request, $locHeaderName, $locDetailName);
+                break;
 
-        case 'department':
-            $assetData->where('dept', $departmentId);
-            break;
+            case 'department':
+                $assetData = $this->searchByDepartment($departmentId);
+                break;
 
-        case 'dateRange':
-            // Add your logic to filter by date range
-            break;
+            case 'dateRange':
+                $assetData = $this->searchByDateRange($request);
+                break;
 
-        case 'assetCategory':
-            // Add your logic to filter by asset category
-            break;
+            case 'assetCategory':
+                $assetData = $this->searchByAssetCategory($assetCategorySearch);
+                break;
 
-        default:
-            break;
+            default:
+                break;
+        }
+
+        // Paginate the asset data
+        $assetData = $assetData ? $assetData->paginate(10) : null; // Adjust per your pagination needs
+
+        // Returning the view with the retrieved data and names
+        return view("asset.main", compact("status", "assetData", "dropdownUom", "assetCategory", "dept", "locHeader", "locDetail", "costCenter", "locHeaderName", "locDetailName"));
     }
-
-    // Paginate the query results
-    $assetData = $assetData->paginate(30);
-
-    // Returning the view with the retrieved data and names
-    return view("asset.main", compact("status", "assetData", "dropdownUom", "assetCategory", "dept", "locHeader", "locDetail", "costCenter", "locHeaderName", "locDetailName"));
-}
-
 
 private function searchByAssetNo(Request $request)
 {
