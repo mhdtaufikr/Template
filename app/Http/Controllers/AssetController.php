@@ -30,7 +30,7 @@ use App\Exports\AssetExport;
 class AssetController extends Controller
 {
     public function index(){
-        $assetData = AssetHeader::with('details')->get();
+        $assetData =[];
         $dropdownUom = Dropdown::where('category','UOM')->get();
         $assetCategory = AssetCategory::get();
         $dept = Department::get();
@@ -38,8 +38,6 @@ class AssetController extends Controller
         $locDetail = LocDetail::get();
         $costCenter = CostCenter::get();
         $status = Dropdown::where('category','Status')->get();
-        
-    
         return view("asset.main", compact("assetData", "dropdownUom", "assetCategory", "dept", "locHeader", "locDetail", "costCenter",'status'));
     }
 
@@ -47,16 +45,16 @@ class AssetController extends Controller
         try {
             $assetHeader = AssetHeader::findOrFail($id);
             $assetDetail = AssetDetail::where('asset_header_id', $id)->get();
-            
+
             // Delete the associated image file
             if ($assetHeader->img) {
                 unlink(public_path($assetHeader->img));
             }
-    
+
             // Delete the assetDetails
             $assetDetail->each->delete(); // Remove the parentheses here
             $assetHeader->delete();
-    
+
             return redirect()->back()->with('status', 'Asset detail deleted successfully');
         } catch (\Exception $e) {
             dd($e);
@@ -64,7 +62,7 @@ class AssetController extends Controller
             return redirect()->back()->with('failed', 'Failed to delete asset detail. Please try again.');
         }
     }
-    
+
 
     // AssetHeader model
     public function details()
@@ -89,7 +87,7 @@ class AssetController extends Controller
             'img' => 'required|file|mimes:jpeg,png,jpg,gif|max:2048', // Assuming it's an image file
             'bv_end' => 'required',
         ]);
-    
+
         try {
 
             // Check if asset_no already exists
@@ -101,8 +99,8 @@ class AssetController extends Controller
 
             // Remove commas from the 'cost' and 'bv_end' fields
             $cost = (int) str_replace(',', '', $request->cost);
-            $bvEnd = (int) str_replace(',', '', $request->bv_end);            
-    
+            $bvEnd = (int) str_replace(',', '', $request->bv_end);
+
            // Handle file upload
         if ($request->hasFile('img')) {
             $file = $request->file('img');
@@ -137,10 +135,10 @@ class AssetController extends Controller
                 'img' => $imgPath,
                 'bv_endofyear' => $bvEnd,
             ]);
-    
+
             // Save the AssetHeader instance to the database
             $assetHeader->save();
-    
+
             return redirect()->back()->with('status', 'Asset header created successfully');
         } catch (\Exception $e) {
             dd($e);
@@ -178,7 +176,7 @@ class AssetController extends Controller
         }
 
         $assetCategory = $assetCategory->desc;
-    
+
         try {
             // Check if any changes have been made to the model attributes
             if (
@@ -209,28 +207,28 @@ class AssetController extends Controller
                 $assetHeader->dept = $request->dept;
                 $assetHeader->cost_center = $request->cost_center;
                 $assetHeader->bv_endofyear = (int) str_replace(',', '', $request->bv_end);
-    
+
                 // Handle file upload
                 if ($request->hasFile('img')) {
                     // Delete old image file
                     if ($assetHeader->img) {
                         unlink(public_path($assetHeader->img));
                     }
-    
+
                     // Upload and save the new image
                     $file = $request->file('img');
                     $fileName = uniqid() . '_' . $file->getClientOriginalName();
                     $destinationPath = public_path('images');
                     $file->move($destinationPath, $fileName);
-    
+
                     // Set the new image path
                     $imgPath = 'images/' . $fileName;
                     $assetHeader->img = $imgPath;
                 }
-    
+
                 // Save the AssetHeader
                 $assetHeader->save();
-    
+
                 return redirect()->back()->with('status', 'Asset header updated successfully');
             } else {
                 // No changes, so no update is needed
@@ -258,38 +256,38 @@ class AssetController extends Controller
 
     public function status(Request $request, $id) {
         $id = decrypt($id);
-    
+
         try {
             // Find the AssetHeader model by ID
             $assetHeader = AssetHeader::findOrFail($id);
-    
+
             // Get the status from the request
             $status = $request->input('status');
-    
+
             // Append the current month and year to the existing remark
             $remark = $request->input('remark') . ' (' . now()->format('F Y') . ')';
             // Update the status attribute
             $assetHeader->status = $status;
-    
+
             // Set the remark in the model
             $assetHeader->remarks = $remark;
-    
+
             // Save the AssetHeader
             $assetHeader->save();
-    
+
             // Update status in associated AssetDetails
             AssetDetail::where('asset_header_id', $id)->update(['status' => $status]);
-    
+
             $statusText = ($status == 1) ? 'Active' : (($status == 0) ? 'Deactive' : 'Disposal');
-    
+
             return redirect()->back()->with('status', "Asset $statusText updated successfully");
         } catch (\Exception $e) {
             // Handle any exception that may occur during the update
             return redirect()->back()->with('failed', 'Failed to update asset status. Please try again.');
         }
     }
-    
-    
+
+
 
     public function detailStore(Request $request){
         // Validate the request data
@@ -381,7 +379,7 @@ class AssetController extends Controller
                 'img' => 'nullable|file|mimes:jpeg,png,jpg,gif|max:2048',
                 'bv_endEdit' => 'required',
             ]);
-  
+
             // Remove commas from the 'costEdit' and 'bv_endEdit' fields and turn them into integers
             $cost = (int) str_replace(',', '', $request->costEdit);
             $bvEnd = (int) str_replace(',', '', $request->bv_endEdit);
@@ -400,11 +398,11 @@ class AssetController extends Controller
                 'serial_no' => $request->serial_no,
                 'bv_endofyear' => $bvEnd,
             ];
-    
+
             $hasChanges = collect($changes)->some(function ($value, $key) use ($assetDetail) {
                 return $assetDetail->$key != $value;
             });
-    
+
             if ($hasChanges) {
                 // Handle file upload and update image path
                 if ($request->hasFile('img')) {
@@ -412,20 +410,20 @@ class AssetController extends Controller
                     if ($assetDetail->img) {
                         unlink(public_path($assetDetail->img));
                     }
-    
+
                     // Upload the new image
                     $file = $request->file('img');
                     $fileName = uniqid() . '_' . $file->getClientOriginalName();
                     $destinationPath = public_path('images');
                     $file->move($destinationPath, $fileName);
-    
+
                     // Set the new image path
                     $imgPath = 'images/' . $fileName;
                 } else {
                     // No image change
                     $imgPath = $assetDetail->img;
                 }
-    
+
                 // Update the model with the new values
                 $assetDetail->update([
                     'asset_no' => $request->asset_no,
@@ -441,7 +439,7 @@ class AssetController extends Controller
                     'img' => $imgPath,
                     'bv_endofyear' => $bvEnd,
                 ]);
-    
+
                 return redirect()->back()->with('status', 'Asset detail updated successfully');
             } else {
                 return redirect()->back()->with('failed', 'No changes made');
@@ -456,15 +454,15 @@ class AssetController extends Controller
     public function detailDelete($id){
         try {
             $assetDetail = AssetDetail::findOrFail($id);
-            
+
             // Delete the associated image file
             if ($assetDetail->img) {
                 unlink(public_path($assetDetail->img));
             }
-    
+
             // Delete the AssetDetail
             $assetDetail->delete();
-    
+
             return redirect()->back()->with('status', 'Asset detail deleted successfully');
         } catch (\Exception $e) {
             dd($e);
@@ -476,26 +474,26 @@ class AssetController extends Controller
     public function statusDetail(Request $request, $idHeader, $id){
         $idHeader = decrypt($idHeader);
         $id = decrypt($id);
-    
+
         try {
             // Find the AssetDetail model by ID
             $assetDetail = AssetDetail::findOrFail($id);
-    
+
             // Get the status and remark from the request
             $status = $request->input('status');
             $remark = $request->input('remark') . ' (' . now()->format('F Y') . ')';
-    
+
             // Check if the status is different from the current status
             if ($assetDetail->status != $status) {
                 // Update the status attribute
                 $assetDetail->status = $status;
-    
+
                 // Set the remark in the model
                 $assetDetail->remarks = $remark;
-    
+
                 // Save the AssetDetail
                 $assetDetail->save();
-    
+
                 $statusText = ($status == 1) ? 'Active' : (($status == 0) ? 'Deactive' : 'Disposal');
                 return redirect()->back()->with('status', "Asset Detail $statusText updated successfully");
             } else {
@@ -508,7 +506,7 @@ class AssetController extends Controller
             return redirect()->back()->with('failed', 'Failed to update asset detail status. Please try again.');
         }
     }
-    
+
     public function excelFormat()
     {
         // Add your desired note to be displayed in cell E2
@@ -522,36 +520,32 @@ class AssetController extends Controller
     {
         // Add your desired note to be displayed in cell E2
         $note = "ex : 31/01/2017";
-    
+
         // Download Excel file with the note in cell E2
         return Excel::download(new ExcelExportDetail($note), 'FormatDetail.xlsx');
     }
-    
+
 
     public function excelDataDetail(Request $request, $id){
         $request->validate([
             'excel-file' => 'required|file|mimes:xlsx',
         ]);
-    
+
         try {
-            // Start a database transaction
-            DB::beginTransaction();
-    
+
+
             // Import data using AssetDetailImport class
             Excel::import(new AssetDetailImport($id), $request->file('excel-file'));
-    
-            // If everything is successful, commit the transaction
-            DB::commit();
-    
+
+
+
             return redirect()->back()->with('status', 'Assets imported successfully');
         } catch (Throwable $e) {
             dd($e);
-            // If an error occurs, rollback the transaction
-            DB::rollBack();
-    
+
             // Log or handle the error as needed
             // You can also use $e->getMessage() to get the error message
-    
+
             return redirect()->back()->with('failed', 'Error importing assets. Please check the data format.');
         }
     }
@@ -574,7 +568,7 @@ class AssetController extends Controller
 
             return redirect()->back()->with('status', 'Assets imported successfully');
         } catch (Throwable $e) {
-            dd($e);
+            dd($e,'tt');
             // If an error occurs, rollback the transaction
             DB::rollBack();
 
@@ -588,7 +582,7 @@ class AssetController extends Controller
     public function generateQRCodesAndReturnPDF(Request $request)
     {
         $assetIds = explode(',', $request->input('assetIds'));
-    
+
         // Fetch asset information from the database
         $assets = AssetHeader::whereIn('id', $assetIds)->get();
         $rules = Rule::where('rule_name','UrlQr')->first()->rule_value;
@@ -602,18 +596,18 @@ class AssetController extends Controller
         ];
         // Initialize the PDF
         $pdf = Pdf::loadView('asset.pdf', $data)->setPaper('a4', 'landscape');
-    
+
         // Save the PDF (you may want to customize the storage path)
         $pdfPath = public_path("pdfs/qr_codes.pdf");
         $pdf->save($pdfPath);
-    
+
         return response()->file($pdfPath);
     }
 
     public function generateQRCodesDetailAndReturnPDF($id, Request $request)
 {
     $assetIds = explode(',', $request->input('assetIds'));
-    
+
     // Fetch asset information from the database
     $assets = AssetDetail::whereIn('id', $assetIds)->where('asset_header_id', $id)->get();
     $assetsHeader = AssetHeader::where('id', $assets->first()->asset_header_id)->first();
@@ -734,7 +728,7 @@ private function searchByAssetNo(Request $request)
         $headerId = AssetDetail::where('asset_no', $request->input('assetNo'))
             ->pluck('asset_header_id')
             ->first();
-            
+
 
         if ($headerId) {
             // If header_id found in details, query AssetHeader by header_id
@@ -953,10 +947,10 @@ foreach ($headerAssets as $headerAsset) {
 // Example using Laravel Excel:
 return Excel::download(new AssetExport($exportData), 'assets.xlsx');
 
-    
+
 }
 
-    
 
-    
+
+
 }
