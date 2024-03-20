@@ -676,8 +676,8 @@ class AssetController extends Controller
     $locDetailId = $request->input('location');
     $assetCategorySearch = $request->input('assetCategory');
 
-    // Initializing $assetData
-    $assetData = null;
+    // Initializing $assetData as a query builder instance
+    $assetData = AssetHeader::query();
 
     // Additional variables to store the names
     $locHeaderName = $locDetailName = null;
@@ -686,35 +686,39 @@ class AssetController extends Controller
     $locHeaderName = $locHeaderId ? LocHeader::find($locHeaderId)->name : null;
     $locDetailName = $locDetailId ? LocDetail::find($locDetailId)->name : null;
 
-    // Switch statement to handle different search criteria
+    // Switch statement to handle different search criteria and build the query
     switch ($searchBy) {
         case 'assetNo':
-            $assetData = $this->searchByAssetNo($request);
+            $assetData->where('asset_no', $request->input('asset_no'));
             break;
 
         case 'destination':
-            $assetData = $this->searchByDestination($request, $locHeaderName, $locDetailName);
+            // Add your logic to filter by destination
             break;
 
         case 'department':
-            $assetData = $this->searchByDepartment($departmentId);
+            $assetData->where('dept', $departmentId);
             break;
 
         case 'dateRange':
-            $assetData = $this->searchByDateRange($request);
+            // Add your logic to filter by date range
             break;
 
         case 'assetCategory':
-            $assetData = $this->searchByAssetCategory($assetCategorySearch);
+            // Add your logic to filter by asset category
             break;
 
         default:
             break;
     }
 
+    // Paginate the query results
+    $assetData = $assetData->paginate(30);
+
     // Returning the view with the retrieved data and names
     return view("asset.main", compact("status", "assetData", "dropdownUom", "assetCategory", "dept", "locHeader", "locDetail", "costCenter", "locHeaderName", "locDetailName"));
 }
+
 
 private function searchByAssetNo(Request $request)
 {
