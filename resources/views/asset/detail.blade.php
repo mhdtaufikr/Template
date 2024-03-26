@@ -19,7 +19,7 @@
         </div>
     </header>
     <!-- Main page content-->
-    <div class="container-xl px-4 mt-n10">       
+    <div class="container-xl px-4 mt-n10">
     <!-- Content Wrapper. Contains page content -->
     <div class="content-wrapper">
         <!-- Content Header (Page header) -->
@@ -100,7 +100,7 @@
                             }
                         }
                     </script>
-                
+
                 <!-- Modal -->
                 <div class="modal fade" id="imageModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
                     <div class="modal-dialog">
@@ -140,23 +140,23 @@
 
                 </div>
                 <div class="card-body">
-                
+
                     <div class="col-sm-12">
                         <!--alert success -->
                         @if (session('status'))
                         <div class="alert alert-success alert-dismissible fade show" role="alert">
                         <strong>{{ session('status') }}</strong>
                         <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                        </div> 
+                        </div>
                     @endif
 
                     @if (session('failed'))
                     <div class="alert alert-danger alert-dismissible fade show" role="alert">
                         <strong>{{ session('failed') }}</strong>
                         <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                    </div> 
+                    </div>
                     @endif
-                    
+
                         <!--alert success -->
                         <!--validasi form-->
                         @if (count($errors)>0)
@@ -175,71 +175,39 @@
 
                     <div class="row">
                         <div class="col-md-4">
+                            <img style="width: 100%" class="img-fluid mb-3" src="{{ asset($assetHeaderData->img) }}" alt=""><br>
+                            <p class="text-center">{{$assetHeaderData->desc}}</p>
+                        </div>
+                        <div class="col-md-4">
                             <strong>Asset No.</strong><br>
-                            <p>{{$assetHeaderData->asset_no}} <br> <button class="btn btn-info btn-sm" data-bs-toggle="modal" data-bs-target="#imageModal">
-                                View
-                            </button></p>
-                            
-                        </div>
-                        <div class="col-md-4">
-                            <strong>Description</strong><br>
-                            <p>{{$assetHeaderData->desc}}</p>
-                        </div>
-                        <div class="col-md-4">
+                            <p>{{$assetHeaderData->asset_no}}</p>
                             <strong>Quantity</strong><br>
                             <p>{{$assetHeaderData->qty}} ({{$assetHeaderData->uom}} )</p>
-                        </div>
-                    </div>
-
-                    <div class="row">
-                    
-                        <div class="col-md-4">
                             <strong>Asset Category</strong><br>
                             <p>{{$assetHeaderData->asset_type}}</p>
-                        </div>
-                        <div class="col-md-4">
                             <strong>Acquisition Date</strong><br>
                             <p>{{ date('d-M-Y', strtotime($assetHeaderData->acq_date)) }}</p>
-                        </div>                    
-                        <div class="col-md-4">
-                            <strong>Acquisition Cost</strong><br>
-                            <p>{{ 'Rp ' . number_format($assetHeaderData->acq_cost, 0, ',', '.') }}</p>
-                        </div>                    
-                    </div>
-
-                    <div class="row">
-                        <div class="col-md-4">
-                            <strong>PO No.</strong><br>
-                            <p>{{$assetHeaderData->po_no}} </p>
-                        </div>
-                        <div class="col-md-4">
+                            <div class="col-md-4">
+                                <strong>PO No.</strong><br>
+                                <p>{{$assetHeaderData->po_no}} </p>
+                            </div>
                             <strong>Serial No. </strong><br>
                             <p>{{$assetHeaderData->serial_no}}</p>
                         </div>
                         <div class="col-md-4">
                             <strong>Department</strong><br>
                             <p>{{$assetHeaderData->dept}} </p>
-                        </div>
-                    </div>
-
-
-                    <div class="row">
-                        <div class="col-md-4">
                             <strong>Location</strong><br>
                             <p>{{$assetHeaderData->plant}} ({{$assetHeaderData->loc}})</p>
-                        </div>
-                        <div class="col-md-4">
                             <strong>Cost Center</strong><br>
                             <p>{{$assetHeaderData->cost_center}} </p>
-                        </div>
-                        <div class="col-md-4">
-                           <strong>BV End Of Year {{ now()->year }}</strong><br>
+                            <strong>Acquisition Cost</strong><br>
+                            <p>{{ 'Rp ' . number_format($assetHeaderData->acq_cost, 0, ',', '.') }}</p>
+                            <strong>BV End Of Year {{ now()->year }}</strong><br>
                             <p>{{ 'Rp ' . number_format($assetHeaderData->bv_endofyear, 0, ',', '.') }}</p>
-                        </div>                    
-                    </div>
-                    <div>
-                        <strong>Remarks</strong><br>
-                        <p>Latest Update : {{ $assetHeaderData->remarks }}</p>
+                            <strong>Remarks</strong><br>
+                            <p>Latest Update : {{ $assetHeaderData->remarks }}</p>
+                        </div>
                     </div>
 
                 </div>
@@ -253,18 +221,18 @@
                     <div class="card-header">
                         <h3 class="card-title">Sub Asset</h3>
                     </div>
-                    
-                    
+
+
                     <!-- /.card-header -->
                     <div class="card-body">
                         <div class="row">
                             <div class="mb-3 col-sm-12">
                                 @if(\Auth::user()->role === 'Super Admin')
                                 <button  title="Add Asset" type="button" class="btn btn-dark btn-sm mb-2" data-bs-toggle="modal" data-bs-target="#modal-add">
-                                    <i class="fas fa-plus-square"></i> 
+                                    <i class="fas fa-plus-square"></i>
                                 </button>
                                 {{-- <button  title="Import Asset" type="button" class="btn btn-info btn-sm mb-2" data-bs-toggle="modal" data-bs-target="#modal-import">
-                                    Import Assets 
+                                    Import Assets
                                   </button> --}}
                                   @endif
                                   <a title="Generate Checklist" class="btn btn-primary btn-sm mb-2" href="#" onclick="generateChecklistDetail('{{ $assetHeaderData->id }}'); return false;" id="generateChecklistBtn{{ $assetHeaderData->id }}">
@@ -303,7 +271,7 @@
                                         </div>
                                     </div>
                                 </div>
-                                
+
                                 <!-- Modal -->
                                 <div class="modal fade" id="modal-add" tabindex="-1" aria-labelledby="modal-add-label" aria-hidden="true">
                                     <div class="modal-dialog">
@@ -326,25 +294,25 @@
                                                         <label class="form-check-label small" for="editAssetNo">Edit Asset Number</label>
                                                     </div>
                                                 </div>
-                                            
+
                                                 <div class="col-md-6">
                                                     <div class="form-group mb-3">
                                                         <input readonly value="{{$assetHeaderData->asset_no}}" type="text" class="form-control" id="asset_no" name="asset_no" placeholder="Enter Asset Number" required>
                                                     </div>
                                                 </div>
-                                            
+
                                                 <div class="col-md-3">
                                                     <div class="form-group mb-3">
                                                         <input type="number" class="form-control" id="sub_asset" name="sub_asset" placeholder="Enter Sub" min="0" required>
                                                     </div>
                                                 </div>
-                                            </div>  
+                                            </div>
                                             <script>
                                                 document.addEventListener('DOMContentLoaded', function () {
                                                     // Get the checkbox and input field
                                                     var editCheckbox = document.getElementById('editAssetNo');
                                                     var assetNoInput = document.getElementById('asset_no');
-                                            
+
                                                     // Add an onclick event to the checkbox
                                                     editCheckbox.addEventListener('click', function () {
                                                         // Toggle the "readonly" attribute based on the checkbox state
@@ -352,8 +320,8 @@
                                                     });
                                                 });
                                             </script>
-                                            
-                                            
+
+
                                             <div class="form-group mb-3">
                                                 <textarea class="form-control" id="desc" name="desc" placeholder="Enter Asset Description" required></textarea>
                                             </div>
@@ -362,7 +330,7 @@
                                                 <div class="col-md-6">
                                                     <input type="number" class="form-control" id="qty" name="qty" placeholder="Enter Qty" required min="0">
                                                 </div>
-                                                
+
                                                 <div class="col-md-6">
                                                     <div class="form-group">
                                                         <select name="uom" id="uom" class="form-control" required>
@@ -391,7 +359,7 @@
                                                         </select>
                                                     </div>
                                                 </div>
-                                                
+
                                             </div>
 
                                             <div class="form-group mb-3">
@@ -430,7 +398,7 @@
                                                         </select>
                                                     </div>
                                                 </div>
-                                            
+
                                                 <div class="col-md-6">
                                                     <div class="form-group">
                                                         <select name="loc" id="loc" class="form-control" required>
@@ -440,16 +408,16 @@
                                                     </div>
                                                 </div>
                                             </div> --}}
-                                            
+
                                             {{-- <script>
                                                 document.addEventListener('DOMContentLoaded', function () {
                                                     var plantDropdown = document.getElementById('plant');
                                                     var locDropdown = document.getElementById('loc');
-                                            
+
                                                     plantDropdown.addEventListener('change', function () {
                                                         locDropdown.innerHTML = '<option value="">- Please Select Location -</option>';
                                                         var selectedPlant = plantDropdown.value;
-                                            
+
                                                         var locDetails = [
                                                             @foreach ($locDetail as $detail)
                                                                 {
@@ -458,7 +426,7 @@
                                                                 },
                                                             @endforeach
                                                         ];
-                                            
+
                                                         locDetails.forEach(function (detail) {
                                                             if (detail.plant === selectedPlant) {
                                                                 var option = document.createElement('option');
@@ -470,8 +438,8 @@
                                                     });
                                                 });
                                             </script> --}}
-                                            
-                                            
+
+
 
                                             {{-- <div class="form-group mb-3">
                                                 <select name="dept" id="dept" class="form-control" required>
@@ -481,14 +449,14 @@
                                                     @endforeach
                                                 </select>
                                             </div> --}}
-                                            
+
                                                     <div class="form-group mb-3">
                                                         <input type="file" class="form-control" id="img" name="img" placeholder="Enter Image" required>
                                                     </div>
-                                        
+
                                             <div class="form-group mb-3">
                                                 <input type="text" class="form-control" id="bv_end" name="bv_end" placeholder="Enter BV End Of Year" required>
-                                            </div>                                    
+                                            </div>
 
                                             <script>
                                                 document.addEventListener('DOMContentLoaded', function () {
@@ -500,8 +468,8 @@
                                                     });
                                                 });
                                             </script>
-                                            
-                                            
+
+
                                         </div>
                                         <div class="modal-footer">
                                             <button type="button" class="btn btn-dark" data-bs-dismiss="modal">Close</button>
@@ -511,7 +479,7 @@
                                     </div>
                                     </div>
                                 </div>
-                                
+
 
                             <div class="col-sm-12">
                             <!--alert success -->
@@ -519,16 +487,16 @@
                             <div class="alert alert-success alert-dismissible fade show" role="alert">
                                 <strong>{{ session('status') }}</strong>
                                 <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                            </div> 
+                            </div>
                             @endif
 
                             @if (session('failed'))
                             <div class="alert alert-danger alert-dismissible fade show" role="alert">
                             <strong>{{ session('failed') }}</strong>
                             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                            </div> 
+                            </div>
                         @endif
-                            
+
                             <!--alert success -->
                             <!--validasi form-->
                                 @if (count($errors)>0)
@@ -545,7 +513,7 @@
                             <!--end validasi form-->
                             </div>
                         </div>
-                        <div class="table-responsive"> 
+                        <div class="table-responsive">
                         <table id="tableUser" class="table table-bordered table-striped">
                         <thead>
                         <tr>
@@ -569,7 +537,7 @@
                                 </td>
                                 <td>{{ $data->asset_no}} - {{$data->sub_asset}} </td>
                                 <td>{{ date('d-M-Y', strtotime($data->date )) }}</td>
-                                <td>  
+                                <td>
                                     <!-- Button for status -->
                                     <button class="btn btn-sm {{ ($data->status == 1) ? 'btn-success' : (($data->status == 0) ? 'btn-warning' : 'btn-danger') }}"
                                             onclick="openRemarksModalDetail('{{$data->id}}', '{{ url("/asset/status/detail/".encrypt($assetHeaderData->id).'/'.encrypt($data->id)) }}', {{ $data->status }})">
@@ -588,8 +556,8 @@
                                     @if(\Auth::user()->role === 'Super Admin')
                                     <button title="Delete Asset" class="btn btn-danger btn-sm" data-bs-toggle="modal" data-bs-target="#modal-delete{{ $data->id }}">
                                         <i class="fas fa-trash-alt"></i>
-                                    </button>  
-                                    @endif 
+                                    </button>
+                                    @endif
                                 </td>
                             </tr>
                             <script>
@@ -606,17 +574,17 @@
                             <script>
                                 function generateChecklistDetail(id) {
                                     var checkboxes = document.querySelectorAll('input[name="assetCheckboxDetail[' + id + '][]"]:checked');
-                            
+
                                     if (checkboxes.length > 0) {
                                         var selectedAssetIds = [];
-                            
+
                                         checkboxes.forEach(function (checkbox) {
                                             var assetId = checkbox.value;
                                             selectedAssetIds.push(assetId);
                                         });
-                            
+
                                         var url = "{{ url('/asset/qr/detail') }}/" + id + "?assetIds=" + selectedAssetIds.join(',');
-                            
+
                                         window.open(url, '_blank');
                                     } else {
                                         alert("Please select at least one asset to generate a checklist.");
@@ -793,7 +761,7 @@
                                                 </div>
                                             </div>
                                         </div>
-                                        
+
                                         <div class="form-group mb-3">
                                             <textarea class="form-control" id="desc" name="desc" placeholder="Enter Asset Description" required>{{$data->desc}}</textarea>
                                         </div>
@@ -802,7 +770,7 @@
                                             <div class="col-md-6">
                                                 <input value="{{$data->qty}}" type="number" class="form-control" id="qty" name="qty" placeholder="Enter Qty" required min="0">
                                             </div>
-                                            
+
                                             <div class="col-md-6">
                                                 <div class="form-group">
                                                     <select name="uom" id="uom" class="form-control" required>
@@ -831,7 +799,7 @@
                                                     </select>
                                                 </div>
                                             </div>
-                                            
+
                                         </div>
 
                                         <div class="form-group mb-3">
@@ -858,14 +826,14 @@
                                                 <input value="{{$data->serial_no}}" type="text" class="form-control" id="serial_no" name="serial_no" placeholder="Enter Serial No." >
                                             </div>
                                         </div>
-                                        
+
                                             <div class="form-group mb-3">
                                                 <input type="file" class="form-control" id="img" name="img" placeholder="Enter Image">
                                             </div>
-                                    
+
                                         <div class="form-group mb-3">
                                             <input value="{{number_format($data->bv_endofyear)}}" type="text" class="form-control" id="bv_endEdit" name="bv_endEdit" placeholder="Enter BV End Of Year" required>
-                                        </div>                                    
+                                        </div>
 
                                         <script>
                                             document.addEventListener('DOMContentLoaded', function () {
@@ -877,8 +845,8 @@
                                                 });
                                             });
                                         </script>
-                                        
-                                        
+
+
                                     </div>
                                     <div class="modal-footer">
                                         <button type="button" class="btn btn-dark" data-bs-dismiss="modal">Close</button>
@@ -916,7 +884,7 @@
                             </div>
                             {{-- Modal Delete --}}
                             @endforeach
-                          
+
                         </tbody>
                         </table>
                     </div>
@@ -936,7 +904,7 @@
     <!-- /.content-wrapper -->
     </div>
 
-     
+
 </main>
 
 <!-- For Datatables -->

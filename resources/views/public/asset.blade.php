@@ -33,13 +33,13 @@
         <script src="{{ asset('plugins/datatables-buttons/js/buttons.colVis.min.js') }}"></script>
         <script src="{{ url('https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.18.1/moment.min.js') }}"></script>
         <script src="{{ url('https://cdn.datatables.net/datetime/1.1.1/js/dataTables.dateTime.min.js') }}"></script>
-    
+
          <!-- Include cleave.js -->
         <script src="https://cdnjs.cloudflare.com/ajax/libs/cleave.js/1.6.0/cleave.min.js"></script>
-    
+
     </head>
 <body>
-        
+
             <main>
                 <header class="page-header page-header-dark bg-gradient-primary-to-secondary pb-10">
                     <div class="container-xl px-4">
@@ -58,7 +58,7 @@
                     </div>
                 </header>
             <!-- Main page content-->
-            <div class="container-xl px-4 mt-n10">       
+            <div class="container-xl px-4 mt-n10">
             <!-- Content Wrapper. Contains page content -->
             <div class="content-wrapper">
                 <!-- Content Header (Page header) -->
@@ -71,12 +71,12 @@
                     </div>
                 </div><!-- /.container-fluid --> --}}
                 </section>
-            
+
                 <!-- Main content -->
                 <section class="content">
-            
+
                 <div class="container-fluid">
-            
+
                     <div class="card card-header-actions mb-4">
                         <div class="card-header text-dark">
                         <h3>Asset Detail</h3>
@@ -88,7 +88,7 @@
                     <button class="btn btn-sm {{ $statusColor }}" >
                         {{ $statusText }}
                     </button>
-            
+
                         <!-- Modal for Remarks -->
                         <div class="modal fade" id="remarksModal" tabindex="-1" aria-labelledby="remarksModalLabel" aria-hidden="true">
                             <div class="modal-dialog">
@@ -119,7 +119,7 @@
                                 // Set the form action to the specified URL
                                 $('#remarksForm').attr('action', url);
                             }
-                        
+
                             function submitRemarksForm() {
                                 // Validate and submit the form
                                 if ($('#remarksForm')[0].checkValidity()) {
@@ -127,7 +127,7 @@
                                 }
                             }
                         </script>
-                        
+
                         <!-- Modal -->
                         <div class="modal fade" id="imageModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
                             <div class="modal-dialog">
@@ -143,7 +143,7 @@
                                 </div>
                             </div>
                         </div>
-            
+
                         <!-- JavaScript to set image source when the modal is shown -->
                         <script>
                             document.addEventListener('DOMContentLoaded', function () {
@@ -151,98 +151,73 @@
                                 var modalImage = document.getElementById('modalImage');
                                 var seeImageButton = document.querySelector('.btn-see-image');
                                 var imgPath = '{{ asset($assetHeaderData->img) }}';
-            
+
                                 // Set the image source dynamically when the modal is shown
                                 imageModal._element.addEventListener('shown.bs.modal', function (event) {
                                     // Set the image source dynamically using the asset helper
                                     modalImage.src = imgPath;
                                 });
-            
-                                
+
+
                             });
                         </script>
                     </div>
                         <div class="card-body">
                             <div class="row">
                                 <div class="col-md-4">
+                                    <img style="width: 100%" class="img-fluid mb-3" src="{{ asset($assetHeaderData->img) }}" alt=""><br>
+                                    <p class="text-center">{{$assetHeaderData->desc}}</p>
+                                </div>
+                                <div class="col-md-4">
                                     <strong>Asset No.</strong><br>
-                                    <p>{{$assetHeaderData->asset_no}} <br> <button class="btn btn-info btn-sm" data-bs-toggle="modal" data-bs-target="#imageModal">
-                                        View
-                                    </button></p>
-                                </div>
-                                <div class="col-md-4">
-                                    <strong>Description</strong><br>
-                                    <p>{{$assetHeaderData->desc}}</p>
-                                </div>
-                                <div class="col-md-4">
+                                    <p>{{$assetHeaderData->asset_no}}</p>
                                     <strong>Quantity</strong><br>
                                     <p>{{$assetHeaderData->qty}} ({{$assetHeaderData->uom}} )</p>
-                                </div>
-                            </div>
-                            <div class="row">
-                                <div class="col-md-4">
                                     <strong>Asset Category</strong><br>
                                     <p>{{$assetHeaderData->asset_type}}</p>
-                                </div>
-                                <div class="col-md-4">
                                     <strong>Acquisition Date</strong><br>
                                     <p>{{ date('d-M-Y', strtotime($assetHeaderData->acq_date)) }}</p>
-                                </div>                    
-                                <div class="col-md-4">
-                                    <strong>Acquisition Cost</strong><br>
-                                    <p>{{ 'Rp ' . number_format($assetHeaderData->acq_cost, 0, ',', '.') }}</p>
-                                </div>                    
-                            </div>
-            
-                            <div class="row">
-                                <div class="col-md-4">
-                                    <strong>PO No.</strong><br>
-                                    <p>{{$assetHeaderData->po_no}} </p>
-                                </div>
-                                <div class="col-md-4">
+                                    <div class="col-md-4">
+                                        <strong>PO No.</strong><br>
+                                        <p>{{$assetHeaderData->po_no}} </p>
+                                    </div>
                                     <strong>Serial No. </strong><br>
                                     <p>{{$assetHeaderData->serial_no}}</p>
                                 </div>
                                 <div class="col-md-4">
                                     <strong>Department</strong><br>
                                     <p>{{$assetHeaderData->dept}} </p>
-                                </div>
-                            </div>
-            
-            
-                            <div class="row">
-                                <div class="col-md-4">
                                     <strong>Location</strong><br>
                                     <p>{{$assetHeaderData->plant}} ({{$assetHeaderData->loc}})</p>
-                                </div>
-                                <div class="col-md-4">
                                     <strong>Cost Center</strong><br>
                                     <p>{{$assetHeaderData->cost_center}} </p>
-                                </div>
-                                <div class="col-md-4">
-                                   <strong>BV End Of Year {{ now()->year }}</strong><br>
+                                    <strong>Acquisition Cost</strong><br>
+                                    <p>{{ 'Rp ' . number_format($assetHeaderData->acq_cost, 0, ',', '.') }}</p>
+                                    <strong>BV End Of Year {{ now()->year }}</strong><br>
                                     <p>{{ 'Rp ' . number_format($assetHeaderData->bv_endofyear, 0, ',', '.') }}</p>
-                                </div>                    
+                                    <strong>Remarks</strong><br>
+                                    <p>Latest Update : {{ $assetHeaderData->remarks }}</p>
+                                </div>
                             </div>
-            
+
                         </div>
                     </div>
-            
-            
+
+
                     <div class="row">
                     <div class="col-12">
                         <div class="card">
                         <div class="card-header">
                             <h3 class="card-title">Sub Asset</h3>
                         </div>
-                        
-                        
+
+
                         <!-- /.card-header -->
                         <div class="card-body">
                             <div class="row">
                                 <div class="mb-3 col-sm-12">
                             </div>
-                            <div class="table-responsive"> 
+                            <div class="table-responsive">
                             <table id="tableUser" class="table table-bordered table-striped">
                             <thead>
                             <tr>
@@ -252,7 +227,7 @@
                                 <th>Acquisition date</th>
                                 <th>Status</th>
                                 <th>Action</th>
-                            
+
                             </tr>
                             </thead>
                             <tbody>
@@ -267,7 +242,7 @@
                                         $statusColor = ($assetHeaderData->status == 1) ? 'btn-success' : (($assetHeaderData->status == 0) ? 'btn-warning' : 'btn-danger');
                                         $statusText = ($assetHeaderData->status == 1) ? 'Active' : (($assetHeaderData->status == 0) ? 'Deactive' : 'Disposal');
                                         @endphp
-                    
+
                                     <button class="btn btn-sm {{ $statusColor }}" >
                                     {{ $statusText }}
                                     </button>
@@ -275,7 +250,7 @@
                                     <td>
                                         <button title="Detail Sub Asset" class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#modal-detail{{ $data->id }}">
                                             <i class="fas fa-info"></i>
-                                        </button> 
+                                        </button>
                                     </td>
                                 </tr>
                                 @endforeach
@@ -355,7 +330,7 @@
                                     $statusColor = ($data->status == 1) ? 'btn-success' : (($data->status == 0) ? 'btn-warning' : 'btn-danger');
                                     $statusText = ($data->status == 1) ? 'Active' : (($data->status == 0) ? 'Deactive' : 'Disposal');
                                     @endphp
-            
+
                                 <button class="btn btn-sm {{ $statusColor }}" >
                                     {{ $statusText }}
                                 </button>
@@ -380,7 +355,7 @@
                 </div>
             </div>
             @endforeach
-            
+
             <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.1/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
             <script src={{asset('assets/js/scripts.js')}} ></script>
         </main>
@@ -388,8 +363,8 @@
 <script>
     $(document).ready(function() {
       var table = $("#tableUser").DataTable({
-        "responsive": true, 
-        "lengthChange": false, 
+        "responsive": true,
+        "lengthChange": false,
         "autoWidth": false,
         // "buttons": ["copy", "csv", "excel", "pdf", "print", "colvis"]
       });

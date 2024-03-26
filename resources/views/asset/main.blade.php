@@ -19,7 +19,7 @@
         </div>
     </header>
 <!-- Main page content-->
-<div class="container-xl px-4 mt-n10">       
+<div class="container-xl px-4 mt-n10">
 <!-- Content Wrapper. Contains page content -->
 <div class="content-wrapper">
     <!-- Content Header (Page header) -->
@@ -42,46 +42,126 @@
               <div class="card-header">
                 <h3 class="card-title">List of Asset</h3>
               </div>
-              
+
               <!-- /.card-header -->
               <div class="card-body">
                 <div class="row">
-                    <div class="col-sm-4 mb-4">
-                        <form action="/asset/search" method="GET">
+                    <div class="col-md-4 mb-4">
+
+                        <form action="{{url('/asset/search')}}" method="GET">
                             <div class="input-group input-group-sm">
-                                <select class="form-control" name="searchBy" id="searchBy" onchange="toggleSearchInputs()">
-                                    <option value="">Search By</option>
+                                <select class="form-control" name="searchBy" id="searchByModal" onchange="toggleSearchInputsModal()">
+                                    <option value="">Search by</option>
                                     <option value="assetNo">Asset No</option>
                                     <option value="destination">Location</option>
                                     <option value="department">Department</option>
                                     <option value="dateRange">Date Range</option>
                                     <option value="assetCategory">Asset Category</option> <!-- New option -->
                                 </select>
-                    
-                                <input name="assetNo" type="text" class="form-control" id="searchAssetNo" placeholder="Enter Asset No" style="display: none;">
-                    
+
+                                <input name="assetNo" type="text" class="form-control" id="searchAssetNoModal" placeholder="Enter Asset No" style="display: none;">
+
+                                <select name="destination" class="form-control" id="searchDestinationModal" style="display: none;">
+                                    <option value="">Select Plant</option>
+                                    @foreach ($locHeader as $item)
+                                        <option value="{{$item->id}}">{{$item->name}}</option>
+                                    @endforeach
+                                </select>
+
+                                <select name="department" class="form-control" id="searchdepartmentModal" style="display: none;">
+                                    <option value="">Select Department</option>
+                                    @foreach ($dept as $item)
+                                        <option value="{{$item->dept}}">{{$item->dept}}</option>
+                                    @endforeach
+                                </select>
+
+                                <select name="location" class="form-control" id="searchlocationModal" style="display: none;">
+                                    <option value="">Select Location</option>
+                                    <!-- Options will be dynamically populated using jQuery -->
+                                </select>
+
+                                <input name="startDate" type="date" class="form-control" id="startDateModal" style="display: none;">
+                                <input name="endDate" type="date" class="form-control" id="endDateModal" style="display: none;">
+
+                                <select name="assetCategory" class="form-control" id="searchAssetCategoryModal" style="display: none;">
+                                    <option value="">Select Asset Category</option>
+                                    @foreach ($assetCategory as $category)
+                                        <option value="{{ $category->desc }}">{{ $category->desc }}</option>
+                                    @endforeach
+                                </select>
+
+                                <button class="btn btn-dark btn-sm" type="submit">Search</button>
+                            </div>
+
+                            <div id="assetNoInput" class="form-group mt-4" style="display: none;">
+                                <select name="assetNo[]" id="assetNo" class="form-control chosen-select" multiple data-placeholder="Select Asset Numbers...">
+                                    @foreach ($assetNo as $number)
+                                        <option value="{{ $number }}">{{ $number }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+
+                            <!-- Add more form fields as needed -->
+                        </form>
+                    </div>
+
+                    <script>
+                        function toggleSearchInputs() {
+                            var searchBy = $('#searchBy').val();
+
+                            if (searchBy === 'assetNo') {
+                                $('#assetNoInput').show();
+                            } else {
+                                $('#assetNoInput').hide();
+                            }
+                        }
+
+                        $(document).ready(function() {
+                            $('#searchBy').change(function() {
+                                toggleSearchInputs();
+                            });
+
+                            $('.chosen-select').chosen({
+                                width: '100%'
+                            });
+                        });
+                    </script>
+
+{{--
+                    <div class="col-sm-4 mb-4">
+                        <form action="{{url('/asset/search')}}" method="GET">
+                            <div class="input-group input-group-sm">
+                                <select class="form-control" name="searchBy" id="searchBy" onchange="toggleSearchInputs()">
+                                    <option value="">Search By</option>
+                                    <option value="destination">Location</option>
+                                    <option value="department">Department</option>
+                                    <option value="dateRange">Date Range</option>
+                                    <option value="assetCategory">Asset Category</option> <!-- New option -->
+                                </select>
+
+
                                 <select name="destination" class="form-control" id="searchDestination" style="display: none;">
                                     <option value="">Select Plant</option>
                                     @foreach ($locHeader as $item)
                                         <option value="{{$item->id}}">{{$item->name}}</option>
                                     @endforeach
                                 </select>
-                    
+
                                 <select name="department" class="form-control" id="searchdepartment" style="display: none;">
                                     <option value="">Select Department</option>
                                     @foreach ($dept as $item)
                                         <option value="{{$item->dept}}">{{$item->dept}}</option>
                                     @endforeach
                                 </select>
-                    
+
                                 <select name="location" class="form-control" id="searchlocation" style="display: none;">
                                     <option value="">Select Location</option>
                                     <!-- Options will be dynamically populated using jQuery -->
                                 </select>
-                    
+
                                 <input name="startDate" type="date" class="form-control" id="startDate" style="display: none;">
                                 <input name="endDate" type="date" class="form-control" id="endDate" style="display: none;">
-                    
+
                                 <select name="assetCategory" class="form-control" id="searchAssetCategory" style="display: none;">
                                     <option value="">Select Asset Category</option>
                                     @foreach ($assetCategory as $category)
@@ -93,7 +173,31 @@
                             </div>
                         </form>
                     </div>
-                    
+
+                    <div class="col-md-4">
+                        <form action="/asset/search" method="GET" class="d-flex align-items-end">
+                            @csrf
+
+                            <div class="form-group flex-grow-1">
+                                <input hidden type="text" name="searchBy" value="assetNo" id="">
+                                <select name="assetNo[]" id="assetNo" class="form-control chosen-select" multiple data-placeholder="Select Asset Numbers...">
+                                    @foreach ($assetNo as $number)
+                                        <option value="{{ $number }}">{{ $number }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+
+                            <button class="btn btn-dark btn-sm" type="submit">Search</button>
+                        </form>
+                    </div>
+                    <script>
+                        $(document).ready(function() {
+                            $('.chosen-select').chosen({
+                                width: '100%'
+                            });
+                        });
+                    </script>
+
                     <script>
                         function toggleSearchInputs(modalId) {
                             var searchBy = $('#' + (modalId ? modalId + ' #' : '') + 'searchBy').val();
@@ -104,7 +208,7 @@
                             var searchDepartment = $('#' + (modalId ? modalId + ' #' : '') + 'searchdepartment');
                             var searchLocation = $('#' + (modalId ? modalId + ' #' : '') + 'searchlocation');
                             var searchAssetCategory = $('#' + (modalId ? modalId + ' #' : '') + 'searchAssetCategory');
-                    
+
                             // Hide all input fields
                             searchAssetNo.hide();
                             searchDestination.hide();
@@ -113,7 +217,7 @@
                             searchDepartment.hide();
                             searchLocation.hide();
                             searchAssetCategory.hide();
-                    
+
                             if (searchBy === 'assetNo') {
                                 searchAssetNo.show();
                             } else if (searchBy === 'destination') {
@@ -129,42 +233,42 @@
                                 searchAssetCategory.show();
                             }
                         }
-                    
+
                         // Add an event listener to dynamically populate locDetailDropdown
                         $('#searchDestination').change(function() {
                             var locHeaderId = $(this).val();
                             var locDetailDropdown = $('#searchlocation');
-                    
+
                             // Fetch loc_details based on loc_header selection using Laravel AJAX or other methods
                             // Update locDetailDropdown options dynamically
                             // For simplicity, let's assume you have the locDetails data available in a JavaScript variable
-                    
+
                             var locDetailsData = {!! json_encode($locDetail->toArray()) !!}; // Convert PHP array to JavaScript variable
-                    
+
                             // Clear existing options
                             locDetailDropdown.empty().append('<option value="">Select Location</option>');
-                    
+
                             // Populate locDetailDropdown with options based on locHeaderId
                             $.each(locDetailsData, function(index, item) {
                                 if (item.loc_header_id == locHeaderId) {
                                     locDetailDropdown.append('<option value="' + item.id + '">' + item.name + '</option>');
                                 }
                             });
-                    
+
                             // Show locDetailDropdown
                             locDetailDropdown.show();
                         });
-                    </script>
-                    
-                    
-                    
+                    </script> --}}
+
+
+
                     <div class="mb-3 col-sm-12">
                         @if(\Auth::user()->role === 'Super Admin')
                         <button  title="Add Asset" type="button" class="btn btn-dark btn-sm mb-2" data-bs-toggle="modal" data-bs-target="#modal-add">
-                            <i class="fas fa-plus-square"></i> 
+                            <i class="fas fa-plus-square"></i>
                           </button>
                           <button  title="Import Asset" type="button" class="btn btn-info btn-sm mb-2" data-bs-toggle="modal" data-bs-target="#modal-import">
-                            Import Assets 
+                            Import Assets
                           </button>
                          <!-- Add this checkbox before your table -->
                           @endif
@@ -189,7 +293,7 @@
                                         <!-- Add any content related to exporting to Excel here -->
                                         <p>Choose export options and click export.</p>
                                         <!-- You can add form elements, checkboxes, or any other export-related options here -->
-                                    
+
                                         <div class="col-sm-12 mb-2">
                                             <form action="{{ url('/asset/export') }}" method="GET">
                                                 @csrf
@@ -202,44 +306,44 @@
                                                         <option value="dateRange">Date Range</option>
                                                         <option value="assetCategory">Asset Category</option> <!-- New option -->
                                                     </select>
-                                    
+
                                                     <input name="assetNo" type="text" class="form-control" id="searchAssetNoModal" placeholder="Enter Asset No" style="display: none;">
-                                    
+
                                                     <select name="destination" class="form-control" id="searchDestinationModal" style="display: none;">
                                                         <option value="">Select Plant</option>
                                                         @foreach ($locHeader as $item)
                                                             <option value="{{$item->id}}">{{$item->name}}</option>
                                                         @endforeach
                                                     </select>
-                                    
+
                                                     <select name="department" class="form-control" id="searchdepartmentModal" style="display: none;">
                                                         <option value="">Select Department</option>
                                                         @foreach ($dept as $item)
                                                             <option value="{{$item->dept}}">{{$item->dept}}</option>
                                                         @endforeach
                                                     </select>
-                                    
+
                                                     <select name="location" class="form-control" id="searchlocationModal" style="display: none;">
                                                         <option value="">Select Location</option>
                                                         <!-- Options will be dynamically populated using jQuery -->
                                                     </select>
-                                    
+
                                                     <input name="startDate" type="date" class="form-control" id="startDateModal" style="display: none;">
                                                     <input name="endDate" type="date" class="form-control" id="endDateModal" style="display: none;">
-                                    
+
                                                     <select name="assetCategory" class="form-control" id="searchAssetCategoryModal" style="display: none;">
                                                         <option value="">Select Asset Category</option>
                                                         @foreach ($assetCategory as $category)
                                                             <option value="{{ $category->desc }}">{{ $category->desc }}</option>
                                                         @endforeach
                                                     </select>
-                                    
+
                                                     <button class="btn btn-success btn-sm" type="submit">Export</button>
                                                 </div>
                                             </form>
                                         </div>
                                     </div>
-                                    
+
                                     <script>
                                         function toggleSearchInputsModal() {
                                             var searchBy = $('#searchByModal').val();
@@ -250,7 +354,7 @@
                                             var searchDepartment = $('#searchdepartmentModal');
                                             var searchLocation = $('#searchlocationModal');
                                             var searchAssetCategory = $('#searchAssetCategoryModal');
-                                    
+
                                             // Hide all input fields
                                             searchAssetNo.hide();
                                             searchDestination.hide();
@@ -259,49 +363,54 @@
                                             searchDepartment.hide();
                                             searchLocation.hide();
                                             searchAssetCategory.hide();
-                                    
+
                                             if (searchBy === 'assetNo') {
-                                                searchAssetNo.show();
+                                                $('#assetNoInput').show();
                                             } else if (searchBy === 'destination') {
+                                                $('#assetNoInput').hide();
                                                 searchDestination.show();
                                             } else if (searchBy === 'dateRange') {
+                                                $('#assetNoInput').hide();
                                                 searchStartDate.show();
                                                 searchEndDate.show();
                                             } else if (searchBy === 'department') {
+                                                $('#assetNoInput').hide();
                                                 searchDepartment.show();
                                             } else if (searchBy === 'location') {
+                                                $('#assetNoInput').hide();
                                                 searchLocation.show();
-                                            } else if (searchBy === 'assetCategory') { // New condition
+                                            } else if (searchBy === 'assetCategory') {
+                                                $('#assetNoInput').hide();// New condition
                                                 searchAssetCategory.show();
                                             }
                                         }
-                                    
+
                                         // Add an event listener to dynamically populate locDetailDropdownModal
                                         $('#searchDestinationModal').change(function() {
                                             var locHeaderId = $(this).val();
                                             var locDetailDropdown = $('#searchlocationModal');
-                                    
+
                                             // Fetch loc_details based on loc_header selection using Laravel AJAX or other methods
                                             // Update locDetailDropdown options dynamically
                                             // For simplicity, let's assume you have the locDetails data available in a JavaScript variable
-                                    
+
                                             var locDetailsData = {!! json_encode($locDetail->toArray()) !!}; // Convert PHP array to JavaScript variable
-                                    
+
                                             // Clear existing options
                                             locDetailDropdown.empty().append('<option value="">Select Location</option>');
-                                    
+
                                             // Populate locDetailDropdown with options based on locHeaderId
                                             $.each(locDetailsData, function(index, item) {
                                                 if (item.loc_header_id == locHeaderId) {
                                                     locDetailDropdown.append('<option value="' + item.id + '">' + item.name + '</option>');
                                                 }
                                             });
-                                    
+
                                             // Show locDetailDropdown
                                             locDetailDropdown.show();
                                         });
                                     </script>
-                                    
+
                                     <div class="modal-footer">
                                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
                                     </div>
@@ -309,7 +418,7 @@
                             </div>
                         </div>
 
-                        
+
                           <!-- Modal -->
                           <div class="modal fade" id="modal-add" tabindex="-1" aria-labelledby="modal-add-label" aria-hidden="true">
                             <div class="modal-dialog">
@@ -320,7 +429,7 @@
                                 </div>
                                 <form action="{{ url('/asset/store') }}" method="POST" enctype="multipart/form-data">
                                   @csrf
-                                  
+
                                   <div class="modal-body">
                                     <div class="form-group mb-3">
                                       <input type="text" class="form-control" id="asset_no" name="asset_no" placeholder="Enter Asset Number" required>
@@ -384,7 +493,7 @@
                                                 </select>
                                             </div>
                                         </div>
-                                    
+
                                         <div class="col-md-6">
                                             <div class="form-group">
                                                 <select name="loc" id="loc" class="form-control" required>
@@ -394,16 +503,16 @@
                                             </div>
                                         </div>
                                     </div>
-                                    
+
                                     <script>
                                         document.addEventListener('DOMContentLoaded', function () {
                                             var plantDropdown = document.getElementById('plant');
                                             var locDropdown = document.getElementById('loc');
-                                    
+
                                             plantDropdown.addEventListener('change', function () {
                                                 locDropdown.innerHTML = '<option value="">- Please Select Location -</option>';
                                                 var selectedPlant = plantDropdown.value;
-                                    
+
                                                 var locDetails = [
                                                     @foreach ($locDetail as $detail)
                                                         {
@@ -412,7 +521,7 @@
                                                         },
                                                     @endforeach
                                                 ];
-                                    
+
                                                 locDetails.forEach(function (detail) {
                                                     if (detail.plant === selectedPlant) {
                                                         var option = document.createElement('option');
@@ -424,7 +533,7 @@
                                             });
                                         });
                                     </script>
-                                    
+
                                     <div class="form-group mb-3">
                                         <select name="dept" id="dept" class="form-control" required>
                                             <option value="">- Please Department-</option>
@@ -452,10 +561,10 @@
                                             </div>
                                         </div>
                                     </div>
-                                    
+
                                     <div class="form-group mb-3">
                                         <input type="text" class="form-control" id="bv_end" name="bv_end" placeholder="Enter BV End Of Year" required>
-                                    </div>                                    
+                                    </div>
 
                                     <script>
                                         document.addEventListener('DOMContentLoaded', function () {
@@ -467,8 +576,8 @@
                                             });
                                         });
                                     </script>
-                                    
-                                    
+
+
                                   </div>
                                   <div class="modal-footer">
                                     <button type="button" class="btn btn-dark" data-bs-dismiss="modal">Close</button>
@@ -513,7 +622,7 @@
                             </div>
                         </div>
 
-                          
+
 
                     <div class="col-sm-12">
                       <!--alert success -->
@@ -521,16 +630,16 @@
                       <div class="alert alert-success alert-dismissible fade show" role="alert">
                         <strong>{{ session('status') }}</strong>
                         <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                      </div> 
+                      </div>
                     @endif
 
                     @if (session('failed'))
                     <div class="alert alert-danger alert-dismissible fade show" role="alert">
                       <strong>{{ session('failed') }}</strong>
                       <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                    </div> 
+                    </div>
                   @endif
-                    
+
                       <!--alert success -->
                       <!--validasi form-->
                         @if (count($errors)>0)
@@ -547,7 +656,7 @@
                       <!--end validasi form-->
                     </div>
                 </div>
-                <div class="table-responsive"> 
+                <div class="table-responsive">
                 <table id="tableUser" class="table table-bordered table-striped">
                   <thead>
                   <tr>
@@ -566,7 +675,7 @@
                     @foreach ($assetData as $data)
                     <tr>
 
-                        <td>  
+                        <td>
                             <input class="form-check-input" type="checkbox" name="assetCheckbox[]" value="{{ $data->id }}">
                         </td>
                         <td><strong>{{ $data->asset_no }}</strong></td>
@@ -576,7 +685,7 @@
                         <td>{{ $data->plant}} <br> ( <small>{{$data->loc}}</small> )</td>
                         <td>
                             <button class="btn btn-info btn-sm details-btn" data-bs-toggle="modal" data-bs-target="#detailsModal{{ $data->id }}">
-                                 Sub 
+                                 Sub
                             </button>
                         </td>
                         <td>
@@ -640,7 +749,7 @@
                                     }
                                 </script>
                             </td>
-                            
+
                         <td>@if(\Auth::user()->role === 'Super Admin')
                             <button title="Edit Asset" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#modal-update{{ $data->id }}">
                                 <i class="fas fa-edit"></i>
@@ -652,12 +761,12 @@
                               @if(\Auth::user()->role === 'Super Admin')
                             <button title="Delete Asset" class="btn btn-danger btn-sm" data-bs-toggle="modal" data-bs-target="#modal-delete{{ $data->id }}">
                                 <i class="fas fa-trash-alt"></i>
-                              </button> 
-                              @endif  
+                              </button>
+                              @endif
                         </td>
-                    
+
                     </tr>
-                   
+
 
 
 
@@ -685,7 +794,7 @@
                                     <div class="col-md-4">
                                         <input value="{{$data->qty}}" type="number" class="form-control" id="qty" name="qty" placeholder="Enter Qty" required min="0">
                                     </div>
-                                    
+
                                     <div class="col-md-4">
                                         <div class="form-group">
                                             <select name="uom" id="uom" class="form-control" >
@@ -737,7 +846,7 @@
                                             </select>
                                         </div>
                                     </div>
-                                
+
                                     <div class="col-md-6">
                                         <div class="form-group">
                                             <select name="loc" id="locEdit" class="form-control">
@@ -747,14 +856,14 @@
                                         </div>
                                     </div>
                                 </div>
-                                
+
                                 <script>
                                     document.addEventListener('DOMContentLoaded', function () {
                                         var plantDropdown = document.getElementById('plantEdit');
                                         var locDropdown = document.getElementById('locEdit');
                                         var selectedPlant = '{{$data->plant}}';
                                         var selectedLoc = '{{$data->loc}}';
-                                
+
                                         // Function to populate locations based on the selected plant
                                         function populateLocations(selectedPlant) {
                                             locDropdown.innerHTML = '<option value="{{$data->loc}}">{{$data->loc}}</option>';
@@ -766,7 +875,7 @@
                                                     },
                                                 @endforeach
                                             ];
-                                
+
                                             locDetails.forEach(function (detail) {
                                                 if (detail.plant === selectedPlant) {
                                                     var option = document.createElement('option');
@@ -779,10 +888,10 @@
                                                 }
                                             });
                                         }
-                                
+
                                         // Initially populate locations based on the selected plant
                                         populateLocations(selectedPlant);
-                                
+
                                         // Change event for plant dropdown
                                         plantDropdown.addEventListener('change', function () {
                                             var selectedPlant = plantDropdown.value;
@@ -790,8 +899,8 @@
                                         });
                                     });
                                 </script>
-                                
-                                
+
+
                                 <div class="form-group mb-3">
                                     <select name="dept" id="dept" class="form-control" >
                                         <option value="{{$data->dept}}">{{$data->dept}}</option>
@@ -819,11 +928,11 @@
                                         </div>
                                     </div>
                                 </div>
-                                
+
                                 <div class="form-group mb-3">
                                     <input value="{{$data->bv_endofyear}}"  type="text" class="form-control" id="bv_endEdit" name="bv_end" placeholder="Enter BV End Of Year" >
-                                </div>  
-                                
+                                </div>
+
                                 <script>
                                     document.addEventListener('DOMContentLoaded', function () {
                                         // Format input as Rupiah
@@ -834,7 +943,7 @@
                                         });
                                     });
                                 </script>
-                                
+
                               </div>
                               <div class="modal-footer">
                                 <button type="button" class="btn btn-dark" data-bs-dismiss="modal">Close</button>
@@ -938,17 +1047,17 @@
                     <script>
                         function generateChecklistDetail(id) {
                             var checkboxes = document.querySelectorAll('input[name="assetCheckboxDetail[' + id + '][]"]:checked');
-                    
+
                             if (checkboxes.length > 0) {
                                 var selectedAssetIds = [];
-                    
+
                                 checkboxes.forEach(function (checkbox) {
                                     var assetId = checkbox.value;
                                     selectedAssetIds.push(assetId);
                                 });
-                    
+
                                 var url = "{{ url('/asset/qr/detail') }}/" + id + "?assetIds=" + selectedAssetIds.join(',');
-                    
+
                                 window.open(url, '_blank');
                             } else {
                                 alert("Please select at least one asset to generate a checklist.");
@@ -973,7 +1082,7 @@
   <!-- /.content-wrapper -->
 </div>
 
-     
+
 </main>
 <!-- For Datatables -->
 <script>

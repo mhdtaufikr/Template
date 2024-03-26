@@ -31,6 +31,7 @@ class AssetController extends Controller
 {
     public function index(){
         $assetData =[];
+        $assetNo = AssetHeader::select('asset_no')->pluck('asset_no');
         $dropdownUom = Dropdown::where('category','UOM')->get();
         $assetCategory = AssetCategory::get();
         $dept = Department::get();
@@ -39,8 +40,7 @@ class AssetController extends Controller
         $costCenter = CostCenter::get();
         $status = Dropdown::where('category','Status')->get();
 
-
-        return view("asset.main", compact("assetData", "dropdownUom", "assetCategory", "dept", "locHeader", "locDetail", "costCenter",'status'));
+        return view("asset.main", compact('assetNo',"assetData", "dropdownUom", "assetCategory", "dept", "locHeader", "locDetail", "costCenter",'status'));
     }
 
     public function delete($id){
@@ -659,7 +659,7 @@ class AssetController extends Controller
         'searchBy' => 'required',
         // Add other validation rules for your form fields
     ]);
-
+    $assetNo = AssetHeader::select('asset_no')->pluck('asset_no');
     // Retrieve data for dropdowns
     $status = Dropdown::where('category', 'Status')->get();
     $dropdownUom = Dropdown::where('category', 'UOM')->get();
@@ -671,7 +671,7 @@ class AssetController extends Controller
 
     // Retrieve selected search criteria
     $searchBy = $request->input('searchBy');
-
+    $assetNumbers = $request->input('assetNo');
     // Additional variables for department and loc_detail_id
     $departmentId = $request->input('department');
     $locHeaderId = $request->input('destination');
@@ -715,36 +715,41 @@ class AssetController extends Controller
     }
 
     // Returning the view with the retrieved data and names
-    return view("asset.main", compact("status", "assetData", "dropdownUom", "assetCategory", "dept", "locHeader", "locDetail", "costCenter", "locHeaderName", "locDetailName"));
+    return view("asset.main", compact('assetNo',"status", "assetData", "dropdownUom", "assetCategory", "dept", "locHeader", "locDetail", "costCenter", "locHeaderName", "locDetailName"));
 }
 
 private function searchByAssetNo(Request $request)
 {
-    // Try to find AssetHeader by asset_no
-    $assetHeader = AssetHeader::where('asset_no', $request->input('assetNo'))->first();
-    if ($assetHeader) {
-        // If AssetHeader found, return it
-        return collect([$assetHeader]);
-    } else {
-        // If AssetHeader not found, look for it in details
-        $headerId = AssetDetail::where('asset_no', $request->input('assetNo'))
-            ->pluck('asset_header_id')
-            ->first();
+    $assetNumbers = $request->input('assetNo');
 
+    // Initialize an empty collection to store the results
+    $assetHeaders = collect();
 
-        if ($headerId) {
-            // If header_id found in details, query AssetHeader by header_id
-            $assetHeader = AssetHeader::find($headerId);
+    foreach ($assetNumbers as $assetNumber) {
+        // Try to find AssetHeader by asset_no
+        $assetHeader = AssetHeader::where('asset_no', $assetNumber)->first();
 
-            if ($assetHeader) {
-                return collect([$assetHeader]);
+        if ($assetHeader) {
+            $assetHeaders->push($assetHeader);
+        } else {
+            // If AssetHeader not found, look for it in details
+            $headerId = AssetDetail::where('asset_no', $assetNumber)
+                ->pluck('asset_header_id')
+                ->first();
+
+            if ($headerId) {
+                // If header_id found in details, query AssetHeader by header_id
+                $assetHeader = AssetHeader::find($headerId);
+
+                if ($assetHeader) {
+                    $assetHeaders->push($assetHeader);
+                }
             }
         }
     }
-
-    // If still not found, return an empty collection
-    return collect();
+    return $assetHeaders;
 }
+
 
 
 private function searchByDestination(Request $request, $locHeaderName, $locDetailName)
@@ -860,7 +865,6 @@ $commonRow = [
     'Plant' => null,
     'Location' => null,
     'Cost Center' => null,
-    'Flag' => null,
     'Segment' => null,
     'Image' => null,
     'Status' => null,
@@ -892,7 +896,6 @@ foreach ($headerAssets as $headerAsset) {
     $commonRow['Plant'] = $headerAsset->plant;
     $commonRow['Location'] = $headerAsset->loc;
     $commonRow['Cost Center'] = $headerAsset->cost_center;
-    $commonRow['Flag'] = $headerAsset->flag;
     $commonRow['Segment'] = $headerAsset->segment;
     $commonRow['Image'] = $headerAsset->img;
     $commonRow['Status'] = $headerAsset->status;
@@ -930,7 +933,6 @@ foreach ($headerAssets as $headerAsset) {
             $commonRow['Plant'] = $headerAsset->plant; // No plant for details
             $commonRow['Location'] = $headerAsset->loc; // No location for details
             $commonRow['Cost Center'] = $headerAsset->cost_center; // No cost center for details
-            $commonRow['Flag'] = $headerAsset->flag; // No flag for details
             $commonRow['Segment'] = $headerAsset->segment; // No segment for details
             $commonRow['Image'] = $detailAsset->img; // No image for details
             $commonRow['Status'] = $detailAsset->status; // No status for details
