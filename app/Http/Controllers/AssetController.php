@@ -31,7 +31,7 @@ class AssetController extends Controller
 {
     public function index(){
         $assetData =[];
-        $assetNo = AssetHeader::select('asset_no')->pluck('asset_no');
+        $assetNo = AssetHeader::pluck('asset_no');
         $dropdownUom = Dropdown::where('category','UOM')->get();
         $assetCategory = AssetCategory::get();
         $dept = Department::get();
@@ -659,7 +659,7 @@ class AssetController extends Controller
         'searchBy' => 'required',
         // Add other validation rules for your form fields
     ]);
-    $assetNo = AssetHeader::select('asset_no')->pluck('asset_no');
+    $assetNo = AssetHeader::pluck('asset_no');
     // Retrieve data for dropdowns
     $status = Dropdown::where('category', 'Status')->get();
     $dropdownUom = Dropdown::where('category', 'UOM')->get();

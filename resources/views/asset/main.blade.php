@@ -750,19 +750,33 @@
                                 </script>
                             </td>
 
-                        <td>@if(\Auth::user()->role === 'Super Admin')
-                            <button title="Edit Asset" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#modal-update{{ $data->id }}">
-                                <i class="fas fa-edit"></i>
-                              </button>
-                              @endif
-                              <a title="Detail Asset" class="btn btn-success btn-sm" href="{{url('asset/detail/'.encrypt($data->id))}}">
-                                <i class="fas fa-info"></i>
-                              </a>
-                              @if(\Auth::user()->role === 'Super Admin')
-                            <button title="Delete Asset" class="btn btn-danger btn-sm" data-bs-toggle="modal" data-bs-target="#modal-delete{{ $data->id }}">
-                                <i class="fas fa-trash-alt"></i>
-                              </button>
-                              @endif
+                        <td><div class="dropdown">
+                            <button class="btn btn-primary btn-sm dropdown-toggle" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false">
+                                Actions
+                            </button>
+                            <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                                @if(\Auth::user()->role === 'Super Admin')
+                                    <li>
+                                        <button title="Edit Asset" class="dropdown-item" data-bs-toggle="modal" data-bs-target="#modal-update{{ $data->id }}">
+                                            <i class="fas fa-edit me-2"></i>Edit Asset
+                                        </button>
+                                    </li>
+                                    <li>
+                                        <button title="Delete Asset" class="dropdown-item" data-bs-toggle="modal" data-bs-target="#modal-delete{{ $data->id }}">
+                                            <i class="fas fa-trash-alt me-2"></i>Delete Asset
+                                        </button>
+                                    </li>
+                                    <li><hr class="dropdown-divider"></li>
+                                @endif
+                                <li>
+                                    <a title="Detail Asset" class="dropdown-item" href="{{ url('asset/detail/' . encrypt($data->id)) }}">
+                                        <i class="fas fa-info me-2"></i>Detail Asset
+                                    </a>
+                                </li>
+                            </ul>
+                        </div>
+
+
                         </td>
 
                     </tr>
