@@ -3,13 +3,13 @@
 @section('content')
 <main>
     <header class="page-header page-header-dark bg-gradient-primary-to-secondary pb-10">
-        <div class="container-xl px-4">
-            <div class="page-header-content pt-4">
+        <div  class="container-xl px-4">
+            <div  class="page-header-content pt-4">
                 <div class="row align-items-center justify-content-between">
                     <div class="col-auto mt-2">
                         <h1 class="page-header-title">
                             {{-- <div class="page-header-icon"><i data-feather="file"></i></div> --}}
-                            <label id="lblGreetings"></label>
+                            {{-- <label id="lblGreetings"></label> --}}
                         </h1>
                     </div>
                 </div>
@@ -18,12 +18,12 @@
     </header>
     <!-- Main page content-->
     <div class="container-xl px-4 mt-n10">
-        <div class="row">
+        <div style="margin-top: -170px" class="row">
             <div class="col-md-5">
                 <div class="card">
                     <div class="card-body">
                         <!-- Grafik Pie -->
-                        <div id="chartContainer" style="height: 370px; max-width: 920px; margin: 0px auto;"></div>
+                        <div id="chartContainer" style="height: 330px; max-width: 920px; margin: 0px auto;"></div>
                     </div>
                 </div>
             </div>
@@ -31,23 +31,23 @@
                 <div class="card">
                     <div class="card-body">
                         <!-- Grafik Line/Bar -->
-                        <div id="chartContainer2" style="height: 370px; max-width: 920px; margin: 0px auto;"></div>
+                        <div id="chartContainer2" style="height: 330px; max-width: 920px; margin: 0px auto;"></div>
                     </div>
                 </div>
             </div>
-            <div class="col-md-5 mt-4">
+            <div class="col-md-5 mt-2">
                     <div class="card">
                         <div class="card-body">
                             <!-- Map chart for Location Distribution -->
-                            <div id="chartContainer4" style="height: 370px; max-width: 920px; margin: 0px auto;"></div>
+                            <div id="chartContainer4" style="height: 320px; max-width: 920px; margin: 0px auto;"></div>
                         </div>
                     </div>
             </div>
-            <div class="col-md-7 mt-4">
+            <div class="col-md-7 mt-2">
                 <div class="card">
                     <div class="card-body">
                     <!-- Bar chart for Quantity by Department -->
-                    <div id="chartContainer3" style="height: 370px; max-width: 920px; margin: 0px auto;"></div>
+                    <div id="chartContainer3" style="height: 320px; max-width: 920px; margin: 0px auto;"></div>
                     </div>
                 </div>
             </div>

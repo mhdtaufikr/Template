@@ -48,7 +48,7 @@
         <script src="{{asset('chosen/chosen.jquery.min.js')}}"></script>
 
     </head>
-    <body class="nav-fixed">
+    <body class="nav-fixed sidenav-toggled">
         @include('layouts.includes._topbar')
             <div id="layoutSidenav">
                 @include('layouts.includes._sidebar')
