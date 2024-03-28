@@ -101,7 +101,8 @@
         pieChart.render();
 
         var lineChart = new CanvasJS.Chart("chartContainer2", {
-    animationEnabled: true,
+            exportEnabled: true,
+            animationEnabled: true,
     title: {
         text: "Acquisition Cost Analysis"
     },
@@ -125,7 +126,8 @@
     var quantityByDepartment = @json($quantityByDepartment);
 
 var barChart = new CanvasJS.Chart("chartContainer3", {
-    animationEnabled: true,
+    exportEnabled: true,
+            animationEnabled: true,
     title: {
         text: "Quantity by Department"
     },
@@ -145,7 +147,8 @@ var barChart = new CanvasJS.Chart("chartContainer3", {
 barChart.render();
 var locationDistribution = @json($locationDistribution);
 var barChart = new CanvasJS.Chart("chartContainer4", {
-    animationEnabled: true,
+    exportEnabled: true,
+            animationEnabled: true,
     title: {
         text: "Location Distribution"
     },
