@@ -27,14 +27,35 @@
                     </div>
                 </div>
             </div>
+
             <div class="col-md-7">
                 <div class="card">
+                    <div class="card-header border-bottom">
+                        <ul class="nav nav-tabs card-header-tabs" id="cardTab" role="tablist">
+                            <li style="margin-bottom: 15px" class="nav-item">
+                                <a style="margin-left: 10px" class="nav-link active" id="overview-tab" href="#overview" data-bs-toggle="tab" role="tab" aria-controls="overview" aria-selected="true">Overview</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" id="example-tab" href="#example" data-bs-toggle="tab" role="tab" aria-controls="example" aria-selected="false">Example</a>
+                            </li>
+                        </ul>
+                    </div>
                     <div class="card-body">
-                        <!-- Grafik Line/Bar -->
-                        <div id="chartContainer2" style="height: 330px; max-width: 920px; margin: 0px auto;"></div>
+                        <div class="tab-content" id="cardTabContent">
+                            <div class="tab-pane fade show active" id="overview" role="tabpanel" aria-labelledby="overview-tab">
+                                <div id="chartContainer2" style="height: 285px; max-width: 920px; margin: 0px auto;"></div>
+                            </div>
+                            <div class="tab-pane fade" id="example" role="tabpanel" aria-labelledby="example-tab">
+                                <div id="chartContainer5" style="height: 285px; max-width: 920px; margin: 0px auto; width: 920px;"></div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
+
+
+
+
             <div class="col-md-5 mt-2">
                     <div class="card">
                         <div class="card-body">
@@ -110,7 +131,16 @@
         title: "Acquisition Year"
     },
     axisY: {
-        title: "Acquisition Cost (Rp)"
+        title: "Acquisition Cost (Rp)",
+        labelFormatter: function (e) {
+            if (e.value >= 1000000000) {
+                return (e.value / 1000000000).toFixed(0) + "B"; // Convert to billions without decimal places
+            } else if (e.value >= 1000000) {
+                return (e.value / 1000000).toFixed(0) + "M"; // Convert to millions without decimal places
+            } else {
+                return e.value;
+            }
+        }
     },
     data: [{
         type: "line", // You can change this to "bar" for a bar chart
@@ -145,35 +175,96 @@ var barChart = new CanvasJS.Chart("chartContainer3", {
     }]
 });
 barChart.render();
-var locationDistribution = @json($locationDistribution);
+var barChartData = @json($barChartDatatype);
+console.log(barChartData);
+var dataPoints = barChartData.map(function(item, index) {
+    return { y: item.y, label: item.label };
+});
+
+function getColor(index) {
+    // Define an array of colors for the columns
+
+    return colors[index % colors.length];
+}
+
 var barChart = new CanvasJS.Chart("chartContainer4", {
-    exportEnabled: true,
-            animationEnabled: true,
+    animationEnabled: true,
+    theme: "light2",
     title: {
-        text: "Location Distribution"
-    },
-    axisX: {
-        title: "Location",
-        interval: 1
+        text: "BV End of Year by Asset Type"
     },
     axisY: {
-        title: "Quantity"
+        title: "BV End of Year",
+        labelFormatter: function (e) {
+            if (e.value >= 1000000000) {
+                return (e.value / 1000000000).toFixed(0) + "B"; // Convert to billions without decimal places
+            } else if (e.value >= 1000000) {
+                return (e.value / 1000000).toFixed(0) + "M"; // Convert to millions without decimal places
+            } else {
+                return e.value;
+            }
+        }
+    },
+    axisX: {
+        labelAngle: 0
+    },
+    legend: {
+        horizontalAlign: "center",
+        verticalAlign: "top",
+        fontSize: 14
     },
     data: [{
         type: "column",
-        dataPoints: locationDistribution.map(function(item) {
-            return { label: item.plantName, y: item.total };
-        })
+        showInLegend: true,
+        legendText: "{legendText}", // Use the legendText property from data points for legend text
+        legendMarkerColor: "{legendMarkerColor}", // Use the legendMarkerColor property from data points for marker color
+        dataPoints: dataPoints
     }]
 });
 
 barChart.render();
+// Assuming $lineChartDataLast5Years contains the last 5 years' chart data
+var lineChartDataLast5Years = @json($barChartData);
 
+// Extract data points for CanvasJS chart
+var dataPointsLast5Years = lineChartDataLast5Years.map(function(item) {
+    return { x: item.label, y: item.y };
+});
 
+var lineChartLast5Years = new CanvasJS.Chart("chartContainer5", {
+    animationEnabled: true,
+    width: 720, // Set the width to 920 pixels
+    height: 285, // Set the height to 285 pixels
+    title: {
+        text: "Acquisition Cost Analysis (Last 5 Years)"
+    },
+    axisX: {
+        title: "Acquisition Year",
+        interval: 1,
+        valueFormatString: "####", // Format the X-axis labels as years
+        labelAngle: -30 // Rotate X-axis labels for better readability
+    },
+    axisY: {
+        title: "Acquisition Cost (Rp)",
+        labelFormatter: function (e) {
+            if (e.value >= 1000000000) {
+                return (e.value / 1000000000).toFixed(0) + "B"; // Convert to billions without decimal places
+            } else if (e.value >= 1000000) {
+                return (e.value / 1000000).toFixed(0) + "M"; // Convert to millions without decimal places
+            } else {
+                return e.value;
+            }
+        }
+    },
+    data: [{
+        type: "line",
+        xValueType: "number",
+        toolTipContent: "Year: {x}<br>Acquisition Cost: Rp. {y}",
+        dataPoints: dataPointsLast5Years
+    }]
+});
 
-
-
-
+lineChartLast5Years.render();
     }
 </script>
 @endsection

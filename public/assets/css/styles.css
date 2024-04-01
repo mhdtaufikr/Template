@@ -5551,7 +5551,7 @@ textarea.form-control-lg {
 .nav-link {
   display: block;
   padding: 0.5rem 1rem;
-  color: #0061f2;
+  color: #7a7a7a;
   transition: color 0.15s ease-in-out, background-color 0.15s ease-in-out, border-color 0.15s ease-in-out;
 }
 @media (prefers-reduced-motion: reduce) {
@@ -5635,6 +5635,7 @@ textarea.form-control-lg {
 .tab-content > .active {
   display: block;
 }
+
 
 .navbar {
   position: relative;

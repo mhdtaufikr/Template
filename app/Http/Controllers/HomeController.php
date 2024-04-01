@@ -43,13 +43,77 @@ class HomeController extends Controller
             ->groupBy('dept')
             ->get();
 
-        // Fetch data for location distribution
-        $locationDistribution = AssetHeader::selectRaw('IFNULL(NULLIF(plant, ""), "N/A") AS plantName, COUNT(*) AS total')
-        ->groupBy('plantName')
-        ->get();
+        // Get the current year
+        $currentYear = date('Y');
 
+        // Calculate the start year for the last 5 years
+        $startYear = $currentYear - 4; // Since we want data for the last 5 years
 
-        return view('home.index', compact('assetDistribution','chartData','assetDistribution','quantityByDepartment','locationDistribution'));
+        // Fetch data from asset_headers table for the last 5 years based on acquisition date
+        $assets = AssetHeader::select('acq_date', 'acq_cost')
+            ->whereYear('acq_date', '>=', $startYear)
+            ->get();
+
+        $acquisitionData = [];
+
+        // Prepare data points for the bar chart
+        foreach ($assets as $asset) {
+            $acqDate = $asset->acq_date;
+            $acqCost = (float) $asset->acq_cost;
+
+            // Sum up acquisition cost by year
+            $acqYear = date('Y', strtotime($acqDate));
+            if (isset($acquisitionData[$acqYear])) {
+                $acquisitionData[$acqYear] += $acqCost;
+            } else {
+                $acquisitionData[$acqYear] = $acqCost;
+            }
+        }
+
+        $barChartData = [];
+
+        // Convert acquisitionData into barChartData format
+        foreach ($acquisitionData as $year => $acqCost) {
+            $barChartData[] = [
+                'y' => $acqCost,
+                'label' => $year
+            ];
+        }
+
+        // Sort $barChartData by the "label" key in ascending order
+        usort($barChartData, function($a, $b) {
+            return $a['label'] - $b['label'];
+        });
+
+        // Fetch data from asset_headers table
+$assets = AssetHeader::select('asset_type', 'bv_endofyear')->get();
+
+$assetTypeData = [];
+
+// Prepare data points for the bar chart
+foreach ($assets as $asset) {
+    $assetType = $asset->asset_type;
+    $bvEndOfYear = (float) $asset->bv_endofyear;
+
+    // Sum up BV end of year by asset type
+    if (isset($assetTypeData[$assetType])) {
+        $assetTypeData[$assetType] += $bvEndOfYear;
+    } else {
+        $assetTypeData[$assetType] = $bvEndOfYear;
+    }
+}
+
+$barChartDatatype = [];
+
+// Convert assetTypeData into barChartData format
+foreach ($assetTypeData as $assetType => $bvEndOfYear) {
+    $barChartDatatype[] = [
+        'y' => $bvEndOfYear,
+        'label' => $assetType
+    ];
+}
+
+        return view('home.index', compact('assetDistribution','chartData','assetDistribution','quantityByDepartment','barChartData','barChartDatatype'));
     }
 }
 
