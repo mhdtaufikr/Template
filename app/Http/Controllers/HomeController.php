@@ -10,9 +10,17 @@ class HomeController extends Controller
     public function index()
     {
         // Ambil data distribusi jenis aset dari model Asset
-        $assetDistribution = AssetHeader::select('asset_type', \DB::raw('count(*) as total'))
-            ->groupBy('asset_type')
-            ->get();
+    $assetDistribution = AssetHeader::select('asset_type', \DB::raw('count(*) as total'))
+    ->groupBy('asset_type')
+    ->get();
+
+// Calculate the total count of assets
+$totalCount = $assetDistribution->sum('total');
+
+// Calculate the percentage for each asset type
+foreach ($assetDistribution as $asset) {
+    $asset->percentage = number_format(($asset->total / $totalCount) * 100, 2) . '%';
+}
             // Fetch data from asset_headers table
         $assetData = AssetHeader::select('acq_date', 'acq_cost')->orderBy('acq_date')->get();
 
@@ -113,7 +121,7 @@ foreach ($assetTypeData as $assetType => $bvEndOfYear) {
     ];
 }
 
-        return view('home.index', compact('assetDistribution','chartData','assetDistribution','quantityByDepartment','barChartData','barChartDatatype'));
+        return view('home.index', compact('assetDistribution','chartData','quantityByDepartment','barChartData','barChartDatatype'));
     }
 }
 

@@ -96,30 +96,42 @@
 <script src="https://canvasjs.com/assets/script/canvasjs.min.js"></script>
 <script>
     window.onload = function() {
-        var assetDistribution = @json($assetDistribution); // Ambil data distribusi aset dari controller
-        var chartData = @json($chartData); // Ambil data acquisition cost dari controller
+        var assetDistribution = @json($assetDistribution); // Asset distribution data from the controller
 
-        var pieChart = new CanvasJS.Chart("chartContainer", {
-            theme: "light2",
-            exportEnabled: true,
-            animationEnabled: true,
-            title: {
-                text: "Asset Type Distribution"
-            },
-            data: [{
-                type: "pie",
-                startAngle: 25,
-                toolTipContent: "<b>{label}</b>: {y}",
-                showInLegend: "true",
-                legendText: "{label}",
-                indexLabelFontSize: 16,
-                indexLabel: "{label} - {y}",
-                dataPoints: assetDistribution.map(function(item) {
-                    return { y: item.total, label: item.asset_type };
-                })
-            }]
-        });
-        pieChart.render();
+// Calculate the total count of assets
+var totalCount = assetDistribution.reduce(function(sum, item) {
+    return sum + item.total;
+}, 0);
+
+// Calculate the percentage for each asset type
+assetDistribution.forEach(function(item) {
+    item.percentage = ((item.total / totalCount) * 100).toFixed(2) + "%";
+});
+
+var pieChart = new CanvasJS.Chart("chartContainer", {
+    theme: "light2",
+    exportEnabled: true,
+    animationEnabled: true,
+    title: {
+        text: "Asset Type Distribution"
+    },
+    data: [{
+        type: "pie",
+        startAngle: 25,
+        toolTipContent: "<b>{label}</b>: {percentage} ({y})", // Include percentage in tooltip
+        showInLegend: "true",
+        legendText: "{label} ({percentage})", // Include percentage in legend
+        indexLabelFontSize: 16,
+        indexLabel: "{label} - {percentage}",
+        dataPoints: assetDistribution.map(function(item) {
+            return { y: item.total, label: item.asset_type, percentage: item.percentage };
+        })
+    }]
+});
+
+pieChart.render();
+
+var chartData = @json($chartData);
 
         var lineChart = new CanvasJS.Chart("chartContainer2", {
             exportEnabled: true,
@@ -188,6 +200,7 @@ function getColor(index) {
 }
 
 var barChart = new CanvasJS.Chart("chartContainer4", {
+    exportEnabled: true,
     animationEnabled: true,
     theme: "light2",
     title: {
@@ -216,7 +229,7 @@ var barChart = new CanvasJS.Chart("chartContainer4", {
     data: [{
         type: "column",
         showInLegend: true,
-        legendText: "{legendText}", // Use the legendText property from data points for legend text
+        legendText: "Asset Type", // Use the legendText property from data points for legend text
         legendMarkerColor: "{legendMarkerColor}", // Use the legendMarkerColor property from data points for marker color
         dataPoints: dataPoints
     }]
@@ -242,7 +255,7 @@ var lineChartLast5Years = new CanvasJS.Chart("chartContainer5", {
         title: "Acquisition Year",
         interval: 1,
         valueFormatString: "####", // Format the X-axis labels as years
-        labelAngle: -30 // Rotate X-axis labels for better readability
+        labelAngle: 0 // Rotate X-axis labels for better readability
     },
     axisY: {
         title: "Acquisition Cost (Rp)",
