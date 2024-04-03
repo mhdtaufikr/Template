@@ -10,17 +10,17 @@ class HomeController extends Controller
     public function index()
     {
         // Ambil data distribusi jenis aset dari model Asset
-    $assetDistribution = AssetHeader::select('asset_type', \DB::raw('count(*) as total'))
-    ->groupBy('asset_type')
-    ->get();
+        $assetDistribution = AssetHeader::select('asset_type', \DB::raw('count(*) as total'))
+        ->groupBy('asset_type')
+        ->get();
 
-// Calculate the total count of assets
-$totalCount = $assetDistribution->sum('total');
+        // Calculate the total count of assets
+        $totalCount = $assetDistribution->sum('total');
 
-// Calculate the percentage for each asset type
-foreach ($assetDistribution as $asset) {
-    $asset->percentage = number_format(($asset->total / $totalCount) * 100, 2) . '%';
-}
+        // Calculate the percentage for each asset type
+        foreach ($assetDistribution as $asset) {
+            $asset->percentage = number_format(($asset->total / $totalCount) * 100, 2) . '%';
+        }
             // Fetch data from asset_headers table
         $assetData = AssetHeader::select('acq_date', 'acq_cost')->orderBy('acq_date')->get();
 
@@ -94,32 +94,32 @@ foreach ($assetDistribution as $asset) {
         });
 
         // Fetch data from asset_headers table
-$assets = AssetHeader::select('asset_type', 'bv_endofyear')->get();
+        $assets = AssetHeader::select('asset_type', 'bv_endofyear')->get();
 
-$assetTypeData = [];
+        $assetTypeData = [];
 
-// Prepare data points for the bar chart
-foreach ($assets as $asset) {
-    $assetType = $asset->asset_type;
-    $bvEndOfYear = (float) $asset->bv_endofyear;
+        // Prepare data points for the bar chart
+        foreach ($assets as $asset) {
+            $assetType = $asset->asset_type;
+            $bvEndOfYear = (float) $asset->bv_endofyear;
 
-    // Sum up BV end of year by asset type
-    if (isset($assetTypeData[$assetType])) {
-        $assetTypeData[$assetType] += $bvEndOfYear;
-    } else {
-        $assetTypeData[$assetType] = $bvEndOfYear;
-    }
-}
+            // Sum up BV end of year by asset type
+            if (isset($assetTypeData[$assetType])) {
+                $assetTypeData[$assetType] += $bvEndOfYear;
+            } else {
+                $assetTypeData[$assetType] = $bvEndOfYear;
+            }
+        }
 
-$barChartDatatype = [];
+        $barChartDatatype = [];
 
-// Convert assetTypeData into barChartData format
-foreach ($assetTypeData as $assetType => $bvEndOfYear) {
-    $barChartDatatype[] = [
-        'y' => $bvEndOfYear,
-        'label' => $assetType
-    ];
-}
+        // Convert assetTypeData into barChartData format
+        foreach ($assetTypeData as $assetType => $bvEndOfYear) {
+            $barChartDatatype[] = [
+                'y' => $bvEndOfYear,
+                'label' => $assetType
+            ];
+        }
 
         return view('home.index', compact('assetDistribution','chartData','quantityByDepartment','barChartData','barChartDatatype'));
     }

@@ -57,8 +57,10 @@ Route::middleware(['auth'])->group(function () {
     route::get('/asset/search', [AssetController::class,'searchBy']);
     Route::post('/asset/detail/import/{id}', [AssetController::class, 'excelDataDetail']);
     Route::get('/asset/export', [AssetController::class, 'exportToExcel']);
+    Route::get('/download/excel/format/search', [AssetController::class, 'excelFormatDetailSearch']);
+    Route::post('/asset/search/no', [AssetController::class, 'searchBulkAsset']);
 
-    
+
 
     //Dropdown Controller
     Route::get('/dropdown', [DropdownController::class, 'index'])->middleware(['checkRole:Super Admin']);
@@ -85,7 +87,7 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/asset_category/store', [AssetCategoryController::class, 'store'])->middleware(['checkRole:Super Admin']);
     Route::patch('/asset_category/update/{id}', [AssetCategoryController::class, 'update'])->middleware(['checkRole:Super Admin']);
     Route::delete('/asset_category/delete/{id}', [AssetCategoryController::class, 'delete'])->middleware(['checkRole:Super Admin']);
-    
+
     //CostCenter Controller
     Route::get('/cost_center', [CostCenterController::class, 'index'])->middleware(['checkRole:Super Admin']);
     Route::post('/cost_center/store', [CostCenterController::class, 'store'])->middleware(['checkRole:Super Admin']);
@@ -102,8 +104,8 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/location', [LocationController::class, 'index'])->middleware(['checkRole:Super Admin']);
     Route::post('/location/store', [LocationController::class, 'store'])->middleware(['checkRole:Super Admin']);
     Route::patch('/location/update/{id}', [LocationController::class, 'update'])->middleware(['checkRole:Super Admin']);
-    Route::delete('/location/delete/{id}', [LocationController::class, 'delete'])->middleware(['checkRole:Super Admin']); 
-    
+    Route::delete('/location/delete/{id}', [LocationController::class, 'delete'])->middleware(['checkRole:Super Admin']);
+
     Route::get('/location/detail/{id}', [LocationController::class, 'detail'])->middleware(['checkRole:Super Admin']);
     Route::post('/location/detail/store/{id}', [LocationController::class, 'storeDetail'])->middleware(['checkRole:Super Admin']);
     Route::patch('/location/detail/update/{id}', [LocationController::class, 'updateDetail'])->middleware(['checkRole:Super Admin']);

@@ -33,36 +33,33 @@
                     <div class="card-header border-bottom">
                         <ul class="nav nav-tabs card-header-tabs" id="cardTab" role="tablist">
                             <li style="margin-bottom: 15px" class="nav-item">
-                                <a style="margin-left: 10px" class="nav-link active" id="overview-tab" href="#overview" data-bs-toggle="tab" role="tab" aria-controls="overview" aria-selected="true">Overview</a>
+                                <a style="margin-left: 10px" class="nav-link active" id="overview-tab" href="#overview" data-bs-toggle="tab" role="tab" aria-controls="overview" aria-selected="true">5 Years</a>
                             </li>
                             <li class="nav-item">
-                                <a class="nav-link" id="example-tab" href="#example" data-bs-toggle="tab" role="tab" aria-controls="example" aria-selected="false">Example</a>
+                                <a class="nav-link" id="example-tab" href="#example" data-bs-toggle="tab" role="tab" aria-controls="example" aria-selected="false">Summary</a>
                             </li>
                         </ul>
                     </div>
                     <div class="card-body">
                         <div class="tab-content" id="cardTabContent">
                             <div class="tab-pane fade show active" id="overview" role="tabpanel" aria-labelledby="overview-tab">
-                                <div id="chartContainer2" style="height: 285px; max-width: 920px; margin: 0px auto;"></div>
+                                <div id="chartContainer5" style="height: 285px; max-width: 920px; margin: 0px auto;"></div>
                             </div>
                             <div class="tab-pane fade" id="example" role="tabpanel" aria-labelledby="example-tab">
-                                <div id="chartContainer5" style="height: 285px; max-width: 920px; margin: 0px auto; width: 920px;"></div>
+                                <div id="chartContainer2" style="height: 285px; max-width: 920px; margin: 0px auto;"></div>
+
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
-
-
-
-
             <div class="col-md-5 mt-2">
-                    <div class="card">
-                        <div class="card-body">
-                            <!-- Map chart for Location Distribution -->
-                            <div id="chartContainer4" style="height: 320px; max-width: 920px; margin: 0px auto;"></div>
-                        </div>
+                <div class="card">
+                    <div class="card-body">
+                        <!-- Map chart for Location Distribution -->
+                        <div id="chartContainer4" style="height: 320px; max-width: 920px; margin: 0px auto;"></div>
                     </div>
+                </div>
             </div>
             <div class="col-md-7 mt-2">
                 <div class="card">
@@ -136,11 +133,15 @@ var chartData = @json($chartData);
         var lineChart = new CanvasJS.Chart("chartContainer2", {
             exportEnabled: true,
             animationEnabled: true,
+            width: 750, // Set the width to 920 pixels
+            height: 285, // Set the height to 285 pixels
     title: {
         text: "Acquisition Cost Analysis"
     },
     axisX: {
-        title: "Acquisition Year"
+        title: "Acquisition Year",
+        valueFormatString: "####", // Format the X-axis labels as years
+        labelAngle: 0 // Rotate X-axis labels for better readability
     },
     axisY: {
         title: "Acquisition Cost (Rp)",
@@ -198,13 +199,14 @@ function getColor(index) {
 
     return colors[index % colors.length];
 }
+var currentYear = new Date().getFullYear();
 
 var barChart = new CanvasJS.Chart("chartContainer4", {
     exportEnabled: true,
     animationEnabled: true,
     theme: "light2",
     title: {
-        text: "BV End of Year by Asset Type"
+        text: "BV End of Year (" + currentYear + ")"
     },
     axisY: {
         title: "BV End of Year",
@@ -219,7 +221,9 @@ var barChart = new CanvasJS.Chart("chartContainer4", {
         }
     },
     axisX: {
-        labelAngle: 0
+        labelAngle: -30,
+        labelFontSize: 12,
+        interval: 1
     },
     legend: {
         horizontalAlign: "center",
@@ -229,7 +233,7 @@ var barChart = new CanvasJS.Chart("chartContainer4", {
     data: [{
         type: "column",
         showInLegend: true,
-        legendText: "Asset Type", // Use the legendText property from data points for legend text
+        legendText: "by Asset Type", // Use the legendText property from data points for legend text
         legendMarkerColor: "{legendMarkerColor}", // Use the legendMarkerColor property from data points for marker color
         dataPoints: dataPoints
     }]
@@ -246,8 +250,7 @@ var dataPointsLast5Years = lineChartDataLast5Years.map(function(item) {
 
 var lineChartLast5Years = new CanvasJS.Chart("chartContainer5", {
     animationEnabled: true,
-    width: 720, // Set the width to 920 pixels
-    height: 285, // Set the height to 285 pixels
+    exportEnabled: true,
     title: {
         text: "Acquisition Cost Analysis (Last 5 Years)"
     },

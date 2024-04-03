@@ -264,6 +264,9 @@
 
                     <div class="mb-3 col-sm-12">
                         @if(\Auth::user()->role === 'Super Admin')
+                        <button  title="Search Asset" type="button" class="btn btn-teal btn-sm mb-2" data-bs-toggle="modal" data-bs-target="#modal-search">
+                            <i class="fas fa-search"></i>
+                          </button>
                         <button  title="Add Asset" type="button" class="btn btn-dark btn-sm mb-2" data-bs-toggle="modal" data-bs-target="#modal-add">
                             <i class="fas fa-plus-square"></i>
                           </button>
@@ -557,7 +560,7 @@
 
                                         <div class="col-md-6">
                                             <div class="form-group">
-                                                <input type="file" class="form-control" id="img" name="img" placeholder="Enter Image" required>
+                                                <input type="file" class="form-control" id="img" name="img[]" placeholder="Enter Image" required multiple >
                                             </div>
                                         </div>
                                     </div>
@@ -612,6 +615,40 @@
                                         </div>
                                         <div class="modal-footer">
                                             <a href="{{ url('/download/excel/format') }}" class="btn btn-link">
+                                                Download Excel Format
+                                            </a>
+                                            <button type="button" class="btn btn-dark" data-bs-dismiss="modal">Close</button>
+                                            <button type="submit" class="btn btn-primary">Submit</button>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Modal -->
+                        <div class="modal fade" id="modal-search" tabindex="-1" aria-labelledby="modal-add-label" aria-hidden="true">
+                            <div class="modal-dialog">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title" id="modal-add-label">Search Asset</h5>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                    </div>
+                                    <form action="{{ url('/asset/search/no') }}" method="POST" enctype="multipart/form-data">
+                                        @csrf
+                                        <div class="modal-body">
+                                            <div class="mb-3">
+                                                <input type="file" class="form-control" id="csvFile" name="excel-file" accept=".csv">
+                                                <p class="text-danger">*file must be xlsx</p>
+                                            </div>
+
+                                            @error('excel-file')
+                                                <div class="alert alert-danger" role="alert">
+                                                    {{ $message }}
+                                                </div>
+                                            @enderror
+                                        </div>
+                                        <div class="modal-footer">
+                                            <a href="{{ url('/download/excel/format/search') }}" class="btn btn-link">
                                                 Download Excel Format
                                             </a>
                                             <button type="button" class="btn btn-dark" data-bs-dismiss="modal">Close</button>
@@ -684,9 +721,14 @@
                         <td>{{ date('d-M-Y', strtotime($data->acq_date)) }}</td>
                         <td>{{ $data->plant}} <br> ( <small>{{$data->loc}}</small> )</td>
                         <td>
-                            <button class="btn btn-info btn-sm details-btn" data-bs-toggle="modal" data-bs-target="#detailsModal{{ $data->id }}">
-                                 Sub
-                            </button>
+                            @php
+                            $hasSubAssets = count($data->details) > 0; // Check if there are sub-assets
+                            $buttonClass = $hasSubAssets ? 'btn-info' : 'btn-light'; // Set button color class based on presence of sub-assets
+                            @endphp
+
+                        <button class="btn btn-sm details-btn {{ $buttonClass }}" data-bs-toggle="modal" data-bs-target="#detailsModal{{ $data->id }}">
+                            Sub
+                        </button>
                         </td>
                         <td>
 
@@ -938,7 +980,7 @@
 
                                     <div class="col-md-6">
                                         <div class="form-group">
-                                            <input type="file" class="form-control" id="img" name="img" placeholder="Enter Image">
+                                            <input type="file" class="form-control" id="img" name="img[]" multiple placeholder="Enter Image">
                                         </div>
                                     </div>
                                 </div>

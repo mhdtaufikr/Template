@@ -19,6 +19,7 @@ use Illuminate\Support\Facades\DB;
 use Throwable;
 use Illuminate\Support\Facades\File;
 use App\Exports\ExcelExportDetail;
+use App\Exports\ExcelExportSearch;
 use App\Imports\AssetDetailImport;
 use Illuminate\Support\Facades\View;
 use App\Models\Rule;
@@ -74,6 +75,7 @@ class AssetController extends Controller
 
     public function store(Request $request)
     {
+
         // Validate the request data
         $request->validate([
             'asset_no' => 'required|string|max:255',
@@ -86,12 +88,12 @@ class AssetController extends Controller
             'loc' => 'required|string|max:255',
             'dept' => 'required|string|max:255',
             'cost_center' => 'required|string|max:255',
-            'img' => 'required|file|mimes:jpeg,png,jpg,gif|max:2048', // Assuming it's an image file
+            'img.*' => 'required|file|mimes:jpeg,png,jpg,gif|max:2048', // Note the 'img.*' for multiple files
             'bv_end' => 'required',
         ]);
 
         try {
-
+            $imgPath = [];
             // Check if asset_no already exists
             $existingAsset = AssetHeader::where('asset_no', $request->asset_no)->first();
 
@@ -105,17 +107,18 @@ class AssetController extends Controller
 
            // Handle file upload
         if ($request->hasFile('img')) {
-            $file = $request->file('img');
-            $fileName = uniqid() . '_' . $file->getClientOriginalName();
-            $destinationPath = public_path('images');
-            $file->move($destinationPath, $fileName);
+            foreach ($request->file('img') as $file) {
+                $fileName = uniqid() . '_' . $file->getClientOriginalName();
+                $destinationPath = public_path('images');
+                $file->move($destinationPath, $fileName);
+                $imgPath[] = 'images/' . $fileName;
+            }
 
-            // Set the image path
-            $imgPath = 'images/' . $fileName;
         } else {
             // Default value if no image is provided
             $imgPath = null;
         }
+
             $assetType = substr($request->asset_no, 0, 2);
             $assetCategory = AssetCategory::where('class', $assetType)->first();
             // Create a new AssetHeader instance and fill it with the validated data
@@ -134,7 +137,7 @@ class AssetController extends Controller
                 'dept' => $request->dept,
                 'status' => 1,
                 'cost_center' => $request->cost_center,
-                'img' => $imgPath,
+                'img' => json_encode($imgPath),
                 'bv_endofyear' => $bvEnd,
             ]);
 
@@ -163,9 +166,11 @@ class AssetController extends Controller
             'loc' => 'required|string|max:255',
             'dept' => 'required|string|max:255',
             'cost_center' => 'required|string|max:255',
-            'img' => 'nullable|file|mimes:jpeg,png,jpg,gif|max:2048', // Assuming it's an image file
+            'img' => 'nullable|array',
+            'img.*' => 'nullable|file|mimes:jpeg,png,jpg,gif|max:2048', // Validate each file in the array
             'bv_end' => 'required',
         ]);
+
 
          // Get the first two numbers of 'asset_no'
          $assetClass = substr($request->asset_no , 0, 2);
@@ -212,20 +217,27 @@ class AssetController extends Controller
 
                 // Handle file upload
                 if ($request->hasFile('img')) {
-                    // Delete old image file
-                    if ($assetHeader->img) {
-                        unlink(public_path($assetHeader->img));
+                  // Delete old image files if img is not empty
+                        if ($assetHeader->img) {
+                            // Decode the JSON string to an array
+                            $oldImages = json_decode($assetHeader->img, true);
+
+                            foreach ($oldImages as $oldImg) {
+                                // Check if the file exists before unlinking
+                                if (file_exists(public_path($oldImg))) {
+                                    unlink(public_path($oldImg));
+                                }
+                            }
+                        }
+
+                    $imgPaths = [];
+                    foreach ($request->file('img') as $file) {
+                        $fileName = uniqid() . '_' . $file->getClientOriginalName();
+                        $destinationPath = public_path('images');
+                        $file->move($destinationPath, $fileName);
+                        $imgPaths[] = 'images/' . $fileName;
                     }
-
-                    // Upload and save the new image
-                    $file = $request->file('img');
-                    $fileName = uniqid() . '_' . $file->getClientOriginalName();
-                    $destinationPath = public_path('images');
-                    $file->move($destinationPath, $fileName);
-
-                    // Set the new image path
-                    $imgPath = 'images/' . $fileName;
-                    $assetHeader->img = $imgPath;
+                    $assetHeader->img = json_encode($imgPaths);
                 }
 
                 // Save the AssetHeader
@@ -237,6 +249,7 @@ class AssetController extends Controller
                 return redirect()->back()->with('failed', 'No changes made to the asset header.');
             }
         } catch (\Exception $e) {
+            dd($e);
             // Handle any exception that may occur during the update
             return redirect()->back()->with('failed', 'Failed to update asset header. Please try again.');
         }
@@ -954,6 +967,74 @@ return Excel::download(new AssetExport($exportData), 'assets.xlsx');
 
 }
 
+    public function excelFormatDetailSearch(){
+        return Excel::download(new ExcelExportSearch(), 'FormatSearch.xlsx');
+    }
+
+    public function searchBulkAsset(Request $request){
+        // Validate the uploaded file
+        $request->validate([
+            'excel-file' => 'required|file|mimes:xlsx', // Ensure the file is of type xlsx
+        ]);
+
+        // Get the uploaded file
+        $excelFile = $request->file('excel-file');
+
+        // Load the Excel file using a library like PhpSpreadsheet
+        $spreadsheet = \PhpOffice\PhpSpreadsheet\IOFactory::load($excelFile);
+
+        // Get the active sheet
+        $sheet = $spreadsheet->getActiveSheet();
+
+        // Initialize an empty array to store asset numbers
+        $assetNos = [];
+
+        // Iterate through rows starting from the second row (assuming the first row contains headers)
+        foreach ($sheet->getRowIterator(2) as $row) {
+            // Get the cell value from the first column (assuming asset numbers are in the first column)
+            $cellValue = $sheet->getCellByColumnAndRow(1, $row->getRowIndex())->getValue();
+
+            // Add the cell value to the assetNos array
+            $assetNos[] = $cellValue;
+        }
+
+
+        $assetData =[];
+        $assetNo = AssetHeader::pluck('asset_no');
+        $dropdownUom = Dropdown::where('category','UOM')->get();
+        $assetCategory = AssetCategory::get();
+        $dept = Department::get();
+        $locHeader = LocHeader::get();
+        $locDetail = LocDetail::get();
+        $costCenter = CostCenter::get();
+        $status = Dropdown::where('category','Status')->get();
+        $assetData = collect();
+
+        foreach ($assetNos as $assetNumber) {
+            // Try to find AssetHeader by asset_no
+            $assetHeader = AssetHeader::where('asset_no', $assetNumber)->first();
+
+            if ($assetHeader) {
+                $assetData->push($assetHeader);
+            } else {
+                // If AssetHeader not found, look for it in details
+                $headerId = AssetDetail::where('asset_no', $assetNumber)
+                    ->pluck('asset_header_id')
+                    ->first();
+
+                if ($headerId) {
+                    // If header_id found in details, query AssetHeader by header_id
+                    $assetHeader = AssetHeader::find($headerId);
+
+                    if ($assetHeader) {
+                        $assetData->push($assetHeader);
+                    }
+                }
+            }
+        }
+        return view("asset.main", compact('assetNo',"assetData", "dropdownUom", "assetCategory", "dept", "locHeader", "locDetail", "costCenter",'status'));
+
+    }
 
 
 

@@ -165,7 +165,28 @@
                         <div class="card-body">
                             <div class="row">
                                 <div class="col-md-4">
-                                    <img style="width: 100%" class="img-fluid mb-3" src="{{ asset($assetHeaderData->img) }}" alt=""><br>
+                                    <div id="carouselExampleControls" class="carousel slide" data-bs-ride="carousel">
+                                        <div class="carousel-inner">
+                                            @php
+                                                $imagePaths = json_decode($assetHeaderData->img);
+                                            @endphp
+
+                                            @foreach($imagePaths as $key => $imagePath)
+                                                <div class="carousel-item {{ $key == 0 ? 'active' : '' }}">
+                                                    <img src="{{ asset($imagePath) }}" class="d-block w-100" alt="Image {{ $key + 1 }}">
+                                                </div>
+                                            @endforeach
+
+                                        </div>
+                                        <button class="carousel-control-prev" type="button" data-bs-target="#carouselExampleControls" data-bs-slide="prev">
+                                            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                                            <span class="visually-hidden">Previous</span>
+                                        </button>
+                                        <button class="carousel-control-next" type="button" data-bs-target="#carouselExampleControls" data-bs-slide="next">
+                                            <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                                            <span class="visually-hidden">Next</span>
+                                        </button>
+                                    </div>
                                     <p class="text-center">{{$assetHeaderData->desc}}</p>
                                 </div>
                                 <div class="col-md-4">
