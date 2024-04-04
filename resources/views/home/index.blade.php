@@ -119,7 +119,7 @@ var pieChart = new CanvasJS.Chart("chartContainer", {
         showInLegend: "true",
         legendText: "{label} ({percentage})", // Include percentage in legend
         indexLabelFontSize: 16,
-        indexLabel: "{label} - {percentage}",
+        indexLabel: "{label} - {y}",
         dataPoints: assetDistribution.map(function(item) {
             return { y: item.total, label: item.asset_type, percentage: item.percentage };
         })
@@ -172,7 +172,7 @@ var barChart = new CanvasJS.Chart("chartContainer3", {
     exportEnabled: true,
             animationEnabled: true,
     title: {
-        text: "Quantity by Department"
+        text: "Asset Quantity by Department"
     },
     axisX: {
         title: "Department"
@@ -206,13 +206,13 @@ var barChart = new CanvasJS.Chart("chartContainer4", {
     animationEnabled: true,
     theme: "light2",
     title: {
-        text: "BV End of Year (" + currentYear + ")"
+        text: "Book Valie End of Year (" + currentYear + ")"
     },
     axisY: {
         title: "BV End of Year",
         labelFormatter: function (e) {
             if (e.value >= 1000000000) {
-                return (e.value / 1000000000).toFixed(0) + "B"; // Convert to billions without decimal places
+                return (e.value / 1000000000).toFixed(0) + " " + "Bio"; // Convert to billions without decimal places
             } else if (e.value >= 1000000) {
                 return (e.value / 1000000).toFixed(0) + "M"; // Convert to millions without decimal places
             } else {
@@ -264,7 +264,7 @@ var lineChartLast5Years = new CanvasJS.Chart("chartContainer5", {
         title: "Acquisition Cost (Rp)",
         labelFormatter: function (e) {
             if (e.value >= 1000000000) {
-                return (e.value / 1000000000).toFixed(0) + "B"; // Convert to billions without decimal places
+                return (e.value / 1000000000).toFixed(0) +  " " + "Bio"; // Convert to billions without decimal places
             } else if (e.value >= 1000000) {
                 return (e.value / 1000000).toFixed(0) + "M"; // Convert to millions without decimal places
             } else {

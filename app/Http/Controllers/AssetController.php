@@ -727,6 +727,7 @@ class AssetController extends Controller
             break;
     }
 
+
     // Returning the view with the retrieved data and names
     return view("asset.main", compact('assetNo',"status", "assetData", "dropdownUom", "assetCategory", "dept", "locHeader", "locDetail", "costCenter", "locHeaderName", "locDetailName"));
 }
@@ -747,7 +748,7 @@ private function searchByAssetNo(Request $request)
         } else {
             // If AssetHeader not found, look for it in details
             $headerId = AssetDetail::where('asset_no', $assetNumber)
-                ->pluck('asset_header_id')
+                ->pluck('asset_header_id')->limit(30)
                 ->first();
 
             if ($headerId) {
@@ -773,12 +774,12 @@ private function searchByDestination(Request $request, $locHeaderName, $locDetai
         $query->where('loc', $locDetailName);
     }
 
-    return $query->get();
+    return $query->limit(30)->get();
 }
 
 private function searchByDepartment($departmentId)
 {
-    return AssetHeader::where('dept', $departmentId)->get();
+    return AssetHeader::where('dept', $departmentId)->limit(30)->get();
 }
 
 private function searchByDateRange(Request $request)
@@ -786,12 +787,12 @@ private function searchByDateRange(Request $request)
     $startDate = $request->input('startDate');
     $endDate = $request->input('endDate');
 
-    return AssetHeader::whereBetween('acq_date', [$startDate, $endDate])->get();
+    return AssetHeader::whereBetween('acq_date', [$startDate, $endDate])->limit(30)->get();
 }
 
 private function searchByAssetCategory($assetCategorySearch)
 {
-    return AssetHeader::where('asset_type', $assetCategorySearch)->get();
+    return AssetHeader::where('asset_type', $assetCategorySearch)->limit(30)->get();
 }
 
 

@@ -178,7 +178,7 @@
                             <div id="carouselExampleControls" class="carousel slide" data-bs-ride="carousel">
                                 <div class="carousel-inner">
                                     @php
-                                        $imagePaths = json_decode($assetHeaderData->img);
+                                        $imagePaths = $assetHeaderData->img ? json_decode($assetHeaderData->img) : [];
                                     @endphp
 
                                     @foreach($imagePaths as $key => $imagePath)
@@ -186,7 +186,7 @@
                                             <img src="{{ asset($imagePath) }}" class="d-block w-100" alt="Image {{ $key + 1 }}">
                                         </div>
                                     @endforeach
-
+                                    <p class="text-center">{{$assetHeaderData->desc}}</p>
                                 </div>
                                 <button class="carousel-control-prev" type="button" data-bs-target="#carouselExampleControls" data-bs-slide="prev">
                                     <span class="carousel-control-prev-icon" aria-hidden="true"></span>
@@ -197,7 +197,8 @@
                                     <span class="visually-hidden">Next</span>
                                 </button>
                             </div>
-                            <p class="text-center">{{$assetHeaderData->desc}}</p>
+
+                            <h3 class="text-center">{{$assetHeaderData->desc}}</h3>
 
 
                         </div>
@@ -229,7 +230,7 @@
                             <strong>BV End Of Year {{ now()->year }}</strong><br>
                             <p>{{ 'Rp ' . number_format($assetHeaderData->bv_endofyear, 0, ',', '.') }}</p>
                             <strong>Remarks</strong><br>
-                            <p>Latest Update : {{ $assetHeaderData->remarks }}</p>
+                            <p>Latest Update ({{date('d-M-Y', strtotime($assetHeaderData->updated_at))}}) : {{ $assetHeaderData->remarks }}</p>
                         </div>
                     </div>
 
@@ -742,7 +743,7 @@
                                             </div>
                                             <div>
                                                 <strong>Remarks</strong><br>
-                                                <p>Latest Update : {{ $data->remarks }}</p>
+                                                <p>Latest Update ({{date('d-M-Y', strtotime($assetHeaderData->updated_at))}}) : {{ $data->remarks }}</p>
                                             </div>
                                             <!-- Add more fields as needed -->
 

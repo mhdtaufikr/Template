@@ -702,9 +702,9 @@
                     <th>Desc.</th>
                     <th>Qty</th>
                     <th>Acquisition date</th>
+                    <th>Department</th>
                     <th>Location</th>
                     <th>Sub</th>
-                    <th>Status</th>
                     <th>Action</th>
                   </tr>
                   </thead>
@@ -715,29 +715,14 @@
                         <td>
                             <input class="form-check-input" type="checkbox" name="assetCheckbox[]" value="{{ $data->id }}">
                         </td>
-                        <td><strong>{{ $data->asset_no }}</strong></td>
-                        <td>{{ $data->desc }} </td>
-                        <td>{{ $data->qty}} ( <small>{{$data->uom}}</small> ) </td>
-                        <td>{{ date('d-M-Y', strtotime($data->acq_date)) }}</td>
-                        <td>{{ $data->plant}} <br> ( <small>{{$data->loc}}</small> )</td>
-                        <td>
-                            @php
-                            $hasSubAssets = count($data->details) > 0; // Check if there are sub-assets
-                            $buttonClass = $hasSubAssets ? 'btn-info' : 'btn-light'; // Set button color class based on presence of sub-assets
-                            @endphp
-
-                        <button class="btn btn-sm details-btn {{ $buttonClass }}" data-bs-toggle="modal" data-bs-target="#detailsModal{{ $data->id }}">
-                            Sub
-                        </button>
-                        </td>
-                        <td>
+                        <td><strong>{{ $data->asset_no }}</strong><br>
 
                             @php
                                 $statusColor = ($data->status == 1) ? 'btn-success' : (($data->status == 0) ? 'btn-warning' : 'btn-danger');
                                 $statusText = ($data->status == 1) ? 'Active' : (($data->status == 0) ? 'Deactive' : 'Disposal');
                             @endphp
 
-                            <button class="btn btn-sm {{ $statusColor }}" onclick="openRemarksModal('{{ url("/asset/status/".encrypt($data->id)) }}', {{ $data->status }})">
+                            <button class="btn btn-xs {{ $statusColor }}" onclick="openRemarksModal('{{ url("/asset/status/".encrypt($data->id)) }}', {{ $data->status }})">
                                {{ $statusText }}
                             </button>
                             @if(\Auth::user()->role === 'Super Admin')
@@ -790,7 +775,22 @@
                                         }
                                     }
                                 </script>
-                            </td>
+                        </td>
+                        <td>{{ $data->desc}} </td>
+                        <td>{{ str_replace(' ', '', $data->qty) }} (<small>{{ str_replace(' ', '', $data->uom) }}</small>)</td>
+                        <td>{{ date('d-M-Y', strtotime($data->acq_date)) }}</td>
+                        <td>{{ $data->dept }} </td>
+                        <td>{{ str_replace(' ', '',$data->plant) }} <br> (<small>{{str_replace(' ', '',$data->loc)}}</small>)</td>
+                        <td>
+                            @php
+                            $hasSubAssets = count($data->details) > 0; // Check if there are sub-assets
+                            $buttonClass = $hasSubAssets ? 'btn-info' : 'btn-light'; // Set button color class based on presence of sub-assets
+                            @endphp
+
+                        <button class="btn btn-sm details-btn {{ $buttonClass }}" data-bs-toggle="modal" data-bs-target="#detailsModal{{ $data->id }}">
+                            Sub
+                        </button>
+                        </td>
 
                         <td><div class="dropdown">
                             <button class="btn btn-primary btn-sm dropdown-toggle" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false">
