@@ -597,7 +597,6 @@ class AssetController extends Controller
     public function generateQRCodesAndReturnPDF(Request $request)
     {
         $assetIds = explode(',', $request->input('assetIds'));
-
         // Fetch asset information from the database
         $assets = AssetHeader::whereIn('id', $assetIds)->get();
         $rules = Rule::where('rule_name','UrlQr')->first()->rule_value;
@@ -1037,6 +1036,37 @@ return Excel::download(new AssetExport($exportData), 'assets.xlsx');
 
     }
 
+
+    public function temporaryQR(){
+        $qr = ['27589',
+        '27590',
+        '27591',
+        '27592',
+        '27593',
+        '27594',
+        '27595',
+        '27596',];
+        // Fetch asset information from the database using the $qr array directly
+    $assets = AssetHeader::whereIn('id', $qr)->get();
+    $rules = Rule::where('rule_name','UrlQr')->first()->rule_value;
+    $segment = $assets->first()->segment;
+
+    // Initialize an array to store the data to be compacted
+    $data = [
+        'assetIds' => $qr, // Use $qr directly
+        'assets' => $assets,
+        'segment' => $segment,
+        'rule'  => $rules,
+    ];
+    // Initialize the PDF
+    $pdf = Pdf::loadView('asset.plate', $data)->setPaper('a4', 'landscape');
+
+    // Save the PDF (you may want to customize the storage path)
+    $pdfPath = public_path("pdfs/qr_codes.pdf");
+    $pdf->save($pdfPath);
+
+    return response()->file($pdfPath);
+    }
 
 
 }

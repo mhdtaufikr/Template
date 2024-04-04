@@ -110,7 +110,7 @@ var pieChart = new CanvasJS.Chart("chartContainer", {
     exportEnabled: true,
     animationEnabled: true,
     title: {
-        text: "Asset Type Distribution"
+        text: "Asset Type Distribution " + '(' + totalCount + ')'
     },
     data: [{
         type: "pie",
@@ -189,7 +189,6 @@ var barChart = new CanvasJS.Chart("chartContainer3", {
 });
 barChart.render();
 var barChartData = @json($barChartDatatype);
-console.log(barChartData);
 var dataPoints = barChartData.map(function(item, index) {
     return { y: item.y, label: item.label };
 });

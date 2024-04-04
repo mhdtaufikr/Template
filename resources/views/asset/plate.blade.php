@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Plate Label</title>
+    <!-- Add Bootstrap CSS link -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <!-- Add styles for formatting -->
+    <style>
+        body {
+            font-family: arial, helvetica, sans-serif;
+            width: 9cm;
+            height: 4cm;
+            margin: 0.10000in 0.00000in 0.00000in 0.00000in;
+            font-size: 9pt;
+        }
+
+        .plate {
+            width: 9cm;
+            height: 4cm;
+            overflow: hidden;
+            border: 2px solid #000;
+            box-sizing: border-box;
+        }
+
+        #header {
+            font-size: 10px;
+            font-weight: bold;
+            margin-bottom: 10px;
+            text-align: center; /* Center header text */
+        }
+
+        #qrCode img {
+            width: auto;
+            height: auto;
+            margin-left: auto; /* Align the image to the right by pushing it to the left as much as possible */
+        }
+
+        .plate td {
+            padding: 0;
+            padding-left: 3px; /* Add padding to table cells */
+        }
+
+        .qr_img {
+            width: 0.40866in;
+            height: 0.40866in;
+            float: left;
+            padding-right: .10in;
+        }
+
+        .qr_img img {
+            width: 100%;
+            height: 100%;
+            margin-top: -6.9%;
+            margin-left: -6.9%;
+            padding-bottom: 0; /* Reduced bottom padding for QR code image */
+        }
+
+        .qr_text {
+            width: calc(7cm - 0.40866in);
+            height: 3cm;
+            padding-top: 0.00000in;
+            font-family: arial, helvetica, sans-serif;
+            font-size: 6;
+            padding-right: .01in;
+            overflow: hidden !important;
+            word-wrap: break-word;
+            word-break: break-all;
+            background-color: aqua;
+            box-sizing: border-box;
+        }
+
+        .pull-left {
+            padding-left: 5mm;
+        }
+
+        .next-padding {
+            margin: 0.10000in 0.00000in 0.00000in 0.00000in;
+        }
+        #additionalInfo {
+            font-size: 10px;
+            text-align: left; /* Center additional info text */
+        }
+        @page { margin-left: 20;
+        margin-top: -5; }
+    </style>
+</head>
+
+<body>
+    <table >
+        <tr>
+            <td style="width: 50%;">
+                @foreach ($assets as $key => $asset)
+                    <?php
+                        // Decrypt the assetId here (replace this with your decryption logic)
+                        $decryptedId = $asset->id;
+                        // Generate the QR code
+                        $qrCode = QrCode::size(100)
+                            ->margin(5) // Adjust the margin to increase the size of the pixels
+                            ->generate("$rule{$decryptedId}");
+                    ?>
+                    <table class="table table-bordered plate custom-table" style="margin-bottom: -30px;margin-right: 150px;">
+                        <tbody>
+                            <tr>
+                                <td style="width:30%" id="qrCode">
+                                    <img style="margin-top: 0.5px;" src="data:image/png;base64, {!! base64_encode($qrCode) !!}" alt="QR Code for Asset ID: {{ $decryptedId }}">
+                                </td>
+                                <td style="width:70%" id="additionalInfo">
+                                    <h3 style="margin-bottom: 0; margin-top:4px">Asset By PT.MKM</h3>
+                                    <h1 style="margin-bottom: 0">{{ $asset->asset_no }}</h1>
+                                    <p style="margin-bottom: 0">{{ Illuminate\Support\Str::limit($asset->desc, 50) }}</p>
+                                    <p style="margin: 0">{{$segment}} <br>{{ date('d/m/Y', strtotime($asset->acq_date)) }}</p>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    @if ($key == floor(count($assets) / 2) - 1)
+                        </td>
+                        <td style="width: 50%;">
+                    @endif
+                @endforeach
+            </td>
+        </tr>
+    </table>
+</body>
+
+
+</html>

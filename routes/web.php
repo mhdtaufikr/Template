@@ -60,6 +60,8 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/download/excel/format/search', [AssetController::class, 'excelFormatDetailSearch']);
     Route::post('/asset/search/no', [AssetController::class, 'searchBulkAsset']);
 
+    Route::get('/temporary/qr', [AssetController::class, 'temporaryQR']);
+
 
 
     //Dropdown Controller
