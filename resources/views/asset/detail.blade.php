@@ -101,7 +101,7 @@
                         }
                     </script>
 
-                <!-- Modal -->
+                {{-- <!-- Modal -->
                 <div class="modal fade" id="imageModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
                     <div class="modal-dialog">
                         <div class="modal-content">
@@ -115,28 +115,9 @@
                             </div>
                         </div>
                     </div>
-                </div>
+                </div> --}}
 
-                <!-- JavaScript to set image source when the modal is shown -->
-                <script>
-                    document.addEventListener('DOMContentLoaded', function () {
-                        var imageModal = new bootstrap.Modal(document.getElementById('imageModal'));
-                        var modalImage = document.getElementById('modalImage');
-                        var seeImageButton = document.querySelector('.btn-see-image');
-                        var imgPath = '{{ asset($assetHeaderData->img) }}';
 
-                        // Set the image source dynamically when the modal is shown
-                        imageModal._element.addEventListener('shown.bs.modal', function (event) {
-                            // Set the image source dynamically using the asset helper
-                            modalImage.src = imgPath;
-                        });
-
-                        // Handle button click to show the modal
-                        seeImageButton.addEventListener('click', function () {
-                            imageModal.show();
-                        });
-                    });
-                </script>
 
                 </div>
                 <div class="card-body">
@@ -174,19 +155,18 @@
                     </div>
 
                     <div class="row">
-                        <div class="col-md-4">
+                        <div class="col-md-4 text-center">
                             <div id="carouselExampleControls" class="carousel slide" data-bs-ride="carousel">
                                 <div class="carousel-inner">
                                     @php
-                                        $imagePaths = $assetHeaderData->img ? json_decode($assetHeaderData->img) : [];
+                                    $imagePaths = $assetHeaderData->img ? json_decode($assetHeaderData->img) : [];
                                     @endphp
 
                                     @foreach($imagePaths as $key => $imagePath)
-                                        <div class="carousel-item {{ $key == 0 ? 'active' : '' }}">
-                                            <img src="{{ asset($imagePath) }}" class="d-block w-100" alt="Image {{ $key + 1 }}">
-                                        </div>
+                                    <div class="carousel-item {{ $key == 0 ? 'active' : '' }}">
+                                        <img src="{{ asset($imagePath) }}" class="d-block w-100" alt="Image {{ $key + 1 }}">
+                                    </div>
                                     @endforeach
-                                    <p class="text-center">{{$assetHeaderData->desc}}</p>
                                 </div>
                                 <button class="carousel-control-prev" type="button" data-bs-target="#carouselExampleControls" data-bs-slide="prev">
                                     <span class="carousel-control-prev-icon" aria-hidden="true"></span>
@@ -200,8 +180,68 @@
 
                             <h3 class="text-center">{{$assetHeaderData->desc}}</h3>
 
-
+                            <!-- Button trigger modal -->
+                            <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#imageModal">
+                                Manage Images
+                            </button>
                         </div>
+
+                       {{-- Modal Imgae CRUD --}}
+                        <!-- Modal -->
+                        <div class="modal fade" id="imageModal" tabindex="-1" aria-labelledby="imageModalLabel" aria-hidden="true">
+                            <div class="modal-dialog modal-lg">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title" id="imageModalLabel">Manage Images</h5>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                    </div>
+                                    <div class="modal-body">
+                                        <!-- Add a container for the "Add New" row -->
+                                        <div class="mb-3">
+                                            <form id="searchForm" action="{{ url('/asset/add/image') }}" method="POST" enctype="multipart/form-data">
+                                                @csrf
+                                                <h5>Add New Images</h5>
+                                                <input name="id" type="text" value="{{$assetHeaderData->id}}" hidden>
+                                                <div class="input-group">
+                                                    <input type="file" class="form-control" name="new_images[]" multiple>
+                                                    <button class="btn btn-primary" type="submit">Upload</button>
+                                                </div>
+                                            </form>
+
+                                        </div>
+                                        <div class="row">
+                                            <!-- Loop through the images and display them in a grid -->
+                                            @foreach($imagePaths as $key => $imagePath)
+                                            <div class="col-md-4 mb-3">
+                                                <div class="card">
+                                                    <img src="{{ asset($imagePath) }}" class="card-img-top" alt="Image {{ $key + 1 }}" style="height: 200px; width: auto;">
+                                                    <div class="card-body">
+                                                        <!-- Use a form to delete the image -->
+                                                        <form action="{{ route('asset.delete.image') }}" method="POST">
+                                                            @csrf
+                                                            <input type="hidden" name="img_path" value="{{ $imagePath }}">
+                                                            <input type="hidden" name="id" value="{{$assetHeaderData->id}}">
+                                                            <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+                                                        </form>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            @endforeach
+                                        </div>
+
+                                    </div>
+
+
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                        <!-- Add buttons for saving changes or performing other actions -->
+                                    </div>
+
+                                </div>
+                            </div>
+                        </div>
+
+
                         <div class="col-md-4">
                             <strong>Asset No.</strong><br>
                             <p>{{$assetHeaderData->asset_no}}</p>

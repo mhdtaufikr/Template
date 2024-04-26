@@ -97,7 +97,7 @@
         $qrCode = QrCode::size(100)
         ->margin(5) // Adjust the margin to increase the size of the pixels
         ->generate("$rule{$decryptedId}");
-       
+
     ?>
     <table class="table table-bordered plate custom-table">
         <tbody>
@@ -119,4 +119,3 @@
 </body>
 
 </html>
-        

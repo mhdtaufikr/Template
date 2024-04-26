@@ -583,7 +583,7 @@ class AssetController extends Controller
 
             return redirect()->back()->with('status', 'Assets imported successfully');
         } catch (Throwable $e) {
-            dd($e,'tt');
+            dd($e);
             // If an error occurs, rollback the transaction
             DB::rollBack();
 
@@ -598,7 +598,28 @@ class AssetController extends Controller
     {
         $assetIds = explode(',', $request->input('assetIds'));
         // Fetch asset information from the database
-        $assets = AssetHeader::whereIn('id', $assetIds)->get();
+    $assets = AssetHeader::whereIn('id', $assetIds)->get();
+
+    // Initialize an array to store the modified assets
+    $modifiedAssets = collect();
+
+    // Loop through each asset and check the quantity
+    foreach ($assets as $asset) {
+        // If the quantity is greater than 0, create multiple entries
+        if ($asset->qty > 0) {
+            for ($i = 0; $i < $asset->qty; $i++) {
+                $modifiedAsset = clone $asset;
+                $modifiedAssets->push($modifiedAsset);
+            }
+        } else {
+            // If quantity is 0, just add the asset without modification
+            $modifiedAssets->push($asset);
+        }
+    }
+
+    // Use the modified assets for further processing
+    $assets = $modifiedAssets;
+
         $rules = Rule::where('rule_name','UrlQr')->first()->rule_value;
         $segment = $assets->first()->segment;
         // Initialize an array to store the data to be compacted
@@ -623,7 +644,28 @@ class AssetController extends Controller
     $assetIds = explode(',', $request->input('assetIds'));
 
     // Fetch asset information from the database
+    // Fetch asset information from the database
     $assets = AssetDetail::whereIn('id', $assetIds)->where('asset_header_id', $id)->get();
+
+    // Initialize an array to store the modified assets
+    $modifiedAssets = collect();
+
+    // Loop through each asset and check the quantity
+    foreach ($assets as $asset) {
+        // If the quantity is greater than 0, create multiple entries
+        if ($asset->qty > 0) {
+            for ($i = 0; $i < $asset->qty; $i++) {
+                $modifiedAsset = clone $asset;
+                $modifiedAssets->push($modifiedAsset);
+            }
+        } else {
+            // If quantity is 0, just add the asset without modification
+            $modifiedAssets->push($asset);
+        }
+    }
+
+    // Use the modified assets for further processing
+    $assets = $modifiedAssets;
     $assetsHeader = AssetHeader::where('id', $assets->first()->asset_header_id)->first();
     $rules = Rule::where('rule_name','UrlQrDetail')->first()->rule_value;
     $segment = $assetsHeader->segment;
@@ -1036,18 +1078,61 @@ return Excel::download(new AssetExport($exportData), 'assets.xlsx');
 
     }
 
+    public function searchMultiple(Request $request){
+         // Retrieve search criteria from the request
+    $searchCriteria = $request->all();
+
+    // Build the query based on the provided search criteria
+    $query = AssetHeader::query();
+
+    // Apply filters based on search criteria
+    if (!empty($searchCriteria['plant'])) {
+        $query->where('plant', $searchCriteria['plant']);
+    }
+
+    if (!empty($searchCriteria['loc'])) {
+        $query->where('loc', $searchCriteria['loc']);
+    }
+
+    if (!empty($searchCriteria['assetCategory'])) {
+        $query->where('asset_type', $searchCriteria['assetCategory']);
+    }
+
+    if (!empty($searchCriteria['department'])) {
+        $query->where('dept', $searchCriteria['department']);
+    }
+
+    if (!empty($searchCriteria['startDate']) && !empty($searchCriteria['endDate'])) {
+        $query->whereBetween('acq_date', [$searchCriteria['startDate'], $searchCriteria['endDate']]);
+    }
+
+    // Limit the number of results (if necessary)
+    $assetData = $query->limit(30)->get();
+
+    // Retrieve additional data for dropdowns
+    $status = Dropdown::where('category', 'Status')->get();
+    $dropdownUom = Dropdown::where('category', 'UOM')->get();
+    $assetCategory = AssetCategory::get();
+    $dept = Department::get();
+    $locHeader = LocHeader::get();
+    $locDetail = LocDetail::get();
+    $costCenter = CostCenter::get();
+
+    // Pass the data to the view
+    return view("asset.main", compact('assetData', 'status', 'dropdownUom', 'assetCategory', 'dept', 'locHeader', 'locDetail', 'costCenter'));
+    }
+
 
     public function temporaryQR(){
-        $qr = ['27589',
-        '27590',
-        '27591',
-        '27592',
-        '27593',
-        '27594',
-        '27595',
-        '27596',];
+        $qr = [
+            '5220060006',
+            '3020020471',
+            '5220230031',
+            '5220060001',
+
+        ];
         // Fetch asset information from the database using the $qr array directly
-    $assets = AssetHeader::whereIn('id', $qr)->get();
+    $assets = AssetHeader::whereIn('asset_no', $qr)->get();
     $rules = Rule::where('rule_name','UrlQr')->first()->rule_value;
     $segment = $assets->first()->segment;
 
@@ -1068,5 +1153,130 @@ return Excel::download(new AssetExport($exportData), 'assets.xlsx');
     return response()->file($pdfPath);
     }
 
+    public function addImage(Request $request){
+
+        // Validate the incoming request
+        $request->validate([
+            'id' => 'required|exists:asset_headers,id', // Ensure the asset header ID exists
+            'new_images.*' => 'nullable|file|mimes:jpeg,png,jpg,gif|max:2048', // Validate the image files
+        ]);
+
+        // Retrieve the asset header
+        $assetHeader = AssetHeader::findOrFail($request->id);
+
+        $imagePaths = $assetHeader->img ? json_decode($assetHeader->img, true) : [];
+
+        // Check if the request has any new images
+        if ($request->hasFile('new_images')) {
+            foreach ($request->file('new_images') as $file) {
+                // Generate a unique file name for each image
+                $fileName = uniqid() . '_' . $file->getClientOriginalName();
+
+                // Move the uploaded image to the storage directory
+                $destinationPath = public_path('images');
+                $file->move($destinationPath, $fileName);
+
+                // Store the image path in the array
+                $imagePaths[] = 'images/' . $fileName;
+            }
+
+            // Save the updated asset header with the new image paths
+            $assetHeader->img = json_encode($imagePaths); // Convert back to JSON before saving
+            $assetHeader->save();
+        }
+
+
+        // Redirect back with a success message
+        return redirect()->back()->with('success', 'Images uploaded successfully.');
+    }
+
+    public function deleteImage(Request $request)
+{
+    // Retrieve the image path and asset ID from the request data
+    $imgPath = $request->input('img_path');
+    $assetId = $request->input('id');
+
+
+
+    // Find the asset header by ID
+    $assetHeader = AssetHeader::findOrFail($assetId);
+
+
+    // Decode the image paths from JSON
+    $imagePaths = json_decode($assetHeader->img, true);
+
+    // Find the index of the image path to delete
+    $index = array_search($imgPath, $imagePaths);
+
+    // If the image path exists, remove it from the array
+    if ($index !== false) {
+        unset($imagePaths[$index]);
+
+        // Update the image paths in the database
+        $assetHeader->img = json_encode(array_values($imagePaths));
+        $assetHeader->save();
+    }
+
+    // Redirect back with a success message
+    return redirect()->back()->with('success', 'Image deleted successfully.');
+}
+
+
+
+
+
 
 }
+
+// detail
+// public function temporaryQR(){
+//     $qr = [
+//     '3020130026',
+//     '2120150012',
+//     '3020220029',
+//     '5120220007',
+//     '3020130002',
+//     '3020180008',
+//     '3020130001',
+//     '5220230001',
+//     '3020110006',
+//     '3020140002',
+//     '3020140003',
+//     '3020140004',
+//     '3020160015',
+//     '5020100006',
+//     '3020060022',
+//     '3020170018',
+//     '3020120005',
+//     '3020130016',
+//     '3020170007',
+//     '3019860069',
+//     '2120150002',
+//     '3020190012',
+//     '3020190013',
+//     '3020120027',
+//     '3020130020',
+//     ];
+
+
+// // Fetch asset information from the database
+// $assets = AssetDetail::whereIn('asset_no', $qr)->get();
+// $assetsHeader = AssetHeader::where('id', $assets->first()->asset_header_id)->first();
+// $rules = Rule::where('rule_name','UrlQrDetail')->first()->rule_value;
+// $segment = $assetsHeader->segment;
+// // Initialize an array to store the data to be compacted
+// $data = [
+//     'assetIds' => $qr,
+//     'assets' => $assets,
+//     'segment' => $segment,
+//     'rule'  => $rules,
+// ];
+// // Use the existing PDF view for details
+// $pdf = Pdf::loadView('asset.qr_codes_detail',$data)->setPaper('a4', 'landscape');;
+
+// // Save the PDF (you may want to customize the storage path)
+// $pdfPath = public_path("pdfs/qr_codes_detail.pdf");
+// $pdf->save($pdfPath);
+
+// return response()->file($pdfPath);
+// }

@@ -59,6 +59,11 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/asset/export', [AssetController::class, 'exportToExcel']);
     Route::get('/download/excel/format/search', [AssetController::class, 'excelFormatDetailSearch']);
     Route::post('/asset/search/no', [AssetController::class, 'searchBulkAsset']);
+    Route::get('/asset/search/multiple', [AssetController::class, 'searchMultiple']);
+    Route::post('/asset/add/image', [AssetController::class, 'addImage']);
+    Route::post('/asset/delete/image', [AssetController::class, 'deleteImage'])->name('asset.delete.image');
+
+
 
     Route::get('/temporary/qr', [AssetController::class, 'temporaryQR']);
 

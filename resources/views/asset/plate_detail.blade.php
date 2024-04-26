@@ -92,7 +92,7 @@
 </head>
 
 <body>
-    @foreach ($assets->chunk(1) as $assetChunk) <!-- Ubah 12 menjadi 4 baris x 3 kolom -->
+    @foreach ($assets->chunk(12) as $assetChunk) <!-- Ubah 12 menjadi 4 baris x 3 kolom -->
     <page> <!-- Tambahkan pembukaan tag halaman di sini -->
         <table >
             <tr>
@@ -119,7 +119,7 @@
                                             </td>
                                             <td style="width:70%;" id="additionalInfo">
                                                 <h3 style="margin-bottom: 0; margin-top:20px; font-size: 16px;">Asset By PT.MKM</h3>
-                                                <h1 style="margin-bottom: 0; font-size: 22px;">{{ $asset->asset_no }}</h1>
+                                                <h1 style="margin-bottom: 0; font-size: 22px;">{{ $asset->asset_no }} - {{$asset->sub_asset}}</h1>
                                                 <p style="margin-bottom: 0; font-size: 13px;">{{ Illuminate\Support\Str::limit($asset->desc, 50) }}</p>
                                                 <p style="margin: 0; font-size: 15px;">{{$segment}} <br>{{ date('d/m/Y', strtotime($asset->acq_date)) }}</p>
                                             </td>

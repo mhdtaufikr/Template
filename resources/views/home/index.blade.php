@@ -17,13 +17,74 @@
         </div>
     </header>
     <!-- Main page content-->
-    <div class="container-xl px-4 mt-n10">
+    <div class="container-xs px-4 mt-n10">
         <div style="margin-top: -170px" class="row">
+            <div class="col-md-3 mb-2">
+                <div class="card card-waves border-success">
+                    <div class="card-body text-center">
+                        <div style="margin: -10px" class="row align-items-center">
+                            <div class="col-md-6">
+                                <h5 class="card-title mb-3">Active Assets</h5>
+                               <strong> <h1 class="card-text mb-0">{{$countStatusOne}} </h1> </strong>
+                            </div>
+                            <div class="col-md-6">
+                                <i class="fas fa-check text-success" style="font-size: 35px;"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-3 mb-2">
+                <div class="card card-waves border-danger">
+                    <div class="card-body text-center">
+                        <div style="margin: -10px" class="row align-items-center">
+                            <div class="col-md-6">
+                                <h5 style="font-size: 16px" class="card-title mb-3">Deactive Assets</h5>
+                               <strong> <h1 class="card-text mb-0">{{$countStatusZero}}</h1> </strong>
+                            </div>
+                            <div class="col-md-6">
+                                <i class="fas fa-ban text-danger" style="font-size: 35px;"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 mb-2">
+                <div class="card card-waves border-warning">
+                    <div class="card-body text-center">
+                        <div style="margin: -10px" class="row align-items-center">
+                            <div class="col-md-6">
+                                <h5 style="font-size: 16px" class="card-title mb-3">Disposal Assets</h5>
+                               <strong> <h1 class="card-text mb-0">{{$countStatusTwo}}</h1> </strong>
+                            </div>
+                            <div class="col-md-6">
+                                <i class="fas fa-exclamation  text-warning" style="font-size: 35px;"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 mb-2">
+                <div class="card card-waves border-primary">
+                    <div class="card-body text-center">
+                        <div style="margin: -10px" class="row align-items-center">
+                            <div class="col-md-6">
+                                <h5 class="card-title mb-3">Total Assets</h5>
+                               <strong> <h1 class="card-text mb-0">{{$totalAsset}}</h1> </strong>
+                            </div>
+                            <div class="col-md-6">
+                                <i class="fas fa-boxes text-primary"  style="font-size: 35px;"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
             <div class="col-md-5">
                 <div class="card">
                     <div class="card-body">
                         <!-- Grafik Pie -->
-                        <div id="chartContainer" style="height: 330px; max-width: 920px; margin: 0px auto;"></div>
+                        <div id="chartContainer" style="height: 280px; max-width: 920px; margin: 0px auto;"></div>
                     </div>
                 </div>
             </div>
@@ -43,10 +104,10 @@
                     <div class="card-body">
                         <div class="tab-content" id="cardTabContent">
                             <div class="tab-pane fade show active" id="overview" role="tabpanel" aria-labelledby="overview-tab">
-                                <div id="chartContainer5" style="height: 285px; max-width: 920px; margin: 0px auto;"></div>
+                                <div id="chartContainer5" style="height: 235px; max-width: 920px; margin: 0px auto;"></div>
                             </div>
                             <div class="tab-pane fade" id="example" role="tabpanel" aria-labelledby="example-tab">
-                                <div id="chartContainer2" style="height: 285px; max-width: 920px; margin: 0px auto;"></div>
+                                <div id="chartContainer2" style="height: 235px; max-width: 920px; margin: 0px auto;"></div>
 
                             </div>
                         </div>
@@ -57,7 +118,7 @@
                 <div class="card">
                     <div class="card-body">
                         <!-- Map chart for Location Distribution -->
-                        <div id="chartContainer4" style="height: 320px; max-width: 920px; margin: 0px auto;"></div>
+                        <div id="chartContainer4" style="height: 270px; max-width: 920px; margin: 0px auto;"></div>
                     </div>
                 </div>
             </div>
@@ -65,7 +126,7 @@
                 <div class="card">
                     <div class="card-body">
                     <!-- Bar chart for Quantity by Department -->
-                    <div id="chartContainer3" style="height: 320px; max-width: 920px; margin: 0px auto;"></div>
+                    <div id="chartContainer3" style="height: 270px; max-width: 920px; margin: 0px auto;"></div>
                     </div>
                 </div>
             </div>
@@ -110,7 +171,7 @@ var pieChart = new CanvasJS.Chart("chartContainer", {
     exportEnabled: true,
     animationEnabled: true,
     title: {
-        text: "Asset Type Distribution " + '(' + totalCount + ')'
+        text: "Asset Type Distribution "
     },
     data: [{
         type: "pie",
@@ -133,8 +194,8 @@ var chartData = @json($chartData);
         var lineChart = new CanvasJS.Chart("chartContainer2", {
             exportEnabled: true,
             animationEnabled: true,
-            width: 750, // Set the width to 920 pixels
-            height: 285, // Set the height to 285 pixels
+            width: 900, // Set the width to 920 pixels
+            height: 235, // Set the height to 285 pixels
     title: {
         text: "Acquisition Cost Analysis"
     },

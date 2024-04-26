@@ -120,8 +120,11 @@ class HomeController extends Controller
                 'label' => $assetType
             ];
         }
-
-        return view('home.index', compact('assetDistribution','chartData','quantityByDepartment','barChartData','barChartDatatype'));
+        $countStatusOne = AssetHeader::where('status', 1)->count();
+        $countStatusZero = AssetHeader::where('status', 0)->count();
+        $countStatusTwo = AssetHeader::where('status', 2)->count();
+        $totalAsset = AssetHeader::count();
+        return view('home.index', compact('assetDistribution','chartData','quantityByDepartment','barChartData','barChartDatatype','countStatusOne','countStatusZero','countStatusTwo','totalAsset'));
     }
 }
 

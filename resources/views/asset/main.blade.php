@@ -19,7 +19,7 @@
         </div>
     </header>
 <!-- Main page content-->
-<div class="container-xl px-4 mt-n10">
+<div class="container-fluid px-4 mt-n10">
 <!-- Content Wrapper. Contains page content -->
 <div class="content-wrapper">
     <!-- Content Header (Page header) -->
@@ -47,94 +47,98 @@
               <div class="card-body">
                 <div class="row">
                     <div class="col-md-4 mb-4">
-<!-- Button to trigger the search modal -->
-<button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#searchModal">
-    Open Search Modal
-</button>
+                    <!-- Button to trigger the search modal -->
 
-<!-- Search Modal -->
-<div class="modal fade" id="searchModal" tabindex="-1" aria-labelledby="searchModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="searchModalLabel">Search Assets</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <form id="searchForm" action="{{ url('/asset/search') }}" method="GET">
-                    <div class="row">
-                        <div class="col-md-12">
-                            <div class="mb-3">
-                                <label for="assetNo" class="form-label">Asset No</label>
-                                <input type="text" class="form-control" id="assetNo" name="assetNo" placeholder="Enter Asset No">
+
+                <!-- Search Modal -->
+                <div class="modal fade" id="searchModal" tabindex="-1" aria-labelledby="searchModalLabel" aria-hidden="true">
+                    <div class="modal-dialog modal-dialog-centered">
+                        <div class="modal-content">
+                            <div style="margin-bottom: -30px" class="modal-header">
+                                <h5 class="modal-title" id="searchModalLabel">Search Assets</h5>
+                                <button type="button" class="btn" data-bs-dismiss="modal">X</button>
                             </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="mb-3">
-                                <label for="location" class="form-label">Plant</label>
-                                <select name="plant" id="plant" class="form-control" required>
-                                    <option value="">- Please Select Plant -</option>
-                                    @foreach ($locHeader as $data)
-                                        <option value="{{ $data->name }}">{{ $data->name }}</option>
-                                    @endforeach
-                                </select>
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="mb-3">
-                                <label for="location" class="form-label">Location</label>
-                                <select name="loc" id="loc" class="form-control" required>
-                                    <option value="">- Please Select Location -</option>
-                                    <!-- Location options will be dynamically populated using JavaScript -->
-                                </select>
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="mb-3">
-                                <label for="assetCategory" class="form-label">Asset Category</label>
-                                <select class="form-select" id="assetCategory" name="assetCategory">
-                                    <option value="">Select Asset Category</option>
-                                    @foreach ($assetCategory as $category)
-                                        <option value="{{ $category->desc }}">{{ $category->desc }}</option>
-                                    @endforeach
-                                </select>
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="mb-3">
-                                <label for="department" class="form-label">Department</label>
-                                <select class="form-select" id="department" name="department">
-                                    <option value="">Select Department</option>
-                                    @foreach ($dept as $item)
-                                        <option value="{{$item->dept}}">{{$item->dept}}</option>
-                                    @endforeach
-                                </select>
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="mb-3">
-                                <label for="startDate" class="form-label">Start Date</label>
-                                <input type="date" class="form-control" id="startDate" name="startDate">
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="mb-3">
-                                <label for="endDate" class="form-label">End Date</label>
-                                <input type="date" class="form-control" id="endDate" name="endDate">
+                            <div class="modal-body">
+                                <form id="searchForm" action="{{ url('/asset/search/multiple') }}" method="GET">
+                                    <div class="row">
+                                        <div class="col-md-12">
+                                            <div class="mb-3">
+                                                {{-- <div  id="assetNoInput" class="form-group mt-4">
+                                                    <label style="margin-top:-80px" for="assetNo" class="form-label">Asset No</label>
+                                                    <select name="assetNo[]" id="assetNo" class="form-control chosen-select" multiple data-placeholder="Select Asset Numbers...">
+                                                        @foreach ($assetNo as $number)
+                                                            <option value="{{ $number }}">{{ $number }}</option>
+                                                        @endforeach
+                                                    </select>
+                                                </div> --}}
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="mb-3">
+                                                <label for="location" class="form-label">Plant</label>
+                                                <select name="plant" id="plant" class="form-control" >
+                                                    <option value="">- Please Select Plant -</option>
+                                                    @foreach ($locHeader as $data)
+                                                        <option value="{{ $data->name }}">{{ $data->name }}</option>
+                                                    @endforeach
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="mb-3">
+                                                <label for="location" class="form-label">Location</label>
+                                                <select name="loc" id="loc" class="form-control" >
+                                                    <option value="">- Please Select Location -</option>
+                                                    <!-- Location options will be dynamically populated using JavaScript -->
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="mb-3">
+                                                <label for="assetCategory" class="form-label">Asset Category</label>
+                                                <select class="form-select" id="assetCategory" name="assetCategory">
+                                                    <option value="">Select Asset Category</option>
+                                                    @foreach ($assetCategory as $category)
+                                                        <option value="{{ $category->desc }}">{{ $category->desc }}</option>
+                                                    @endforeach
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="mb-3">
+                                                <label for="department" class="form-label">Department</label>
+                                                <select class="form-select" id="department" name="department">
+                                                    <option value="">Select Department</option>
+                                                    @foreach ($dept as $item)
+                                                        <option value="{{$item->dept}}">{{$item->dept}}</option>
+                                                    @endforeach
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="mb-3">
+                                                <label for="startDate" class="form-label">Start Date</label>
+                                                <input type="date" class="form-control" id="startDate" name="startDate">
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="mb-3">
+                                                <label for="endDate" class="form-label">End Date</label>
+                                                <input type="date" class="form-control" id="endDate" name="endDate">
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <button type="submit" class="btn btn-primary">Search</button>
+                                    <!-- Close Button -->
+                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+
+                                </form>
                             </div>
                         </div>
                     </div>
-
-                    <button type="submit" class="btn btn-primary">Search</button>
-                    <!-- Close Button -->
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-
-                </form>
-            </div>
-        </div>
-    </div>
-</div>
-                        <form action="{{url('/asset/search')}}" method="GET">
+                </div>
+                        {{-- <form action="{{url('/asset/search')}}" method="GET">
                             <div class="input-group input-group-sm">
                                 <select class="form-control" name="searchBy" id="searchByModal" onchange="toggleSearchInputsModal()">
                                     <option value="">Search by</option>
@@ -188,18 +192,13 @@
                             </div>
 
                             <!-- Add more form fields as needed -->
-                        </form>
+                        </form> --}}
                     </div>
 
                     <script>
                         function toggleSearchInputs() {
-                            var searchBy = $('#searchBy').val();
-
-                            if (searchBy === 'assetNo') {
                                 $('#assetNoInput').show();
-                            } else {
-                                $('#assetNoInput').hide();
-                            }
+
                         }
 
                         $(document).ready(function() {
@@ -350,25 +349,39 @@
 
                     <div class="mb-3 col-sm-12">
                         @if(\Auth::user()->role === 'Super Admin')
-                        <button  title="Search Asset" type="button" class="btn btn-teal btn-sm mb-2" data-bs-toggle="modal" data-bs-target="#modal-search">
-                            <i class="fas fa-search"></i>
-                          </button>
-                        <button  title="Add Asset" type="button" class="btn btn-dark btn-sm mb-2" data-bs-toggle="modal" data-bs-target="#modal-add">
-                            <i class="fas fa-plus-square"></i>
-                          </button>
-                          <button  title="Import Asset" type="button" class="btn btn-info btn-sm mb-2" data-bs-toggle="modal" data-bs-target="#modal-import">
-                            Import Assets
-                          </button>
-                         <!-- Add this checkbox before your table -->
-                          @endif
-                        <!-- Button to generate checklist -->
-                        <a title="Generate Checklist" class="btn btn-primary btn-sm mb-2" href="#" onclick="generateChecklist(); return false;" id="generateChecklistBtn">
-                            Generate QR Code
-                        </a>
+                        <!-- Search buttons -->
+                        <div class="btn-group mb-2" role="group" aria-label="Search">
+                            <button type="button" class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#searchModal">
+                                <i class="fas fa-search"></i> Serch Multiple Variable
+                            </button>
+                            <button title="Search Asset" type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#modal-search">
+                                <i class="fas fa-search"></i>
+                            </button>
+                        </div>
 
-                        <button title="Export to Excel" type="button" class="btn btn-success btn-sm mb-2" data-bs-toggle="modal" data-bs-target="#modal-export-excel">
-                            Export to Excel
-                        </button>
+                        <!-- Add and import buttons -->
+                        <div class="btn-group mb-2" role="group" aria-label="Add and Import">
+                            <button title="Import Asset" type="button" class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#modal-import">
+                                <i class="fas fa-file-import"></i> Import Assets
+                            </button>
+                            <button title="Add Asset" type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#modal-add">
+                                <i class="fas fa-plus-square"></i>
+                            </button>
+
+                        </div>
+                        @endif
+
+                        <!-- Additional buttons -->
+                        <div class="btn-group mb-2" role="group" aria-label="Generate and Export">
+
+                            <button title="Export to Excel" type="button" class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#modal-export-excel">
+                                <i class="fas fa-file-excel"></i> Export to Excel
+                            </button>
+                            <a title="Generate Checklist" class="btn btn-primary btn-sm" href="#" onclick="generateChecklist(); return false;" id="generateChecklistBtn">
+                                <i class="fas fa-qrcode"></i>
+                            </a>
+                        </div>
+
 
                         <!-- Export to Excel Modal -->
                         <div class="modal fade" id="modal-export-excel" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
