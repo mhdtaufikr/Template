@@ -266,7 +266,7 @@ var barChart = new CanvasJS.Chart("chartContainer4", {
     animationEnabled: true,
     theme: "light2",
     title: {
-        text: "Book Valie End of Year (" + currentYear + ")"
+        text: "Book Value End of Year (" + currentYear + ")"
     },
     axisY: {
         title: "BV End of Year",
