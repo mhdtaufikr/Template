@@ -21,7 +21,6 @@
             width: 7cm;
             height: 3cm;
             overflow: hidden;
-            border: 2px solid #000;
             box-sizing: border-box;
         }
 
@@ -84,7 +83,7 @@
             text-align: left; /* Center additional info text */
         }
         @page { margin-left: -2;
-        margin-top: -6.9; }
+        margin-top: -2; }
     </style>
 </head>
 
