@@ -83,8 +83,8 @@
             font-size: 10px;
             text-align: left; /* Center additional info text */
         }
-        @page { margin-left: 20;
-        margin-top: -5; }
+        @page { margin-left: -2;
+        margin-top: -6.9; }
     </style>
 </head>
 

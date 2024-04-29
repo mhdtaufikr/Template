@@ -801,6 +801,8 @@
                     <th>Desc.</th>
                     <th>Qty</th>
                     <th>Acquisition date</th>
+                    <th>Acquisition Cost</th>
+                    <th>Book Value</th>
                     <th>Department</th>
                     <th>Location</th>
                     <th>Sub</th>
@@ -878,6 +880,8 @@
                         <td>{{ $data->desc}} </td>
                         <td>{{ str_replace(' ', '', $data->qty) }} (<small>{{ str_replace(' ', '', $data->uom) }}</small>)</td>
                         <td>{{ date('d-M-Y', strtotime($data->acq_date)) }}</td>
+                        <td>{{ 'Rp ' . number_format($data->acq_cost, 0, ',', '.') }}</td>
+                        <td>{{ 'Rp ' . number_format($data->bv_endofyear, 0, ',', '.') }}</td>
                         <td>{{ $data->dept }} </td>
                         <td>{{ str_replace(' ', '',$data->plant) }} <br> (<small>{{str_replace(' ', '',$data->loc)}}</small>)</td>
                         <td>
