@@ -55,7 +55,7 @@
                     <div class="card-body text-center">
                         <div style="margin: -10px" class="row align-items-center">
                             <div class="col-md-6">
-                                <h5 style="font-size: 16px" class="card-title mb-3">Disposal Assets</h5>
+                                <h5 style="font-size: 16px" class="card-title mb-3">Acquisition Cost</h5>
                                 <strong>
                                     <h1 style="font-size: 16px; padding-bottom: 10px;" class="card-text mb-0">Rp {{ number_format($totalAcqCost, 0, ',', '.') }}</h1>
                                 </strong>
