@@ -31,7 +31,10 @@ use App\Exports\AssetExport;
 class AssetController extends Controller
 {
     public function index(){
-        $assetData =[];
+        // Retrieve the latest 50 rows based on the acquisition date
+        $assetData = AssetHeader::orderBy('acq_date', 'desc')->take(50)->get();
+
+        // Retrieve other necessary data
         $assetNo = AssetHeader::pluck('asset_no');
         $dropdownUom = Dropdown::where('category','UOM')->get();
         $assetCategory = AssetCategory::get();
@@ -41,8 +44,9 @@ class AssetController extends Controller
         $costCenter = CostCenter::get();
         $status = Dropdown::where('category','Status')->get();
 
-        return view("asset.main", compact('assetNo',"assetData", "dropdownUom", "assetCategory", "dept", "locHeader", "locDetail", "costCenter",'status'));
+        return view("asset.main", compact('assetNo', 'assetData', 'dropdownUom', 'assetCategory', 'dept', 'locHeader', 'locDetail', 'costCenter', 'status'));
     }
+
 
     public function delete($id){
         try {
@@ -98,7 +102,8 @@ class AssetController extends Controller
             $existingAsset = AssetHeader::where('asset_no', $request->asset_no)->first();
 
             if ($existingAsset) {
-                return redirect()->back()->with('failed', 'Asset with the same asset_no already exists.');
+                return redirect()->getUrlGenerator()->previous()->with('failed', 'Asset with the same asset_no already exists.');
+
             }
 
             // Remove commas from the 'cost' and 'bv_end' fields
@@ -144,11 +149,12 @@ class AssetController extends Controller
             // Save the AssetHeader instance to the database
             $assetHeader->save();
 
-            return redirect()->back()->with('status', 'Asset header created successfully');
+            return redirect()->getUrlGenerator()->previous()->with('status', 'Asset header updated successfully');
         } catch (\Exception $e) {
             dd($e);
             // Handle any exception that may occur during the creation
-            return redirect()->back()->with('failed', 'Failed to create asset header. Please try again.');
+            return redirect()->getUrlGenerator()->previous()->with('failed', 'Failed to create asset header. Please try again.');
+
         }
     }
 
@@ -1079,48 +1085,55 @@ return Excel::download(new AssetExport($exportData), 'assets.xlsx');
     }
 
     public function searchMultiple(Request $request){
-         // Retrieve search criteria from the request
-    $searchCriteria = $request->all();
+        // Retrieve search criteria from the request
+        $searchCriteria = $request->all();
 
-    // Build the query based on the provided search criteria
-    $query = AssetHeader::query();
+        // Build the query based on the provided search criteria
+        $query = AssetHeader::query();
 
-    // Apply filters based on search criteria
-    if (!empty($searchCriteria['plant'])) {
-        $query->where('plant', $searchCriteria['plant']);
+        // Apply filters based on search criteria
+
+        if (!empty($searchCriteria['assetNo'])) {
+            $query->whereIn('asset_no', $searchCriteria['assetNo']);
+        }
+
+        if (!empty($searchCriteria['plant'])) {
+            $query->where('plant', $searchCriteria['plant']);
+        }
+
+        if (!empty($searchCriteria['loc'])) {
+            $query->where('loc', $searchCriteria['loc']);
+        }
+
+        if (!empty($searchCriteria['assetCategory'])) {
+            $query->where('asset_type', $searchCriteria['assetCategory']);
+        }
+
+        if (!empty($searchCriteria['department'])) {
+            $query->where('dept', $searchCriteria['department']);
+        }
+
+        if (!empty($searchCriteria['startDate']) && !empty($searchCriteria['endDate'])) {
+            $query->whereBetween('acq_date', [$searchCriteria['startDate'], $searchCriteria['endDate']]);
+        }
+
+        // Limit the number of results (if necessary)
+        $assetData = $query->limit(30)->get();
+
+        // Retrieve additional data for dropdowns
+        $status = Dropdown::where('category', 'Status')->get();
+        $dropdownUom = Dropdown::where('category', 'UOM')->get();
+        $assetCategory = AssetCategory::get();
+        $dept = Department::get();
+        $locHeader = LocHeader::get();
+        $locDetail = LocDetail::get();
+        $costCenter = CostCenter::get();
+        $assetNo = AssetHeader::pluck('asset_no');
+
+        // Pass the data to the view
+        return view("asset.main", compact('assetData', 'status', 'dropdownUom', 'assetCategory', 'dept', 'locHeader', 'locDetail', 'costCenter','assetNo'));
     }
 
-    if (!empty($searchCriteria['loc'])) {
-        $query->where('loc', $searchCriteria['loc']);
-    }
-
-    if (!empty($searchCriteria['assetCategory'])) {
-        $query->where('asset_type', $searchCriteria['assetCategory']);
-    }
-
-    if (!empty($searchCriteria['department'])) {
-        $query->where('dept', $searchCriteria['department']);
-    }
-
-    if (!empty($searchCriteria['startDate']) && !empty($searchCriteria['endDate'])) {
-        $query->whereBetween('acq_date', [$searchCriteria['startDate'], $searchCriteria['endDate']]);
-    }
-
-    // Limit the number of results (if necessary)
-    $assetData = $query->limit(30)->get();
-
-    // Retrieve additional data for dropdowns
-    $status = Dropdown::where('category', 'Status')->get();
-    $dropdownUom = Dropdown::where('category', 'UOM')->get();
-    $assetCategory = AssetCategory::get();
-    $dept = Department::get();
-    $locHeader = LocHeader::get();
-    $locDetail = LocDetail::get();
-    $costCenter = CostCenter::get();
-
-    // Pass the data to the view
-    return view("asset.main", compact('assetData', 'status', 'dropdownUom', 'assetCategory', 'dept', 'locHeader', 'locDetail', 'costCenter'));
-    }
 
 
     public function temporaryQR(){

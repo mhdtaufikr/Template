@@ -63,14 +63,14 @@
                                     <div class="row">
                                         <div class="col-md-12">
                                             <div class="mb-3">
-                                                {{-- <div  id="assetNoInput" class="form-group mt-4">
+                                                <div  id="assetNoInput" class="form-group mt-4">
                                                     <label style="margin-top:-80px" for="assetNo" class="form-label">Asset No</label>
                                                     <select name="assetNo[]" id="assetNo" class="form-control chosen-select" multiple data-placeholder="Select Asset Numbers...">
                                                         @foreach ($assetNo as $number)
                                                             <option value="{{ $number }}">{{ $number }}</option>
                                                         @endforeach
                                                     </select>
-                                                </div> --}}
+                                                </div>
                                             </div>
                                         </div>
                                         <div class="col-md-6">
@@ -608,33 +608,37 @@
 
                                     <script>
                                         document.addEventListener('DOMContentLoaded', function () {
-                                            var plantDropdown = document.getElementById('plant');
-                                            var locDropdown = document.getElementById('loc');
+                                            var plantDropdowns = document.querySelectorAll('select[name="plant"]');
+                                            var locDropdowns = document.querySelectorAll('select[name="loc"]');
 
-                                            plantDropdown.addEventListener('change', function () {
-                                                locDropdown.innerHTML = '<option value="">- Please Select Location -</option>';
-                                                var selectedPlant = plantDropdown.value;
+                                            plantDropdowns.forEach(function (plantDropdown, index) {
+                                                plantDropdown.addEventListener('change', function () {
+                                                    var locDropdown = locDropdowns[index];
+                                                    locDropdown.innerHTML = '<option value="">- Please Select Location -</option>';
+                                                    var selectedPlant = plantDropdown.value;
 
-                                                var locDetails = [
-                                                    @foreach ($locDetail as $detail)
-                                                        {
-                                                            plant: '{{ $detail->locHeader->name }}',
-                                                            location: '{{ $detail->name }}'
-                                                        },
-                                                    @endforeach
-                                                ];
+                                                    var locDetails = [
+                                                        @foreach ($locDetail as $detail)
+                                                            {
+                                                                plant: '{{ $detail->locHeader->name }}',
+                                                                location: '{{ $detail->name }}'
+                                                            },
+                                                        @endforeach
+                                                    ];
 
-                                                locDetails.forEach(function (detail) {
-                                                    if (detail.plant === selectedPlant) {
-                                                        var option = document.createElement('option');
-                                                        option.value = detail.location;
-                                                        option.textContent = detail.location;
-                                                        locDropdown.appendChild(option);
-                                                    }
+                                                    locDetails.forEach(function (detail) {
+                                                        if (detail.plant === selectedPlant) {
+                                                            var option = document.createElement('option');
+                                                            option.value = detail.location;
+                                                            option.textContent = detail.location;
+                                                            locDropdown.appendChild(option);
+                                                        }
+                                                    });
                                                 });
                                             });
                                         });
                                     </script>
+
 
                                     <div class="form-group mb-3">
                                         <select name="dept" id="dept" class="form-control" required>
