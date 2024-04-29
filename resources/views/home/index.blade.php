@@ -56,10 +56,12 @@
                         <div style="margin: -10px" class="row align-items-center">
                             <div class="col-md-6">
                                 <h5 style="font-size: 16px" class="card-title mb-3">Disposal Assets</h5>
-                               <strong> <h1 class="card-text mb-0">{{$countStatusTwo}}</h1> </strong>
+                                <strong>
+                                    <h1 style="font-size: 16px; padding-bottom: 10px;" class="card-text mb-0">Rp {{ number_format($totalAcqCost, 0, ',', '.') }}</h1>
+                                </strong>
                             </div>
                             <div class="col-md-6">
-                                <i class="fas fa-exclamation  text-warning" style="font-size: 35px;"></i>
+                                <strong  class="text-warning" style="font-size: 35px;">Rp</strong>
                             </div>
                         </div>
                     </div>
