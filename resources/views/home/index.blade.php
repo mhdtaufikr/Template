@@ -92,15 +92,15 @@
                                 <h6 style="font-size: 0.9rem;margin-top: -14px;">1. Definition</h6>
                                 <p style="font-size: 0.8rem;">Assets with a useful life of more than one year and used in the continuity of MKM business</p>
                                 <h6 style="font-size: 0.9rem;margin-top: -14px;">2. Criteria</h6>
-                                <ul style="font-size: 0.8rem;">
-                                    <li>a. Estimated lifetime more than 1 year</li>
-                                    <li>b. Clear lifetime limitation</li>
-                                    <li>c. Used in the business process at MKM</li>
-                                    <li>d. Provides future economic benefit</li>
-                                    <li>g. For MKM business needs & not for sale purposes</li>
-                                    <li>h. Tangible</li>
-                                    <li>i. Intangible Asset can be software / Applications</li>
-                                </ul>
+                                <ol style="font-size: 0.8rem; list-style-type:lower-alpha" >
+                                    <li> Estimated lifetime more than 1 year</li>
+                                    <li> Clear lifetime limitation</li>
+                                    <li> Used in the business process at MKM</li>
+                                    <li> Provides future economic benefit</li>
+                                    <li> For MKM business needs & not for sale purposes</li>
+                                    <li> Tangible</li>
+                                    <li> Intangible Asset can be software / Applications</li>
+                                </ol>
                             </div>
                             <div class="col-md-6">
                                 <h6 style="font-size: 0.9rem;">3. Asset Category</h6>
