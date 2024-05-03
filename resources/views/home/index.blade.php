@@ -88,7 +88,9 @@
                         <div class="row">
                             <div class="col-md-6">
                                 <h5 style="font-size: 1rem;">A. Refreshment MKM Fixed Asset Management Policy</h5>
-                                <p style="font-size: 0.8rem;">MKM Asset Management refers to the MKM Policy issued since 2015 (attached)</p>
+                                <p style="font-size: 0.8rem;">MKM Asset Management refers to the <a href="{{ asset('pdfs\Fixed Asset Management Policy_2015.PDF') }}" target="_blank" style="color: #007bff; text-decoration: underline; font-weight: bold;">MKM Policy</a> issued since 2015.</p>
+
+
                                 <h6 style="font-size: 0.9rem;margin-top: -14px;">1. Definition</h6>
                                 <p style="font-size: 0.8rem;">Assets with a useful life of more than one year and used in the continuity of MKM business</p>
                                 <h6 style="font-size: 0.9rem;margin-top: -14px;">2. Criteria</h6>
