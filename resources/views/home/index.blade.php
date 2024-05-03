@@ -104,7 +104,9 @@
                             </div>
                             <div class="col-md-7">
                                 <h6 style="font-size: 0.9rem;">3. Asset Category</h6>
-                                <img src="{{ asset('images\MKM Fixed Asset Classification.png') }}" class="d-block" style="max-width: 630px;" alt="Image">
+                                <div class="d-flex justify-content-center">
+                                    <img src="{{ asset('images\MKM Fixed Asset Classification.png') }}" class="d-block" style="max-width: 630px;" alt="Image">
+                                </div>
                                 <p style="font-size: 0.8rem;">Untuk item di bawah 10jt, dikategorikan sebagai Low Value Asset dengan kondisi:</p>
                                 <ol  style="font-size: 0.8rem; margin-bottom: -5px;">
                                     <li style="margin-top: -14px;">Estimasi lifetime lebih dari 1 tahun</li>
