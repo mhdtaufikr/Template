@@ -86,40 +86,41 @@
                 <div style="margin-top: -5px;" class="card">
                     <div class="card-body">
                         <div class="row">
-                            <div class="col-md-5">
+                            <div class="col-md-6">
                                 <h5 style="font-size: 1rem;">A. Refreshment MKM Fixed Asset Management Policy</h5>
-                                <p style="font-size: 0.8rem;">MKM Asset Management mengacu pada MKM Policy yang diterbitkan sejak 2015 (terlampir)</p>
-                                <h6 style="font-size: 0.9rem;margin-top: -14px;">1. Definisi</h6>
-                                <p style="font-size: 0.8rem;">Asset yang masa manfaatnya lebih dari satu tahun dan digunakan dalam kelangsungan usaha MKM</p>
+                                <p style="font-size: 0.8rem;">MKM Asset Management refers to the MKM Policy issued since 2015 (attached)</p>
+                                <h6 style="font-size: 0.9rem;margin-top: -14px;">1. Definition</h6>
+                                <p style="font-size: 0.8rem;">Assets with a useful life of more than one year and used in the continuity of MKM business</p>
                                 <h6 style="font-size: 0.9rem;margin-top: -14px;">2. Criteria</h6>
                                 <ul style="font-size: 0.8rem;">
-                                    <li>a. Estimasi lifetime lebih dari 1 tahun</li>
-                                    <li>b. Batasan lifetime yang jelas</li>
-                                    <li>c. Digunakan dalam proses bisnis di MKM</li>
-                                    <li>d. Memberikan manfaat ekonomi masa depan</li>
-                                    <li>g. Untuk kebutuhan bisnis MKM & bukan untuk dijual</li>
-                                    <li>h. Tangible / berwujud</li>
-                                    <li>i. Intangible Asset berupa software / Aplikasi</li>
+                                    <li>a. Estimated lifetime more than 1 year</li>
+                                    <li>b. Clear lifetime limitation</li>
+                                    <li>c. Used in the business process at MKM</li>
+                                    <li>d. Provides future economic benefit</li>
+                                    <li>g. For MKM business needs & not for sale purposes</li>
+                                    <li>h. Tangible</li>
+                                    <li>i. Intangible Asset can be software / Applications</li>
                                 </ul>
                             </div>
-                            <div class="col-md-7">
+                            <div class="col-md-6">
                                 <h6 style="font-size: 0.9rem;">3. Asset Category</h6>
                                 <div class="d-flex justify-content-center">
                                     <img src="{{ asset('images\MKM Fixed Asset Classification.png') }}" class="d-block" style="max-width: 630px;" alt="Image">
                                 </div>
-                                <p style="font-size: 0.8rem;">Untuk item di bawah 10jt, dikategorikan sebagai Low Value Asset dengan kondisi:</p>
+                                <p style="font-size: 0.8rem;">For items below 10 million, categorized as Low Value Asset under the following conditions:</p>
                                 <ol  style="font-size: 0.8rem; margin-bottom: -5px;">
-                                    <li style="margin-top: -14px;">Estimasi lifetime lebih dari 1 tahun</li>
-                                    <li>Mempunyai nilai dan dapat dijual</li>
-                                    <li>Berupa barang elektronik atau alat komunikasi</li>
+                                    <li style="margin-top: -14px;">Estimated lifetime more than 1 year</li>
+                                    <li>Have value and can be sold</li>
+                                    <li>Electronic items or communication tools</li>
                                 </ol>
-                                <span style="font-size: 0.8rem;">Allocation menggunakan budget Fixed cost (mengajukan Form Registration Asset)</span>
-                                <span style="font-size: 0.8rem;">Dikategorikan sebagai Asset untuk kontrol selama pemakaian</span>
+                                <span style="font-size: 0.8rem;">Allocation uses Fixed cost budget (submitting Asset Registration Form)</span>
+                                <span style="font-size: 0.8rem;">Categorized as an Asset for control during usage</span>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
+
 
 
 
