@@ -87,11 +87,11 @@
                     <div class="card-body">
                         <div class="row">
                             <div class="col-md-6">
-                                <h5 style="font-size: 1rem;">A. Refreshment MKM Fixed Asset Management Policy</h5>
-                                <p style="font-size: 0.8rem;">MKM Asset Management refers to the <a href="{{ asset('pdfs\Fixed Asset Management Policy_2015.PDF') }}" target="_blank" style="color: #007bff; text-decoration: underline; font-weight: bold;">MKM Policy</a> issued since 2015.</p>
+
+                                <h5 style="font-size: 0.8rem;">MKM Asset Management refers to the <a href="{{ asset('pdfs\Fixed Asset Management Policy_2015.PDF') }}" target="_blank" style="color: #007bff; text-decoration: underline; font-weight: bold;">MKM Policy</a> issued since 2015.</h5>
 
 
-                                <h6 style="font-size: 0.9rem;margin-top: -14px;">1. Definition</h6>
+                                <h6 style="font-size: 0.9rem;margin-top: -5px;">1. Definition</h6>
                                 <p style="font-size: 0.8rem;">Assets with a useful life of more than one year and used in the continuity of MKM business</p>
                                 <h6 style="font-size: 0.9rem;margin-top: -14px;">2. Criteria</h6>
                                 <ol style="font-size: 0.8rem; list-style-type:lower-alpha" >
@@ -109,7 +109,7 @@
                                 <div class="d-flex justify-content-center">
                                     <img src="{{ asset('images\MKM Fixed Asset Classification.png') }}" class="d-block" style="max-width: 630px;" alt="Image">
                                 </div>
-                                <p style="font-size: 0.8rem;">For items below 10 million, categorized as Low Value Asset under the following conditions:</p>
+                                <p style="font-size: 0.8rem;">For items under 10 million, categorized as Low Value Asset with the following conditions:</p>
                                 <ol  style="font-size: 0.8rem; margin-bottom: -5px;">
                                     <li style="margin-top: -14px;">Estimated lifetime more than 1 year</li>
                                     <li>Have value and can be sold</li>
@@ -126,7 +126,7 @@
 
 
 
-                <div class="col-md-5 mt-1">
+                <div class="col-md-5 mt-2">
                     <div class="card">
                         <div class="card-header border-bottom">
                             <ul class="nav nav-tabs card-header-tabs" id="cardTab" role="tablist">
@@ -154,7 +154,7 @@
                 </div>
 
 
-            <div class="col-md-7 mt-1">
+            <div class="col-md-7 mt-2">
                 <div class="card">
                     <div class="card-header border-bottom">
                         <ul class="nav nav-tabs card-header-tabs" id="cardTab" role="tablist">

@@ -39,9 +39,10 @@ class AssetController extends Controller
         $dropdownUom = Dropdown::where('category','UOM')->get();
         $assetCategory = AssetCategory::get();
         $dept = Department::get();
-        $locHeader = LocHeader::get();
-        $locDetail = LocDetail::get();
-        $costCenter = CostCenter::get();
+        $locHeader = LocHeader::orderBy('name')->get();
+        $locDetail = LocDetail::orderBy('name')->get();
+        $costCenter = CostCenter::orderBy('cost_ctr')->get();
+
         $status = Dropdown::where('category','Status')->get();
 
         return view("asset.main", compact('assetNo', 'assetData', 'dropdownUom', 'assetCategory', 'dept', 'locHeader', 'locDetail', 'costCenter', 'status'));
@@ -269,8 +270,8 @@ class AssetController extends Controller
         $assetDetailData = AssetDetail::where('asset_header_id', $id)->get();
         $dropdownUom = Dropdown::where('category','UOM')->get();
         $assetCategory = AssetCategory::get();
-        $locHeader = LocHeader::get();
-        $locDetail = LocDetail::get();
+        $locHeader = LocHeader::orderBy('name')->get();
+        $locDetail = LocDetail::orderBy('name')->get();
         $dept = Department::get();
         return view('asset.detail', compact('assetHeaderData','assetDetailData','dropdownUom','assetCategory','locHeader','locDetail','dept','status'));
     }
@@ -698,8 +699,8 @@ class AssetController extends Controller
         $assetDetailData = AssetDetail::where('asset_header_id', $id)->get();
         $dropdownUom = Dropdown::where('category','UOM')->get();
         $assetCategory = AssetCategory::get();
-        $locHeader = LocHeader::get();
-        $locDetail = LocDetail::get();
+        $locHeader = LocHeader::orderBy('name')->get();
+        $locDetail = LocDetail::orderBy('name')->get();
         $dept = Department::get();
         return view('public.asset', compact('assetHeaderData','assetDetailData','dropdownUom','assetCategory','locHeader','locDetail','dept'));
 
@@ -727,7 +728,8 @@ class AssetController extends Controller
     $dept = Department::get();
     $locHeader = LocHeader::get();
     $locDetail = LocDetail::get();
-    $costCenter = CostCenter::get();
+    $costCenter = CostCenter::orderBy('cost_ctr')->get();
+
 
     // Retrieve selected search criteria
     $searchBy = $request->input('searchBy');
@@ -1052,9 +1054,10 @@ return Excel::download(new AssetExport($exportData), 'assets.xlsx');
         $dropdownUom = Dropdown::where('category','UOM')->get();
         $assetCategory = AssetCategory::get();
         $dept = Department::get();
-        $locHeader = LocHeader::get();
-        $locDetail = LocDetail::get();
-        $costCenter = CostCenter::get();
+        $locHeader = LocHeader::orderBy('name')->get();
+        $locDetail = LocDetail::orderBy('name')->get();
+        $costCenter = CostCenter::orderBy('cost_ctr')->get();
+
         $status = Dropdown::where('category','Status')->get();
         $assetData = collect();
 
@@ -1125,9 +1128,10 @@ return Excel::download(new AssetExport($exportData), 'assets.xlsx');
         $dropdownUom = Dropdown::where('category', 'UOM')->get();
         $assetCategory = AssetCategory::get();
         $dept = Department::get();
-        $locHeader = LocHeader::get();
-        $locDetail = LocDetail::get();
-        $costCenter = CostCenter::get();
+        $locHeader = LocHeader::orderBy('name')->get();
+        $locDetail = LocDetail::orderBy('name')->get();
+        $costCenter = CostCenter::orderBy('cost_ctr')->get();
+
         $assetNo = AssetHeader::pluck('asset_no');
 
         // Pass the data to the view
