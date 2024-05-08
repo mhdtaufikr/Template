@@ -1182,7 +1182,7 @@
                                                     <td>{{ $detail->asset_no }} - {{ $detail->sub_asset }}</td>
                                                     <td>{{ $detail->desc }}</td>
                                                     <td>{{ $detail->qty }} ({{ $detail->uom }})</td>
-                                                    <td>{{ date('d-M-Y', strtotime($detail->acq_date)) }}</td>
+                                                    <td>{{ date('d-M-Y', strtotime($detail->date)) }}</td>
                                                     <!-- Add more cells based on your AssetDetail model -->
                                                 </tr>
                                             @endforeach

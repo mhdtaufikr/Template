@@ -53,7 +53,7 @@ class AssetImport implements ToCollection, WithHeadingRow
                     $mainAsset = AssetHeader::where('asset_no', $row['main_asset'])->first();
                     $createAssteDetail = AssetDetail::create([
                         'asset_header_id' => $mainAsset->id,
-                        'asset_no' => $row['asset_no'],
+                        'asset_no' => $row['flag'],
                         'sub_asset' => null,
                         'desc' => $row['asset_description'],
                         'qty' => $quantity,

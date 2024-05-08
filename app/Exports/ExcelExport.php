@@ -43,7 +43,7 @@ class ExcelExport implements FromCollection, WithHeadings, WithEvents
                 // Add a note to cell E2
                $event->sheet->getDelegate()->getComment('G1')->getText()->createTextRun($this->note);
                $event->sheet->getDelegate()->getComment('K1')->getText()->createTextRun("2 = disposal, 0 = deactive, 1 = active");
-               $event->sheet->getDelegate()->getComment('S1')->getText()->createTextRun("1/null");
+               $event->sheet->getDelegate()->getComment('S1')->getText()->createTextRun("No. Asset");
 
             },
         ];
