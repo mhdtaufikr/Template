@@ -30,10 +30,47 @@ class AssetImport implements ToCollection, WithHeadingRow
                 $quantity = !empty($row['quantity']) ? $row['quantity'] : 0;
                 $assetType = $assetCategory ? $assetCategory->class : null;
                 $subAssetValue = $row['sub_asset'];
-
-                if ($subAssetValue == 0) {
-                    // Insert into asset_headers
-                    $header = AssetHeader::create([
+                $flagAssetValue = $row['flag'];
+                if ($subAssetValue !== null) {
+                    $mainAsset = AssetHeader::where('asset_no', $row['main_asset'])->first();
+                    $createAssteDetail = AssetDetail::create([
+                        'asset_header_id' => $mainAsset->id,
+                        'asset_no' => $row['asset_no'],
+                        'sub_asset' => $row['sub_asset'],
+                        'desc' => $row['asset_description'],
+                        'qty' => $quantity,
+                        'uom' => $row['bun'],
+                        'asset_type' => $assetCategory->desc,
+                        'date' => $acquisitionDate,
+                        'cost' => $row['acquis_val'],
+                        'po_no' => $row['po_no'],
+                        'serial_no' => $row['serial_no'],
+                        'status' => $row['status'],
+                        'remarks' => $row['remarks'],
+                        'bv_endofyear' => $row['book_value_at_end_of_year'],
+                    ]);
+                } elseif ($flagAssetValue !== null) {
+                    $mainAsset = AssetHeader::where('asset_no', $row['main_asset'])->first();
+                    $createAssteDetail = AssetDetail::create([
+                        'asset_header_id' => $mainAsset->id,
+                        'asset_no' => $row['asset_no'],
+                        'sub_asset' => null,
+                        'desc' => $row['asset_description'],
+                        'qty' => $quantity,
+                        'uom' => $row['bun'],
+                        'asset_type' => $assetCategory->desc,
+                        'date' => $acquisitionDate,
+                        'cost' => $row['acquis_val'],
+                        'po_no' => $row['po_no'],
+                        'serial_no' => $row['serial_no'],
+                        'status' => $row['status'],
+                        'remarks' => $row['remarks'],
+                        'bv_endofyear' => $row['book_value_at_end_of_year'],
+                    ]);
+                }
+                else {
+                      // Insert into asset_headers
+                      $header = AssetHeader::create([
                         'asset_no' => $row['asset_no'],
                         'desc' => $row['asset_description'],
                         'qty' => $quantity,
@@ -48,24 +85,6 @@ class AssetImport implements ToCollection, WithHeadingRow
                         'loc' => $row['location'],
                         'cost_center' => $row['cost_center'],
                         'segment' => $row['part_no'],
-                        'status' => $row['status'],
-                        'remarks' => $row['remarks'],
-                        'bv_endofyear' => $row['book_value_at_end_of_year'],
-                    ]);
-                } else {
-                    $mainAsset = AssetHeader::where('asset_no', $row['main_asset'])->first();
-                    $createAssteDetail = AssetDetail::create([
-                        'asset_header_id' => $mainAsset->id,
-                        'asset_no' => $row['asset_no'],
-                        'sub_asset' => $row['sub_asset'],
-                        'desc' => $row['asset_description'],
-                        'qty' => $quantity,
-                        'uom' => $row['bun'],
-                        'asset_type' => $assetCategory->desc,
-                        'date' => $acquisitionDate,
-                        'cost' => $row['acquis_val'],
-                        'po_no' => $row['po_no'],
-                        'serial_no' => $row['serial_no'],
                         'status' => $row['status'],
                         'remarks' => $row['remarks'],
                         'bv_endofyear' => $row['book_value_at_end_of_year'],
