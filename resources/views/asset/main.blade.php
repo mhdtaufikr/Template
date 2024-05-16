@@ -827,43 +827,51 @@
                                 $statusText = ($data->status == 1) ? 'Active' : (($data->status == 0) ? 'Deactive' : 'Disposal');
                             @endphp
 
-                            <button class="btn btn-xs {{ $statusColor }}" onclick="openRemarksModal('{{ url("/asset/status/".encrypt($data->id)) }}', {{ $data->status }})">
-                               {{ $statusText }}
-                            </button>
-                            @if(\Auth::user()->role === 'Super Admin')
-                            <!-- Modal for Remarks -->
-                                <div class="modal fade" id="remarksModal" tabindex="-1" aria-labelledby="remarksModalLabel" aria-hidden="true">
-                                    <div class="modal-dialog">
-                                        <div class="modal-content">
-                                            <div class="modal-header">
-                                                <h5 class="modal-title" id="remarksModalLabel">Update Status and Enter Remarks</h5>
-                                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                                            </div>
-                                            <div class="modal-body">
-                                                <form id="remarksForm" method="POST">
-                                                    @csrf
-                                                    <div class="mb-3">
-                                                        <label for="status" class="form-label">Status</label>
-                                                        <select class="form-select" id="status" name="status" required>
-                                                            @foreach ($status as $item)
-                                                            <option value="{{$item->code_format}}">{{$item->name_value}}</option>
-                                                            @endforeach
-                                                        </select>
-                                                    </div>
-                                                    <div class="mb-3">
-                                                        <label for="remark" class="form-label">Remark</label>
-                                                        <textarea class="form-control" id="remark" name="remark" rows="3" required></textarea>
-                                                    </div>
-                                                </form>
-                                            </div>
-                                            <div class="modal-footer">
-                                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                                                <button type="button" class="btn btn-primary" onclick="submitRemarksForm()">Submit</button>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                @endif
+<button class="btn btn-xs {{ $statusColor }}" onclick="openRemarksModal{{ $data->id }}()">
+    {{ $statusText }}
+</button>
+
+@if(\Auth::user()->role === 'Super Admin')
+    <!-- Modal for Remarks -->
+    <div class="modal fade" id="remarksModa{{ $data->id }}l" tabindex="-1" aria-labelledby="remarksModalLabel{{ $data->id }}" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="remarksModalLabel{{ $data->id }}">Update Status and Enter Remarks</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="remarksForm" method="POST">
+                        @csrf
+                        <div class="mb-3">
+                            <label for="status" class="form-label">Status</label>
+                            <select class="form-select" id="status" name="status" required>
+                                @foreach ($status as $item)
+                                <option value="{{$item->code_format}}">{{$item->name_value}}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="remark" class="form-label">Remark</label>
+                            <textarea class="form-control" id="remark" name="remark" rows="3" required>{{$data->remarks }}</textarea>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary" onclick="submitRemarksForm()">Submit</button>
+                </div>
+            </div>
+        </div>
+    </div>
+@endif
+
+<script>
+    function openRemarksModal{{ $data->id }}() {
+        $('#remarksModa{{ $data->id }}l').modal('show');
+    }
+</script>
+
                                 <script>
                                     function openRemarksModal(url, status) {
                                         $('#remarksModal').modal('show');
