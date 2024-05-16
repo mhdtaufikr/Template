@@ -32,7 +32,7 @@ class AssetController extends Controller
 {
     public function index(){
         // Retrieve the latest 50 rows based on the acquisition date
-        $assetData = AssetHeader::orderBy('acq_date', 'desc')->take(50)->get();
+        $assetData = AssetHeader::orderBy('created_at', 'desc')->take(50)->get();
 
         // Retrieve other necessary data
         $assetNo = AssetHeader::pluck('asset_no');
@@ -150,11 +150,11 @@ class AssetController extends Controller
             // Save the AssetHeader instance to the database
             $assetHeader->save();
 
-            return redirect()->getUrlGenerator()->previous()->with('status', 'Asset header updated successfully');
+            return redirect()->back()->with('status', 'Asset header updated successfully');
         } catch (\Exception $e) {
             dd($e);
             // Handle any exception that may occur during the creation
-            return redirect()->getUrlGenerator()->previous()->with('failed', 'Failed to create asset header. Please try again.');
+            return redirect()->back()->with('failed', 'Failed to create asset header. Please try again.');
 
         }
     }
