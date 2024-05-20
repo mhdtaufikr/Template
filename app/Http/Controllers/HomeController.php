@@ -123,8 +123,9 @@ class HomeController extends Controller
         $countStatusOne = AssetHeader::where('status', 1)->count();
         $countStatusZero = AssetHeader::where('status', 0)->count();
         $countStatusTwo = AssetHeader::where('status', 2)->count();
-        $totalAsset = AssetHeader::count();
+        $totalAsset = AssetHeader::whereIn('status', [1, 0])->count();
         $totalAcqCost = AssetHeader::sum('acq_cost');
+
         return view('home.index', compact('assetDistribution','chartData','quantityByDepartment','barChartData','barChartDatatype','countStatusOne','countStatusZero','countStatusTwo','totalAsset','totalAcqCost'));
     }
 }

@@ -55,10 +55,8 @@
                     <div class="card-body text-center">
                         <div style="margin: -10px" class="row align-items-center">
                             <div class="col-md-6">
-                                <h5 style="font-size: 16px" class="card-title mb-3">Acquisition Cost</h5>
-                                <strong>
-                                    <h1 style="font-size: 16px; padding-bottom: 10px;" class="card-text mb-0">Rp {{ number_format($totalAcqCost, 0, ',', '.') }}</h1>
-                                </strong>
+                                <h5 class="card-title mb-3">Acquisition Cost</h5>
+                                <h1 style="font-size: 2ch;" class="card-text mb-0">Rp {{ number_format($totalAcqCost, 0, ',', '.') }}</h1>
                             </div>
                             <div class="col-md-6">
                                 <strong  class="text-warning" style="font-size: 35px;">Rp</strong>
@@ -67,6 +65,7 @@
                     </div>
                 </div>
             </div>
+
             <div class="col-md-3 mb-2">
                 <div class="card card-waves border-primary">
                     <div class="card-body text-center">
