@@ -823,68 +823,76 @@
                         <td><strong>{{ $data->asset_no }}</strong><br>
 
                             @php
-                                $statusColor = ($data->status == 1) ? 'btn-success' : (($data->status == 0) ? 'btn-warning' : 'btn-danger');
-                                $statusText = ($data->status == 1) ? 'Active' : (($data->status == 0) ? 'Deactive' : 'Disposal');
-                            @endphp
+                            $statusColor = ($data->status == 1) ? 'btn-success' : (($data->status == 0) ? 'btn-warning' : 'btn-danger');
+                            $statusText = ($data->status == 1) ? 'Active' : (($data->status == 0) ? 'Deactive' : 'Disposal');
+                        @endphp
 
-<button class="btn btn-xs {{ $statusColor }}" onclick="openRemarksModal({{ $data->id }}, '{{ $data->status }}', '{{ $data->remarks }}')">
-    {{ $statusText }}
-</button>
+                        <!-- Button to Open Modal -->
+                        <button class="btn btn-xs {{ $statusColor }}" onclick="openRemarksModal({{ $data->id }}, '{{ $data->status }}', '{{ addslashes($data->remarks) }}')">
+                            {{ $statusText }}
+                        </button>
 
+                        <!-- Modal Structure -->
+                        @if(\Auth::user()->role === 'Super Admin')
+                        <div class="modal fade" id="remarksModal{{ $data->id }}" tabindex="-1" aria-labelledby="remarksModalLabel{{ $data->id }}" aria-hidden="true">
+                            <div class="modal-dialog">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title" id="remarksModalLabel{{ $data->id }}">Update Status and Enter Remarks</h5>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                    </div>
+                                    <div class="modal-body">
+                                        <form id="remarksForm{{ $data->id }}" method="POST" action="{{ url('/asset/status/'.$data->id) }}">
+                                            @csrf
+                                            <div class="mb-3">
+                                                <label for="status{{ $data->id }}" class="form-label">Status</label>
+                                                <select class="form-select" id="status{{ $data->id }}" name="status" required>
+                                                    @foreach ($status as $item)
+                                                        <option value="{{ $item->code_format }}">{{ $item->name_value }}</option>
+                                                    @endforeach
+                                                </select>
+                                            </div>
+                                            <div class="mb-3">
+                                                <label for="remark{{ $data->id }}" class="form-label">Remark</label>
+                                                <textarea class="form-control" id="remark{{ $data->id }}" name="remark" rows="3" required>{{ $data->remarks }}</textarea>
+                                            </div>
+                                        </form>
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                        <button type="button" class="btn btn-primary" onclick="submitRemarksForm({{ $data->id }})">Submit</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        @endif
 
-@if(\Auth::user()->role === 'Super Admin')
-<div class="modal fade" id="remarksModal{{ $data->id }}" tabindex="-1" aria-labelledby="remarksModalLabel{{ $data->id }}" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="remarksModalLabel{{ $data->id }}">Update Status and Enter Remarks</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <form id="remarksForm{{ $data->id }}" method="POST" action="{{ url('/asset/status/'.$data->id) }}">
-                    @csrf
-                    <div class="mb-3">
-                        <label for="status{{ $data->id }}" class="form-label">Status</label>
-                        <select class="form-select" id="status{{ $data->id }}" name="status" required>
-                            @foreach ($status as $item)
-                                <option value="{{ $item->code_format }}">{{ $item->name_value }}</option>
-                            @endforeach
-                        </select>
-                    </div>
-                    <div class="mb-3">
-                        <label for="remark{{ $data->id }}" class="form-label">Remark</label>
-                        <textarea class="form-control" id="remark{{ $data->id }}" name="remark" rows="3" required>{{ $data->remarks }}</textarea>
-                    </div>
-                </form>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                <button type="button" class="btn btn-primary" onclick="submitRemarksForm({{ $data->id }})">Submit</button>
-            </div>
-        </div>
-    </div>
-</div>
-@endif
+                        <script>
+                            function openRemarksModal(id, status, remarks) {
+                                console.log('Opening modal for ID:', id);
+                                console.log('Status:', status);
+                                console.log('Remarks:', remarks);
 
-<script>
-    function openRemarksModal(id, status, remarks) {
-        // Set the initial value for the status dropdown
-        $('#status' + id).val(status);
+                                // Set the initial value for the status dropdown
+                                document.getElementById('status' + id).value = status;
 
-        // Set the initial value for the remarks textarea
-        $('#remark' + id).val(remarks);
+                                // Set the initial value for the remarks textarea
+                                document.getElementById('remark' + id).value = remarks;
 
-        // Show the modal
-        $('#remarksModal' + id).modal('show');
-    }
+                                // Show the modal
+                                var myModal = new bootstrap.Modal(document.getElementById('remarksModal' + id));
+                                myModal.show();
+                            }
 
-    function submitRemarksForm(id) {
-        // Validate and submit the form
-        if ($('#remarksForm' + id)[0].checkValidity()) {
-            $('#remarksForm' + id).submit();
-        }
-    }
-</script>
+                            function submitRemarksForm(id) {
+                                // Validate and submit the form
+                                var form = document.getElementById('remarksForm' + id);
+                                if (form.checkValidity()) {
+                                    form.submit();
+                                }
+                            }
+                        </script>
+
                         </td>
                         <td>{{ $data->desc}} </td>
                         <td>{{ str_replace(' ', '', $data->qty) }} (<small>{{ str_replace(' ', '', $data->uom) }}</small>)</td>
