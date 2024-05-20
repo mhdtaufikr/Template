@@ -277,12 +277,11 @@ class AssetController extends Controller
     }
 
     public function status(Request $request, $id) {
-        $id = decrypt($id);
+
 
         try {
             // Find the AssetHeader model by ID
             $assetHeader = AssetHeader::findOrFail($id);
-
             // Get the status from the request
             $status = $request->input('status');
 
