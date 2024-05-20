@@ -12,6 +12,7 @@ class HomeController extends Controller
         // Ambil data distribusi jenis aset dari model Asset
         $assetDistribution = AssetHeader::select('asset_type', \DB::raw('count(*) as total'))
         ->groupBy('asset_type')
+        ->whereIn('status', [1, 0])
         ->get();
 
         // Calculate the total count of assets
@@ -22,7 +23,7 @@ class HomeController extends Controller
             $asset->percentage = number_format(($asset->total / $totalCount) * 100, 2) . '%';
         }
             // Fetch data from asset_headers table
-        $assetData = AssetHeader::select('acq_date', 'acq_cost')->orderBy('acq_date')->get();
+        $assetData = AssetHeader::select('acq_date', 'acq_cost')->whereIn('status', [1, 0])->orderBy('acq_date')->get();
 
         $chartData = [];
         $acquisitionCostByYear = []; // Store the summed acquisition costs by year
@@ -49,6 +50,7 @@ class HomeController extends Controller
         // Fetch data for quantity by department
         $quantityByDepartment = AssetHeader::select('dept', \DB::raw('count(*) as total'))
             ->groupBy('dept')
+            ->whereIn('status', [1, 0])
             ->get();
 
         // Get the current year
@@ -60,6 +62,7 @@ class HomeController extends Controller
         // Fetch data from asset_headers table for the last 5 years based on acquisition date
         $assets = AssetHeader::select('acq_date', 'acq_cost')
             ->whereYear('acq_date', '>=', $startYear)
+            ->whereIn('status', [1, 0])
             ->get();
 
         $acquisitionData = [];
@@ -120,12 +123,20 @@ class HomeController extends Controller
                 'label' => $assetType
             ];
         }
-        $countStatusOne = AssetHeader::where('status', 1)->count();
-        $countStatusZero = AssetHeader::where('status', 0)->count();
-        $countStatusTwo = AssetHeader::where('status', 2)->count();
-        $totalAsset = AssetHeader::whereIn('status', [1, 0])->count();
+       // Count and sum acq_cost for assets with status 1
+       $countStatusOne = AssetHeader::where('status', 1)->count();
+       $sumAcqCostStatusOne = AssetHeader::where('status', 1)->sum('acq_cost');
 
-        return view('home.index', compact('assetDistribution','chartData','quantityByDepartment','barChartData','barChartDatatype','countStatusOne','countStatusZero','countStatusTwo','totalAsset'));
+       // Count and sum acq_cost for assets with status 0
+       $countStatusZero = AssetHeader::where('status', 0)->count();
+       $sumAcqCostStatusZero = AssetHeader::where('status', 0)->sum('acq_cost');
+
+       // Count and sum acq_cost for assets with status 1 or 0
+       $totalAsset = AssetHeader::whereIn('status', [1, 0])->count();
+       $sumAcqCostTotal = AssetHeader::whereIn('status', [1, 0])->sum('acq_cost');
+
+
+        return view('home.index', compact('sumAcqCostStatusOne','sumAcqCostStatusZero','sumAcqCostTotal','assetDistribution','chartData','quantityByDepartment','barChartData','barChartDatatype','countStatusOne','countStatusZero','totalAsset'));
     }
 }
 

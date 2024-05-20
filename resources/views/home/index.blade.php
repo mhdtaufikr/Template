@@ -23,11 +23,12 @@
                 <div class="card card-waves border-success">
                     <div class="card-body text-center">
                         <div style="margin: -10px" class="row align-items-center">
-                            <div class="col-md-6">
-                                <h5 class="card-title mb-3">Active Assets</h5>
-                               <strong> <h1 class="card-text mb-0">{{$countStatusOne}} </h1> </strong>
+                            <div class="col-md-8">
+                                <h5 class="card-title">Active Assets</h5>
+                                <strong><h1 class="card-text mb-0">{{ $countStatusOne }}</h1></strong>
+                                <p class="card-text">Acquisition Cost : Rp {{ number_format($sumAcqCostStatusOne, 0, ',', '.') }}</p>
                             </div>
-                            <div class="col-md-6">
+                            <div class="col-md-4">
                                 <i class="fas fa-check text-success" style="font-size: 35px;"></i>
                             </div>
                         </div>
@@ -39,11 +40,12 @@
                 <div class="card card-waves border-danger">
                     <div class="card-body text-center">
                         <div style="margin: -10px" class="row align-items-center">
-                            <div class="col-md-6">
-                                <h5 style="font-size: 16px" class="card-title mb-3">Deactive Assets</h5>
-                               <strong> <h1 class="card-text mb-0">{{$countStatusZero}}</h1> </strong>
+                            <div class="col-md-8">
+                                <h5 style="font-size: 16px" class="card-title ">Deactive Assets</h5>
+                                <strong><h1 class="card-text mb-0">{{ $countStatusZero }}</h1></strong>
+                                <p class="card-text">Acquisition Cost : Rp {{ number_format($sumAcqCostStatusZero, 0, ',', '.') }}</p>
                             </div>
-                            <div class="col-md-6">
+                            <div class="col-md-4">
                                 <i class="fas fa-ban text-danger" style="font-size: 35px;"></i>
                             </div>
                         </div>
@@ -55,17 +57,19 @@
                 <div class="card card-waves border-primary">
                     <div class="card-body text-center">
                         <div style="margin: -10px" class="row align-items-center">
-                            <div class="col-md-6">
-                                <h5 class="card-title mb-3">Total Assets</h5>
-                               <strong> <h1 class="card-text mb-0">{{$totalAsset}}</h1> </strong>
+                            <div class="col-md-8">
+                                <h5 class="card-title">Total Assets</h5>
+                                <strong><h1 class="card-text mb-0">{{ $totalAsset }}</h1></strong>
+                                <p class="card-text">Acquisition Cost : Rp {{ number_format($sumAcqCostTotal, 0, ',', '.') }}</p>
                             </div>
-                            <div class="col-md-6">
-                                <i class="fas fa-boxes text-primary"  style="font-size: 35px;"></i>
+                            <div class="col-md-4">
+                                <i class="fas fa-boxes text-primary" style="font-size: 35px;"></i>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
+
             <div class="col-md-12">
                 <div style="margin-top: -5px;" class="card">
                     <div class="card-body">
