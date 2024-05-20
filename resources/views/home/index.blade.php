@@ -19,6 +19,8 @@
     <!-- Main page content-->
     <div class="container-xs px-4 mt-n10">
         <div style="margin-top: -170px" class="row">
+
+
             <div class="col-md-4 mb-2">
                 <div class="card card-waves border-success">
                     <div class="card-body text-center">
@@ -26,7 +28,7 @@
                             <div class="col-md-8">
                                 <h5 class="card-title">Active Assets</h5>
                                 <strong><h1 class="card-text mb-0">{{ $countStatusOne }}</h1></strong>
-                                <p class="card-text">Acquisition Cost : Rp {{ number_format($sumAcqCostStatusOne, 0, ',', '.') }}</p>
+                                <p class="card-text">Cost : Rp {{ number_format($sumAcqCostStatusOne, 0, ',', '.') }}</p>
                             </div>
                             <div class="col-md-4">
                                 <i class="fas fa-check text-success" style="font-size: 35px;"></i>
@@ -41,9 +43,9 @@
                     <div class="card-body text-center">
                         <div style="margin: -10px" class="row align-items-center">
                             <div class="col-md-8">
-                                <h5 style="font-size: 16px" class="card-title ">Deactive Assets</h5>
+                                <h5 class="card-title">Deactive Assets</h5>
                                 <strong><h1 class="card-text mb-0">{{ $countStatusZero }}</h1></strong>
-                                <p class="card-text">Acquisition Cost : Rp {{ number_format($sumAcqCostStatusZero, 0, ',', '.') }}</p>
+                                <p class="card-text">Cost : Rp {{ number_format($sumAcqCostStatusZero, 0, ',', '.') }}</p>
                             </div>
                             <div class="col-md-4">
                                 <i class="fas fa-ban text-danger" style="font-size: 35px;"></i>
@@ -60,7 +62,7 @@
                             <div class="col-md-8">
                                 <h5 class="card-title">Total Assets</h5>
                                 <strong><h1 class="card-text mb-0">{{ $totalAsset }}</h1></strong>
-                                <p class="card-text">Acquisition Cost : Rp {{ number_format($sumAcqCostTotal, 0, ',', '.') }}</p>
+                                <p class="card-text">Cost : Rp {{ number_format($sumAcqCostTotal, 0, ',', '.') }}</p>
                             </div>
                             <div class="col-md-4">
                                 <i class="fas fa-boxes text-primary" style="font-size: 35px;"></i>
@@ -95,8 +97,27 @@
                             <div class="col-md-6">
                                 <h6 style="font-size: 0.9rem;">3. Asset Category</h6>
                                 <div class="d-flex justify-content-center">
-                                    <img src="{{ asset('images\MKM Fixed Asset Classification.png') }}" class="d-block" style="max-width: 630px;" alt="Image">
+                                    <img id="thumbnail" src="{{ asset('images/MKM Fixed Asset Classification.png') }}" class="d-block" style="max-width: 630px; cursor: pointer;" alt="Image" data-bs-toggle="modal" data-bs-target="#imageModal">
                                 </div>
+
+                                <!-- Modal Structure -->
+                                <div class="modal fade" id="imageModal" tabindex="-1" aria-hidden="true">
+                                    <div class="modal-dialog modal-dialog-centered modal-xl">
+                                        <div class="modal-content">
+                                            <div class="modal-body p-0">
+                                                <img src="{{ asset('images/MKM Fixed Asset Classification.png') }}" class="img-fluid w-100" style="max-height: 90vh;" alt="Image">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <style>
+                                    .modal-content {
+                                        background-color: transparent;
+                                        border: none;
+                                    }
+                                </style>
+
+
                                 <p style="font-size: 0.8rem;">For items under 10 million, categorized as Low Value Asset with the following conditions:</p>
                                 <ol  style="font-size: 0.8rem; margin-bottom: -5px;">
                                     <li style="margin-top: -14px;">Estimated lifetime more than 1 year</li>
