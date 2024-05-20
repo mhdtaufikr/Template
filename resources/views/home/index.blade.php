@@ -19,7 +19,7 @@
     <!-- Main page content-->
     <div class="container-xs px-4 mt-n10">
         <div style="margin-top: -170px" class="row">
-            <div class="col-md-3 mb-2">
+            <div class="col-md-4 mb-2">
                 <div class="card card-waves border-success">
                     <div class="card-body text-center">
                         <div style="margin: -10px" class="row align-items-center">
@@ -35,7 +35,7 @@
                 </div>
             </div>
 
-            <div class="col-md-3 mb-2">
+            <div class="col-md-4 mb-2">
                 <div class="card card-waves border-danger">
                     <div class="card-body text-center">
                         <div style="margin: -10px" class="row align-items-center">
@@ -50,23 +50,8 @@
                     </div>
                 </div>
             </div>
-            <div class="col-md-3 mb-2">
-                <div class="card card-waves border-warning">
-                    <div class="card-body text-center">
-                        <div style="margin: -10px" class="row align-items-center">
-                            <div class="col-md-6">
-                                <h5 class="card-title mb-3">Acquisition Cost</h5>
-                                <h1 style="font-size: 2ch;" class="card-text mb-0">Rp {{ number_format($totalAcqCost, 0, ',', '.') }}</h1>
-                            </div>
-                            <div class="col-md-6">
-                                <strong  class="text-warning" style="font-size: 35px;">Rp</strong>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
 
-            <div class="col-md-3 mb-2">
+            <div class="col-md-4 mb-2">
                 <div class="card card-waves border-primary">
                     <div class="card-body text-center">
                         <div style="margin: -10px" class="row align-items-center">
