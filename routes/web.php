@@ -13,6 +13,7 @@ use App\Http\Controllers\CostCenterController;
 use App\Http\Controllers\DepartmentController;
 use App\Http\Controllers\LocationController;
 use App\Http\Controllers\AssetController;
+use App\Http\Controllers\AuditController;
 
 /*
 |--------------------------------------------------------------------------
@@ -61,12 +62,17 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/asset/search/no', [AssetController::class, 'searchBulkAsset']);
     Route::get('/asset/search/multiple', [AssetController::class, 'searchMultiple']);
     Route::post('/asset/add/image', [AssetController::class, 'addImage']);
-    Route::post('/asset/delete/image', [AssetController::class, 'deleteImage'])->name('asset.delete.image');
+
 
 
 
     Route::get('/temporary/qr', [AssetController::class, 'temporaryQR']);
 
+    //Audit Controller
+    Route::get('/audit', [AuditController::class, 'index'])->name('audits.index');
+    Route::post('/audit/scan', [AuditController::class, 'scanAudit']);
+    Route::post('/audit/store', [AuditController::class, 'auditStore']);
+    Route::get('/audit/detail/{id}', [AuditController::class, 'auditDetail']);
 
 
     //Dropdown Controller
