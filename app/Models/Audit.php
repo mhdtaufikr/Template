@@ -9,7 +9,9 @@ class Audit extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['audit_no','audit_date', 'created_by', 'signature', 'status'];
+    protected $guarded=[
+        'id'
+    ];
 
     public function auditDetails()
     {

@@ -56,51 +56,80 @@
                                         </div>
                                         <div class="modal-footer">
                                             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                                            <button type="button" class="btn btn-primary" id="saveSignatures">Save Signatures</button>
+                                            <button type="button" class="btn btn-info" id="submitButton">Submit</button>
                                         </div>
                                     </div>
                                 </div>
                             </div>
 
-                            <!-- Include jQuery, Bootstrap JS, and Signature Pad -->
-                            <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-                            <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
-                            <script src="https://stackpath.bootstrapcdn.com/bootstrap/5.1.3/js/bootstrap.min.js"></script>
-                            <script src="https://cdn.jsdelivr.net/npm/signature_pad@4.0.0/dist/signature_pad.umd.min.js"></script>
-                            <script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
+                           <!-- Include jQuery, Bootstrap JS, and Signature Pad -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/5.1.3/js/bootstrap.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/signature_pad@4.0.0/dist/signature_pad.umd.min.js"></script>
+<script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
 
-                            <script>
-                                document.addEventListener('DOMContentLoaded', function () {
-                                    // Signature pads initialization
-                                    const auditCanvas = document.getElementById('auditSignatureCanvas');
-                                    const auditSignaturePad = new SignaturePad(auditCanvas);
-                                    const auditSignatureInput = document.getElementById('auditSignature');
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        // Signature pads initialization
+        const auditCanvas = document.getElementById('auditSignatureCanvas');
+        const auditSignaturePad = new SignaturePad(auditCanvas);
+        const auditSignatureInput = document.getElementById('auditSignature');
 
-                                    const controllingCanvas = document.getElementById('controllingSignatureCanvas');
-                                    const controllingSignaturePad = new SignaturePad(controllingCanvas);
-                                    const controllingSignatureInput = document.getElementById('controllingSignature');
+        const controllingCanvas = document.getElementById('controllingSignatureCanvas');
+        const controllingSignaturePad = new SignaturePad(controllingCanvas);
+        const controllingSignatureInput = document.getElementById('controllingSignature');
 
-                                    // Clear buttons
-                                    document.getElementById('clearAuditSignature').addEventListener('click', function () {
-                                        auditSignaturePad.clear();
-                                    });
+        const userSignaturePads = [];
 
-                                    document.getElementById('clearControllingSignature').addEventListener('click', function () {
-                                        controllingSignaturePad.clear();
-                                    });
+        // Initialize signature pads for each canvas element
+        @foreach ($data as $index => $item)
+            (function(index) {
+                const canvasId = `userSignatureCanvas-${index}`;
+                const canvas = document.getElementById(canvasId);
+                const signaturePad = new SignaturePad(canvas);
+                userSignaturePads.push(signaturePad);
 
-                                    // Save signature buttons
-                                    document.getElementById('saveSignatures').addEventListener('click', function () {
-                                        if (!auditSignaturePad.isEmpty() && !controllingSignaturePad.isEmpty()) {
-                                            auditSignatureInput.value = auditSignaturePad.toDataURL('image/png');
-                                            controllingSignatureInput.value = controllingSignaturePad.toDataURL('image/png');
-                                            document.querySelector('form').submit();
-                                        } else {
-                                            alert('Please provide both signatures.');
-                                        }
-                                    });
-                                });
-                            </script>
+                // Clear button functionality
+                const clearButton = document.querySelector(`button[data-canvas="${canvasId}"]`);
+                clearButton.addEventListener('click', function () {
+                    signaturePad.clear();
+                });
+            })({{ $index }});
+        @endforeach
+
+        // Function to capture signatures and update hidden input fields
+        function captureSignatures() {
+            let userSignaturesNotEmpty = false; // Flag to check if any user signature is not empty
+
+            // Check if any user signature pad is not empty
+            userSignaturePads.forEach((signaturePad, index) => {
+                if (!signaturePad.isEmpty()) {
+                    userSignaturesNotEmpty = true;
+                    // Convert user signature to base64 data URL
+                    const signatureDataUrl = signaturePad.toDataURL('image/png');
+                    // Update the value of the hidden input field
+                    const signatureInputId = `userSignature-${index}`;
+                    document.getElementById(signatureInputId).value = signatureDataUrl;
+                }
+            });
+
+            // Check if audit and controlling signatures are not empty
+            if (!auditSignaturePad.isEmpty() && !controllingSignaturePad.isEmpty() && userSignaturesNotEmpty) {
+                auditSignatureInput.value = auditSignaturePad.toDataURL('image/png');
+                controllingSignatureInput.value = controllingSignaturePad.toDataURL('image/png');
+                document.querySelector('form').submit();
+            } else {
+                alert('Please provide all signatures.');
+            }
+        }
+
+        // Attach the captureSignatures function to the "Submit" button click event
+        document.getElementById('submitButton').addEventListener('click', function () {
+            captureSignatures();
+        });
+    });
+</script>
 
                             <!-- Nav tabs -->
                             <ul class="nav nav-tabs" id="assetTab" role="tablist">
@@ -217,20 +246,46 @@
                                                     <p>Latest Update ({{date('d-M-Y', strtotime($item['assetHeaderData']->updated_at))}}) : {{ $item['assetHeaderData']->remarks }}</p>
                                                 </div>
                                                 <div class="col-md-4">
-                                                    <strong>Condition</strong><br>
-                                                    <select class="form-control" name="condition[{{$item['assetHeaderData']->asset_no}}][]" id="">
-                                                        <option value="">-- Select Condition --</option>
-                                                        <option value="Good">Good</option>
-                                                        <option value="Not Good">Not Good</option>
-                                                    </select>
-                                                    <strong>Remarks</strong><br>
-                                                    <textarea name="Remarks[{{$item['assetHeaderData']->asset_no}}][]" id="" cols="50" rows="5"></textarea>
-                                                    <!-- Signature pad section --> <br>
-                                                    <strong>User Signature</strong><br>
-                                                    <canvas id="userSignatureCanvas-{{ $index }}" class="border" width="400" height="200"></canvas>
-                                                    <input type="hidden" id="userSignature-{{ $index }}" name="user_signature[{{ $item['assetHeaderData']->asset_no }}]"><br>
-                                                    <button type="button" class="btn btn-danger mt-2 clearSignature" data-canvas="userSignatureCanvas-{{ $index }}">Clear</button>
+                                                    <div class="row">
+                                                        <div class="col-md-6">
+                                                            <strong>Availability</strong><br>
+                                                            <select class="form-control" name="availability[{{$item['assetHeaderData']->asset_no}}]" id="">
+                                                                <option value="">-- Select Option --</option>
+                                                                <option value="Yes">Yes</option>
+                                                                <option value="No">No</option>
+                                                            </select>
+                                                        </div>
+                                                        <div class="col-md-6">
+                                                            <strong>Condition</strong><br>
+                                                            <select class="form-control" name="condition[{{$item['assetHeaderData']->asset_no}}]" id="">
+                                                                <option value="">-- Select Condition --</option>
+                                                                <option value="Good">Good</option>
+                                                                <option value="NG">Not Good</option>
+                                                            </select>
+                                                        </div>
+                                                        <div class="col-md-12">
+                                                            <strong>Images</strong><br>
+                                                            <input name="img[{{$item['assetHeaderData']->asset_no}}]" type="file" accept="image/*" capture="camera" class="form-control mt-2 imageInput" data-index="{{ $index }}">
+                                                        </div>
+                                                        <div class="col-md-12">
+                                                            <strong>Remarks</strong><br>
+                                                            <textarea name="remarks[{{$item['assetHeaderData']->asset_no}}]" id="" cols="55" rows="5"></textarea>
+                                                        </div>
+                                                        <div class="col-md-12">
+                                                            <!-- Signature pad section -->
+                                                            <strong>User Signature</strong><br>
+                                                            <canvas id="userSignatureCanvas-{{ $index }}" class="border" width="520" height="200"></canvas>
+                                                            <input type="hidden" id="userSignature-{{ $index }}" name="user_signature[{{ $item['assetHeaderData']->asset_no }}]">
+
+                                                            <button type="button" class="btn btn-danger mt-2 clearSignature" data-canvas="userSignatureCanvas-{{ $index }}">Clear</button>
+                                                        </div>
+                                                    </div>
                                                 </div>
+
+
+
+
+
                                             </div>
                                         </div>
                                     </div>
@@ -261,35 +316,7 @@
             });
         </script>
 
-        <!-- Signature Pads Initialization -->
-        <script>
-            document.addEventListener('DOMContentLoaded', function () {
-                const signaturePads = [];
 
-                @foreach ($data as $index => $item)
-                    (function(index) {
-                        const canvasId = `userSignatureCanvas-${index}`;
-                        const canvas = document.getElementById(canvasId);
-                        const signaturePad = new SignaturePad(canvas);
-                        signaturePads.push(signaturePad);
-
-                        // Clear button functionality
-                        document.querySelector(`button[data-canvas="${canvasId}"]`).addEventListener('click', function () {
-                            signaturePad.clear();
-                        });
-                    })({{ $index }});
-                @endforeach
-
-                // Form submission handling
-                document.querySelector('form').addEventListener('submit', function (event) {
-                    signaturePads.forEach((signaturePad, index) => {
-                        if (!signaturePad.isEmpty()) {
-                            document.getElementById(`userSignature-${index}`).value = signaturePad.toDataURL('image/png');
-                        }
-                    });
-                });
-            });
-        </script>
     </form>
 </main>
 @endsection
