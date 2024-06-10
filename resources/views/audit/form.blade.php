@@ -9,7 +9,7 @@
         </div>
     </header>
 
-    <form action="{{ url('/audit/store') }}" method="POST">
+    <form action="{{ url('/audit/store') }}" method="POST" enctype="multipart/form-data">
         @csrf
 
         <!-- Main page content-->

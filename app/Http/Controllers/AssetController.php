@@ -205,6 +205,7 @@ class AssetController extends Controller
                 $assetHeader->loc != $request->loc ||
                 $assetHeader->dept != $request->dept ||
                 $assetHeader->cost_center != $request->cost_center ||
+                $assetHeader->segment != $request->part_no ||
                 $assetHeader->bv_endofyear != (int) str_replace(',', '', $request->bv_end) ||
                 ($request->hasFile('img'))
             ) {
@@ -219,6 +220,7 @@ class AssetController extends Controller
                 $assetHeader->plant = $request->plant;
                 $assetHeader->loc = $request->loc;
                 $assetHeader->dept = $request->dept;
+                $assetHeader->segment = $request->part_no;
                 $assetHeader->cost_center = $request->cost_center;
                 $assetHeader->bv_endofyear = (int) str_replace(',', '', $request->bv_end);
 

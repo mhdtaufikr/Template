@@ -128,6 +128,9 @@
                                                                     <button title="Delete" class="btn btn-danger btn-sm" data-bs-toggle="modal" data-bs-target="#modal-delete{{ $data->id }}">
                                                                         <i class="fas fa-trash-alt"></i>
                                                                     </button>
+                                                                    <a href="audit/pdf/{{ encrypt($data->id) }}" class="btn btn-success btn-sm" title="Detail">
+                                                                        <i class="far fa-file-pdf"></i>
+                                                                    </a>
                                                                 </div>
 
                                                             </td>

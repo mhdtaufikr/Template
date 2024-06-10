@@ -960,19 +960,23 @@
                               @method('patch')
                               <div class="modal-body">
                                 <div class="form-group mb-3">
+                                    <label for="">Asset No.</label>
                                   <input value="{{$data->asset_no}}" type="text" class="form-control" id="asset_no" name="asset_no" placeholder="Enter Asset Number" >
                                 </div>
                                 <div class="form-group mb-3">
+                                    <label for="">Asset Description</label>
                                     <textarea class="form-control" id="desc" name="desc" placeholder="Enter Asset Description" >{{$data->desc}}</textarea>
                                 </div>
 
                                 <div class="row mb-3">
                                     <div class="col-md-4">
+                                        <label for="">Quantity</label>
                                         <input value="{{$data->qty}}" type="number" class="form-control" id="qty" name="qty" placeholder="Enter Qty" required min="0">
                                     </div>
 
                                     <div class="col-md-4">
                                         <div class="form-group">
+                                            <label for="">UOM</label>
                                             <select name="uom" id="uom" class="form-control" >
                                                 <option value="{{$data->uom}}">{{$data->uom}}</option>
                                                 @foreach ($dropdownUom as $uom)
@@ -982,11 +986,13 @@
                                         </div>
                                     </div>
                                     <div class="col-md-4">
+                                        <label for="">Acq. Date</label>
                                         <input value="{{$data->acq_date}}" type="date" class="form-control" id="date" name="date" placeholder="Enter Date" >
                                     </div>
                                 </div>
 
                                 <div class="form-group mb-3">
+                                    <label for="">Acq. Cost</label>
                                     <input value="{{number_format($data->acq_cost)}}" type="text" class="form-control" id="costEdit" name="cost_edit" placeholder="Enter Acquisition Cost" >
                                 </div>
 
@@ -1003,10 +1009,12 @@
 
                                 <div class="row mb-3">
                                     <div class="col-md-6">
+                                        <label for="">Po. No.</label>
                                         <input value="{{$data->po_no}}" type="text" class="form-control" id="po_no" name="po_no" placeholder="Enter PO No." >
                                     </div>
 
                                     <div class="col-md-6">
+                                        <label for="">Serial No.</label>
                                         <input value="{{$data->serial_no}}" type="text" class="form-control" id="serial_no" name="serial_no" placeholder="Enter Serial No." >
                                     </div>
                                 </div>
@@ -1014,6 +1022,7 @@
                                 <div class="row mb-3">
                                     <div class="col-md-6">
                                         <div class="form-group">
+                                            <label for="">Plant</label>
                                             <select name="plant" id="plantEdit" class="form-control">
                                                 <option value="{{$data->plant}}">{{$data->plant}}</option>
                                                 @foreach ($locHeader as $header)
@@ -1025,6 +1034,7 @@
 
                                     <div class="col-md-6">
                                         <div class="form-group">
+                                            <label for="">Location</label>
                                             <select name="loc" id="locEdit" class="form-control">
                                                 <option value="{{$data->loc}}">{{$data->loc}}</option>
                                                 <!-- Location options will be dynamically populated using JavaScript -->
@@ -1076,19 +1086,35 @@
                                     });
                                 </script>
 
+                                <div class="row">
 
-                                <div class="form-group mb-3">
-                                    <select name="dept" id="dept" class="form-control" >
-                                        <option value="{{$data->dept}}">{{$data->dept}}</option>
-                                        @foreach ($dept as $item)
-                                            <option value="{{ $item->dept }}">{{ $item->dept }}</option>
-                                        @endforeach
-                                    </select>
                                 </div>
+
 
                                 <div class="row mb-3">
                                     <div class="col-md-6">
+                                    <div class="form-group mb-3">
+
+                                        <label for="">Department</label>
+                                        <select name="dept" id="dept" class="form-control" >
+                                            <option value="{{$data->dept}}">{{$data->dept}}</option>
+                                            @foreach ($dept as $item)
+                                                <option value="{{ $item->dept }}">{{ $item->dept }}</option>
+                                            @endforeach
+                                        </select>
+                                    </div>
+                                    </div>
+
+                                    <div class="col-md-6">
+                                    <div class="form-group mb-3">
+
+                                        <label for="">Part No.</label>
+                                        <input value="{{$data->segment}}"  type="text" class="form-control" id="part_no" name="part_no" placeholder="Enter Part No." >
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
                                         <div class="form-group">
+                                            <label for="">CC</label>
                                             <select  id="cost_center" name="cost_center" class="form-control" required>
                                                 <option value="{{$data->cost_center}}">{{$data->cost_center}}</option>
                                                 @foreach ($costCenter as $item)
@@ -1100,12 +1126,14 @@
 
                                     <div class="col-md-6">
                                         <div class="form-group">
+                                            <label for="">Image</label>
                                             <input type="file" class="form-control" id="img" name="img[]" multiple placeholder="Enter Image">
                                         </div>
                                     </div>
                                 </div>
 
                                 <div class="form-group mb-3">
+                                    <label for="">Book Value</label>
                                     <input value="{{$data->bv_endofyear}}"  type="text" class="form-control" id="bv_endEdit" name="bv_end" placeholder="Enter BV End Of Year" >
                                 </div>
 

@@ -59,106 +59,120 @@ class AuditController extends Controller
     return view('audit.form', compact('data','dropdownUom','assetCategory','locHeader','locDetail','dept','status'));
 }
 
-        public function auditStore(Request $request) {
-            // Validate the incoming request
-            $request->validate([
-                'audit_signature' => 'nullable|string',
-                'controlling_signature' => 'nullable|string',
-                'condition' => 'required|array',
-                'remarks' => 'required|array',
-                'user_signature' => 'required|array',
-                'img' => 'required', // Remove array validation, handle it in the code
-            ]);
+public function auditStore(Request $request)
+{
+    // Validate the incoming request
+    $request->validate([
+        'audit_signature' => 'nullable|string',
+        'controlling_signature' => 'nullable|string',
+        'condition' => 'required|array',
+        'remarks' => 'required|array',
+        'user_signature' => 'required|array',
+    ]);
 
-            // Start a database transaction
-            DB::beginTransaction();
+    // Start a database transaction
+    DB::beginTransaction();
 
-            try {
-                $audit_no = 'AUD' . time();
-                // Insert data into the audits table
-                $audit = Audit::create([
-                    'audit_no' => $audit_no,
-                    'audit_date' => now(),
-                    'created_by' => Auth::id(),
-                    'signature_ctl' => $this->saveBase64Image($request->input('controlling_signature'), 'signature'),
-                    'signature_aud' => $this->saveBase64Image($request->input('audit_signature'), 'signature'),
-                    'status' => $this->calculateStatus($request),
+    try {
+        $audit_no = 'AUD' . time();
+        // Insert data into the audits table
+        $audit = Audit::create([
+            'audit_no' => $audit_no,
+            'audit_date' => now(),
+            'created_by' => Auth::id(),
+            'signature_ctl' => $this->saveBase64Image($request->input('controlling_signature'), 'signature'),
+            'signature_aud' => $this->saveBase64Image($request->input('audit_signature'), 'signature'),
+            'status' => $this->calculateStatus($request),
+        ]);
+
+        // Iterate over the assets in the request
+        foreach ($request->input('condition') as $asset_id => $condition) {
+            $remark = $request->input('remarks')[$asset_id]; // Get corresponding remark
+            $user_signature = $this->saveBase64Image($request->input('user_signature')[$asset_id], 'signature'); // Save user signature
+
+            // Handle image file
+            $img_paths = [];
+            if ($request->hasFile('img') && isset($request->file('img')[$asset_id])) {
+                $img_file = $request->file('img')[$asset_id]; // Get the file for the asset
+
+                if ($img_file) { // Check if the img_file is not empty
+                    $img_name = uniqid() . '.' . $img_file->getClientOriginalExtension();
+                    $destination_path = public_path('images/audit');
+                    $img_file->move($destination_path, $img_name);
+                    $img_paths[] = 'images/audit/' . $img_name; // Store relative path
+                }
+            }
+
+            // Insert data into the audit_details table for each image path
+            foreach ($img_paths as $img_path) {
+                AuditDetail::create([
+                    'audit_id' => $audit->id,
+                    'asset_id' => $asset_id,
+                    'condition' => $condition,
+                    'availability' => $request->availability[$asset_id],
+                    'remark' => $remark,
+                    'signature' => $user_signature,
+                    'img' => $img_path, // Save each image path separately
                 ]);
+            }
 
-                // Iterate over the assets in the request
-                foreach ($request->input('condition') as $asset_id => $conditions) {
-                    $condition = $conditions[0]; // Assuming the condition is stored as an array
-                    $remark = $request->input('remarks')[$asset_id][0]; // Get corresponding remark
-                    $user_signature = $this->saveBase64Image($request->input('user_signature')[$asset_id], 'signature'); // Save user signature
-                    $img_files = $request->file('img')[$asset_id]; // Can be a single file or an array
-
-                    // Ensure img_files is an array
-                    if (!is_array($img_files)) {
-                        $img_files = [$img_files];
-                    }
-
-                    // Save the images
-                    $img_paths = [];
-                    foreach ($img_files as $img_file) {
-                        if ($img_file) { // Check if the img_file is not empty
-                            $img_name = uniqid() . '.' . $img_file->getClientOriginalExtension();
-                            $destination_path = public_path('audit/img/' . $img_name);
-                            $img_file->move(public_path('audit/img'), $img_name);
-                            $img_paths[] = 'audit/img/' . $img_name; // Store relative path
-                        }
-                    }
-
-                    // Insert data into the audit_details table
-                    AuditDetail::create([
-                        'audit_id' => $audit->id,
-                        'asset_id' => $asset_id,
-                        'condition' => $condition,
-                        'remark' => $remark,
-                        'signature' => $user_signature,
-                        'img' => json_encode($img_paths), // Save the image paths as JSON
-                    ]);
-                }
-
-                // Commit the transaction
-                DB::commit();
-
-                // Redirect or return response
-                return redirect()->route('audits.index')->with('success', 'Audit created successfully.');
-            } catch (\Exception $e) {
-                // Rollback the transaction on error
-                DB::rollback();
-
-                // Log the error for further debugging
-                \Log::error('Audit creation failed: ' . $e->getMessage());
-
-                // Redirect or return response with error
-                return redirect()->route('audits.index')->with('error', 'Audit creation failed.');
+            // Handle case where there are no images
+            if (empty($img_paths)) {
+                AuditDetail::create([
+                    'audit_id' => $audit->id,
+                    'asset_id' => $asset_id,
+                    'condition' => $condition,
+                    'availability' => $request->availability[$asset_id],
+                    'remark' => $remark,
+                    'signature' => $user_signature,
+                    'img' => null, // No image path
+                ]);
             }
         }
 
-        private function calculateStatus($request) {
-            if (!empty($request->input('audit_signature')) || !empty($request->input('controlling_signature'))) {
-                return 1; // At least one signature is provided, set status to 1
-            } else {
-                return 0; // No signature is provided, set status to 0
-            }
-        }
+        // Commit the transaction
+        DB::commit();
 
-        private function saveBase64Image($base64_image, $type) {
-            if (strpos($base64_image, 'data:image') === 0) {
-                $image_data = explode(',', $base64_image);
-                if (isset($image_data[1])) {
-                    $image_content = base64_decode($image_data[1]);
-                    $image_name = uniqid() . '.png'; // You can use a different naming convention if needed
-                    if ($type == 'signature') {
-                        $image_path = public_path('audit/signature/' . $image_name);
-                        file_put_contents($image_path, $image_content);
-                        return 'audit/signature/' . $image_name; // Return the relative path to be stored in the database
-                    }
-                }
-            }
-            return null; // Return null if the image data is invalid
+        // Redirect or return response
+        return redirect()->route('audits.index')->with('success', 'Audit created successfully.');
+    } catch (\Exception $e) {
+        dd($e);
+        // Rollback the transaction on error
+        DB::rollback();
+
+        // Log the error for further debugging
+        \Log::error('Audit creation failed: ' . $e->getMessage());
+
+        // Redirect or return response with error
+        return redirect()->route('audits.index')->with('error', 'Audit creation failed.');
+    }
+}
+
+private function calculateStatus($request)
+{
+    if (!empty($request->input('audit_signature')) || !empty($request->input('controlling_signature'))) {
+        return 1; // At least one signature is provided, set status to 1
+    } else {
+        return 0; // No signature is provided, set status to 0
+    }
+}
+
+private function saveBase64Image($base64_image, $type)
+{
+    if (strpos($base64_image, 'data:image') === 0) {
+        $image_data = explode(',', $base64_image);
+        if (isset($image_data[1])) {
+            $image_content = base64_decode($image_data[1]);
+            $image_name = uniqid() . '.png'; // You can use a different naming convention if needed
+            $sub_directory = $type == 'signature' ? 'images/audit/signature' : 'images/audit/img';
+            $image_path = public_path($sub_directory . '/' . $image_name);
+            file_put_contents($image_path, $image_content);
+            return  $sub_directory . '/' . $image_name; // Return the relative path to be stored in the database
         }
+    }
+    return null; // Return null if the image data is invalid
+}
+
 
     public function auditDetail($id) {
         $id = decrypt($id);
@@ -188,6 +202,23 @@ class AuditController extends Controller
         // Pass the data to your view
         return view('audit.detail', compact('data'));
     }
+
+        public function auditPdf($id)
+    {
+        $id = decrypt($id);
+
+        // Retrieve the audit data using the decrypted ID
+        $audit = Audit::with('user')->findOrFail($id); // Eager loading the user relationship
+        $auditDetails = AuditDetail::where('audit_id', $id)->get();
+
+        // Load the view and pass the audit data to it
+        $pdf = PDF::loadView('audit.pdf', compact('audit', 'auditDetails'))->setPaper('a4', 'landscape');
+
+        // Return the generated PDF
+        return $pdf->download('audit_' . $id . '.pdf');
+    }
+
+
 
 
 }

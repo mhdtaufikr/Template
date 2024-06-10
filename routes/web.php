@@ -62,7 +62,7 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/asset/search/no', [AssetController::class, 'searchBulkAsset']);
     Route::get('/asset/search/multiple', [AssetController::class, 'searchMultiple']);
     Route::post('/asset/add/image', [AssetController::class, 'addImage']);
-
+    Route::post('/asset/delete/image', [AssetController::class, 'deleteImage'])->name('asset.delete.image');
 
 
 
@@ -73,6 +73,7 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/audit/scan', [AuditController::class, 'scanAudit']);
     Route::post('/audit/store', [AuditController::class, 'auditStore']);
     Route::get('/audit/detail/{id}', [AuditController::class, 'auditDetail']);
+    Route::get('/audit/pdf/{id}', [AuditController::class, 'auditPdf']);
 
 
     //Dropdown Controller
