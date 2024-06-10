@@ -585,6 +585,7 @@
                                 <input type="checkbox" id="checkAllBtn{{ $assetHeaderData->id }}" class="check-all">
                             </th>
                             <th>Asset No</th>
+                            <th>Description</th>
                             <th>Date</th>
                             <th>Status</th>
                             <th>Action</th>
@@ -600,6 +601,7 @@
                                     <input type="checkbox" class="form-check-input checkbox-detail" name="assetCheckboxDetail[{{ $assetHeaderData->id }}][]" value="{{ $data->id }}">
                                 </td>
                                 <td>{{ $data->asset_no}} - {{$data->sub_asset}} </td>
+                                <td>{{ $data->desc}}</td>
                                 <td>{{ date('d-M-Y', strtotime($data->date )) }}</td>
                                 <td>
                                     <!-- Button for status -->

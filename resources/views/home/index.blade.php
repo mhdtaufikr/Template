@@ -28,7 +28,7 @@
                             <div class="col-md-8">
                                 <h5 class="card-title">Active Assets</h5>
                                 <strong><h1 class="card-text mb-0">{{ $countStatusOne }}</h1></strong>
-                                <p class="card-text">Cost : Rp {{ number_format($sumAcqCostStatusOne, 0, ',', '.') }}</p>
+                                <p class="card-text">Acq. Cost : Rp {{ number_format($sumAcqCostStatusOne, 0, ',', '.') }}</p>
                             </div>
                             <div class="col-md-4">
                                 <i class="fas fa-check text-success" style="font-size: 35px;"></i>
@@ -45,7 +45,7 @@
                             <div class="col-md-8">
                                 <h5 class="card-title">Deactive Assets</h5>
                                 <strong><h1 class="card-text mb-0">{{ $countStatusZero }}</h1></strong>
-                                <p class="card-text">Cost : Rp {{ number_format($sumAcqCostStatusZero, 0, ',', '.') }}</p>
+                                <p class="card-text">Acq. Cost : Rp {{ number_format($sumAcqCostStatusZero, 0, ',', '.') }}</p>
                             </div>
                             <div class="col-md-4">
                                 <i class="fas fa-ban text-danger" style="font-size: 35px;"></i>
@@ -62,7 +62,7 @@
                             <div class="col-md-8">
                                 <h5 class="card-title">Total Assets</h5>
                                 <strong><h1 class="card-text mb-0">{{ $totalAsset }}</h1></strong>
-                                <p class="card-text">Cost : Rp {{ number_format($sumAcqCostTotal, 0, ',', '.') }}</p>
+                                <p class="card-text">Acq. Cost : Rp {{ number_format($sumAcqCostTotal, 0, ',', '.') }}</p>
                             </div>
                             <div class="col-md-4">
                                 <i class="fas fa-boxes text-primary" style="font-size: 35px;"></i>
