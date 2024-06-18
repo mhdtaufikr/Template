@@ -109,7 +109,7 @@
                     <h1 style="margin-bottom: 0">{{ $asset->asset_no }} - {{$asset->sub_asset}}</h1>
                     <p style="margin-bottom: 0">{{ Illuminate\Support\Str::limit($asset->desc, 50) }}</p>
 
-                    <p style="margin: 0"> {{$segment}}<br>{{ date('d/m/Y', strtotime($asset->acq_date)) }}</p>
+                    <p style="margin: 0"> {{$asset->segment}}<br>{{ date('d/m/Y', strtotime($asset->acq_date)) }}</p>
                 </td>
             </tr>
         </tbody>
