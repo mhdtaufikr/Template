@@ -997,7 +997,7 @@ foreach ($headerAssets as $headerAsset) {
             $commonRow['Plant'] = $headerAsset->plant; // No plant for details
             $commonRow['Location'] = $headerAsset->loc; // No location for details
             $commonRow['Cost Center'] = $headerAsset->cost_center; // No cost center for details
-            $commonRow['Segment'] = $headerAsset->segment; // No segment for details
+            $commonRow['Segment'] = $detailAsset->segment; // No segment for details yang ada pake punya sendiri, yang ga ada pake punya header
             $commonRow['Image'] = $detailAsset->img; // No image for details
             $commonRow['Status'] = $detailAsset->status; // No status for details
             $commonRow['Remarks'] = $detailAsset->remarks; // No remarks for details
