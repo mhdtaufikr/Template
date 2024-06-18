@@ -1121,7 +1121,7 @@ return Excel::download(new AssetExport($exportData), 'assets.xlsx');
         }
 
         // Limit the number of results (if necessary)
-        $assetData = $query->limit(30)->get();
+        $assetData = $query->get();
 
         // Retrieve additional data for dropdowns
         $status = Dropdown::where('category', 'Status')->get();
