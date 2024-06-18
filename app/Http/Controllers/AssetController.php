@@ -948,7 +948,7 @@ foreach ($headerAssets as $headerAsset) {
     $commonRow['Detail Quantity'] = $headerAsset->qty;
     $commonRow['Detail Unit of Measure'] = $headerAsset->uom;
     $commonRow['Detail Asset Type'] = $headerAsset->asset_type;
-    $commonRow['Detail Date'] = $headerAsset->acq_date;
+    $commonRow['Detail Date'] = date('m/d/Y', strtotime($headerAsset->acq_date));
     $commonRow['Detail Cost'] = $headerAsset->acq_cost;
     $commonRow['Detail Purchase Order No'] = $headerAsset->po_no;
     $commonRow['Detail Serial No'] = $headerAsset->serial_no;
@@ -985,7 +985,7 @@ foreach ($headerAssets as $headerAsset) {
             $commonRow['Detail Quantity'] = $detailAsset->qty;
             $commonRow['Detail Unit of Measure'] = $detailAsset->uom;
             $commonRow['Detail Asset Type'] = $detailAsset->asset_type;
-            $commonRow['Detail Date'] = $detailAsset->date;
+            $commonRow['Detail Date'] = date('m/d/Y', strtotime($detailAsset->date));
             $commonRow['Detail Cost'] = $detailAsset->cost;
             $commonRow['Detail Purchase Order No'] = $detailAsset->po_no;
             $commonRow['Detail Serial No'] = $detailAsset->serial_no;
