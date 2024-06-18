@@ -985,8 +985,8 @@ foreach ($headerAssets as $headerAsset) {
             $commonRow['Detail Quantity'] = $detailAsset->qty;
             $commonRow['Detail Unit of Measure'] = $detailAsset->uom;
             $commonRow['Detail Asset Type'] = $detailAsset->asset_type;
-            $commonRow['Detail Date'] = $detailAsset->acq_date;
-            $commonRow['Detail Cost'] = $detailAsset->acq_cost;
+            $commonRow['Detail Date'] = $detailAsset->date;
+            $commonRow['Detail Cost'] = $detailAsset->cost;
             $commonRow['Detail Purchase Order No'] = $detailAsset->po_no;
             $commonRow['Detail Serial No'] = $detailAsset->serial_no;
             $commonRow['Detail Image'] = $detailAsset->img;
@@ -1010,7 +1010,6 @@ foreach ($headerAssets as $headerAsset) {
         }
     }
 }
-
 // Export to Excel (You need to implement the logic for exporting to Excel)
 // Example using Laravel Excel:
 return Excel::download(new AssetExport($exportData), 'assets.xlsx');
