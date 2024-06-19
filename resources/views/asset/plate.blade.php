@@ -119,7 +119,7 @@
                                                 <h3 style="margin-bottom: 0; margin-top:20px; font-size: 16px;">Asset By PT.MKM</h3>
                                                 <h1 style="margin-bottom: 0; font-size: 22px;">{{ $asset->asset_no }}</h1>
                                                 <p style="margin-bottom: 0; font-size: 13px;">{{ Illuminate\Support\Str::limit($asset->desc, 50) }}</p>
-                                                <p style="margin: 0; font-size: 15px;">{{$segment}} <br>{{ date('d/m/Y', strtotime($asset->acq_date)) }}</p>
+                                                <p style="margin: 0; font-size: 15px;">{{$asset->segment}} <br>{{ date('d/m/Y', strtotime($asset->acq_date)) }}</p>
                                             </td>
                                         </tr>
                                     </tbody>
