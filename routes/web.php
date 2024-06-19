@@ -51,6 +51,7 @@ Route::middleware(['auth'])->group(function () {
     Route::delete('/asset/detail/delete/{id}', [AssetController::class, 'detailDelete']);
     Route::post('/asset/status/detail/{id_header}/{id}', [AssetController::class,'statusDetail']);
     Route::get('/download/excel/format', [AssetController::class, 'excelFormat']);
+    Route::get('/download/excel/format/bulk', [AssetController::class, 'excelFormatBulk']);
     Route::get('/download/excel/format/detail', [AssetController::class, 'excelFormatDetail']);
     Route::post('/asset/import', [AssetController::class, 'excelData']);
     Route::get('/asset/qr', [AssetController::class,'generateQRCodesAndReturnPDF']);
@@ -63,7 +64,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/asset/search/multiple', [AssetController::class, 'searchMultiple']);
     Route::post('/asset/add/image', [AssetController::class, 'addImage']);
     Route::post('/asset/delete/image', [AssetController::class, 'deleteImage'])->name('asset.delete.image');
-
+    Route::post('/asset/qr/bulk', [AssetController::class, 'qrBulk']);
 
 
     Route::get('/temporary/qr', [AssetController::class, 'temporaryQR']);

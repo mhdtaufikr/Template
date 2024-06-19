@@ -352,7 +352,7 @@
                         <!-- Search buttons -->
                         <div class="btn-group mb-2" role="group" aria-label="Search">
                             <button type="button" class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#searchModal">
-                                <i class="fas fa-search"></i> Serch Multiple Variable
+                                <i class="fas fa-search"></i> Search Multiple Variable
                             </button>
                             <button title="Search Asset" type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#modal-search">
                                 <i class="fas fa-search"></i>
@@ -379,6 +379,14 @@
                             </button>
                             <a title="Generate Checklist" class="btn btn-primary btn-sm" href="#" onclick="generateChecklist(); return false;" id="generateChecklistBtn">
                                 <i class="fas fa-qrcode"></i>
+                            </a>
+                        </div>
+
+                        <div class="btn-group mb-2" role="group" aria-label="Generate and Export">
+
+                            <button title="Export to Excel" type="button" class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#generate-qr-bulk">
+                                <i class="fas fa-file-excel"></i> Generate QR Bulk
+                            </button>
                             </a>
                         </div>
 
@@ -693,6 +701,40 @@
                               </div>
                             </div>
                           </div>
+
+                           <!-- Modal -->
+                        <div class="modal fade" id="generate-qr-bulk" tabindex="-1" aria-labelledby="modal-add-label" aria-hidden="true">
+                            <div class="modal-dialog">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title" id="modal-add-label">Generate QR Bulk</h5>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                    </div>
+                                    <form action="{{ url('/asset/qr/bulk') }}" method="POST" enctype="multipart/form-data">
+                                        @csrf
+                                        <div class="modal-body">
+                                            <div class="mb-3">
+                                                <input type="file" class="form-control" id="csvFile" name="excel-file" accept=".csv">
+                                                <p class="text-danger">*file must be xlsx</p>
+                                            </div>
+
+                                            @error('excel-file')
+                                                <div class="alert alert-danger" role="alert">
+                                                    {{ $message }}
+                                                </div>
+                                            @enderror
+                                        </div>
+                                        <div class="modal-footer">
+                                            <a href="{{ url('/download/excel/format/bulk') }}" class="btn btn-link">
+                                                Download Excel Format
+                                            </a>
+                                            <button type="button" class="btn btn-dark" data-bs-dismiss="modal">Close</button>
+                                            <button type="submit" class="btn btn-primary">Submit</button>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
 
                           <!-- Modal -->
                         <div class="modal fade" id="modal-import" tabindex="-1" aria-labelledby="modal-add-label" aria-hidden="true">

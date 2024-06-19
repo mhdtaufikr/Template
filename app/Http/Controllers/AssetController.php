@@ -12,7 +12,9 @@ use App\Models\LocHeader;
 use App\Models\LocDetail;
 use App\Models\CostCenter;
 use App\Exports\ExcelExport;
+use App\Exports\AssetsExport;
 use App\Imports\AssetImport;
+use App\Imports\QrCodeImport;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Maatwebsite\Excel\Facades\Excel;
 use Illuminate\Support\Facades\DB;
@@ -537,6 +539,11 @@ class AssetController extends Controller
 
         // Download Excel file with the note in cell E2
         return Excel::download(new ExcelExport($note), 'Format.xlsx');
+    }
+
+    public function excelFormatBulk()
+    {
+        return Excel::download(new AssetsExport, 'generate qr code bulk.xlsx');
     }
 
     public function excelFormatDetail()
@@ -1238,6 +1245,82 @@ return Excel::download(new AssetExport($exportData), 'assets.xlsx');
     return redirect()->back()->with('success', 'Image deleted successfully.');
 }
 
+public function qrBulk(Request $request)
+{
+    $file = $request->file('excel-file');
+
+    // Validate the uploaded file
+    $request->validate([
+        'excel-file' => 'required|mimes:xlsx'
+    ]);
+
+    // Import the file using the QrCodeImport class
+    $import = new QrCodeImport;
+    Excel::import($import, $file);
+
+    // Get the rows as an array
+    $rows = $import->getRows();
+
+    // Expand asset list based on quantity
+    $expandedAssets = [];
+    foreach ($rows as $row) {
+        for ($i = 0; $i < $row['qty']; $i++) {
+            $expandedAssets[] = $row['no_asset'];
+        }
+    }
+
+    // Separate assets based on presence of dash in asset number
+    $headerAssets = array_filter($expandedAssets, function($asset) {
+        return strpos($asset, '-') === false;
+    });
+    $detailAssets = array_filter($expandedAssets, function($asset) {
+        return strpos($asset, '-') !== false;
+    });
+
+    // Fetch asset information from the database
+    $assets = collect();
+
+    if (!empty($headerAssets)) {
+        $headerAssetsData = AssetHeader::whereIn('asset_no', array_unique($headerAssets))->get();
+        $assets = $assets->merge($headerAssetsData);
+    }
+
+    if (!empty($detailAssets)) {
+        $detailAssetsData = AssetDetail::whereIn('asset_no', array_unique($detailAssets))->get();
+        $assets = $assets->merge($detailAssetsData);
+    }
+
+    $rules = Rule::where('rule_name', 'UrlQr')->first()->rule_value;
+    $segment = $assets->first()->segment ?? '';
+
+    // Create an array to match each expanded asset with its actual data
+    $expandedAssetsData = [];
+    foreach ($expandedAssets as $assetNo) {
+        $assetData = $assets->firstWhere('asset_no', $assetNo);
+        if ($assetData) {
+            $expandedAssetsData[] = $assetData;
+        }
+    }
+
+    // Convert the array to a collection
+    $expandedAssetsData = collect($expandedAssetsData);
+
+    // Initialize an array to store the data to be compacted
+    $data = [
+        'assets' => $expandedAssetsData,
+        'segment' => $segment,
+        'rule' => $rules,
+    ];
+
+    // Initialize the PDF
+    $pdf = Pdf::loadView('asset.plate', $data)->setPaper('a4', 'landscape');
+
+    // Save the PDF (you may want to customize the storage path)
+    $pdfPath = public_path("pdfs/qr_codes.pdf");
+    $pdf->save($pdfPath);
+
+    return response()->file($pdfPath);
+}
 
 
 
