@@ -103,7 +103,7 @@
                             <?php
                                 $qrCode = QrCode::size(120)
                                     ->margin(5)
-                                    ->generate("$rule{$asset->asset_no}");
+                                    ->generate("$rule{$asset->id}");
                             ?>
                             @if ($key % 3 == 0)
                                 <tr>
