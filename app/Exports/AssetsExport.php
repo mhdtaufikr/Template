@@ -19,7 +19,8 @@ class AssetsExport implements WithHeadings
     {
         return [
             'No. Asset',
-            'Qty'
+            'Sub Asset',
+            'Qty',
         ];
     }
 }

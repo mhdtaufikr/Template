@@ -1265,51 +1265,49 @@ public function qrBulk(Request $request)
     $expandedAssets = [];
     foreach ($rows as $row) {
         for ($i = 0; $i < $row['qty']; $i++) {
-            $expandedAssets[] = $row['no_asset'];
+            $expandedAssets[] = [
+                'no_asset' => $row['no_asset'],
+                'sub_asset' => $row['sub_asset'] ?? null // Handle missing sub_asset
+            ];
         }
     }
-
-    // Separate assets based on presence of dash in asset number
-    $headerAssets = array_filter($expandedAssets, function($asset) {
-        return strpos($asset, '-') === false;
-    });
-    $detailAssets = array_filter($expandedAssets, function($asset) {
-        return strpos($asset, '-') !== false;
-    });
 
     // Fetch asset information from the database
     $assets = collect();
 
-    if (!empty($headerAssets)) {
-        $headerAssetsData = AssetHeader::whereIn('asset_no', array_unique($headerAssets))->get();
-        $assets = $assets->merge($headerAssetsData);
-    }
+    foreach ($expandedAssets as $expandedAsset) {
+        $no_asset = $expandedAsset['no_asset'];
+        $sub_asset = $expandedAsset['sub_asset'];
 
-    if (!empty($detailAssets)) {
-        $detailAssetsData = AssetDetail::whereIn('asset_no', array_unique($detailAssets))->get();
-        $assets = $assets->merge($detailAssetsData);
-    }
+        if ($sub_asset) {
+            // Fetch from AssetDetail where both asset_no and sub_asset match
+            $assetData = AssetDetail::where('asset_no', $no_asset)
+                                     ->where('sub_asset', $sub_asset)
+                                     ->first();
+        } else {
+            // First try to fetch from AssetHeader
+            $assetData = AssetHeader::where('asset_no', $no_asset)->first();
+            // If not found, then fetch from AssetDetail
+            if (!$assetData) {
+                $assetData = AssetDetail::where('asset_no', $no_asset)->first();
+            }
+        }
 
-    $rules = Rule::where('rule_name', 'UrlQr')->first()->rule_value;
-    $segment = $assets->first()->segment ?? '';
-
-    // Create an array to match each expanded asset with its actual data
-    $expandedAssetsData = [];
-    foreach ($expandedAssets as $assetNo) {
-        $assetData = $assets->firstWhere('asset_no', $assetNo);
         if ($assetData) {
-            $expandedAssetsData[] = $assetData;
+            $assetData->sub_asset = $sub_asset; // Include sub_asset in the asset data
+            $assets->push($assetData);
         }
     }
 
-    // Convert the array to a collection
-    $expandedAssetsData = collect($expandedAssetsData);
+    // Fetch rule and segment
+    $rules = Rule::where('rule_name', 'UrlQr')->first()->rule_value;
+    $segment = $assets->first()->segment ?? '';
 
     // Initialize an array to store the data to be compacted
     $data = [
-        'assets' => $expandedAssetsData,
+        'assets' => $assets,
         'segment' => $segment,
-        'rule' => $rules,
+        'rule' => $rules
     ];
 
     // Initialize the PDF
@@ -1321,6 +1319,9 @@ public function qrBulk(Request $request)
 
     return response()->file($pdfPath);
 }
+
+
+
 
 
 

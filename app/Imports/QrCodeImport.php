@@ -20,7 +20,8 @@ class QrCodeImport implements ToArray
         foreach ($data as $row) {
             $this->rows[] = [
                 'no_asset' => $row[0],
-                'qty' => $row[1]
+                'sub_asset' => $row[1],
+                'qty' => $row[2]
             ];
         }
     }
