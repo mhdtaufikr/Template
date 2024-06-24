@@ -30,6 +30,7 @@ use App\Http\Controllers\AuditController;
 Route::get('/', [AuthController::class, 'login'])->name('login');
 Route::post('/auth/login', [AuthController::class, 'postLogin']);
 Route::get('/logout', [AuthController::class, 'logout']);
+Route::post('request/access', [AuthController::class, 'requestAccess']);
 
 //public Detail
 Route::get('mkm/{id}', [AssetController::class,'assetPublic']);
