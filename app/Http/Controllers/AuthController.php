@@ -80,7 +80,7 @@ class AuthController extends Controller
         ]);
 
         // Send the email
-        Mail::to(['aditia@ptmkm.co.id', 'muhammad.taufik@ptmkm.co.id'])
+        Mail::to(['aditia@ptmkm.co.id', 'muhammad.taufik@ptmkm.co.id','endang.s@ptmkm.co.id'])
             ->cc('bayu@ptmkm.co.id')
             ->send(new AccessRequestMail($request->all()));
 
