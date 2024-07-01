@@ -20,10 +20,10 @@ class AssetImport implements ToCollection, WithHeadingRow
             try {
                 // Convert the 'first_acq' date string to a Carbon instance
                 $excelDate = $row['first_acq'];
-                $acquisitionDate = Carbon::createFromFormat('m/d/Y', '01/01/1900')->addDays($excelDate - 2)->toDateString();
+                $acquisitionDate = Carbon::createFromFormat('m/d/Y', $excelDate)->toDateString();
 
                 // Get the first two numbers of 'asset_no'
-                $assetClass = substr($row['asset_no'], 0, 2);
+                $assetClass = substr($row['main_asset'], 0, 2);
 
                 // Query 'asset_categories' to get the 'class'
                 $assetCategory = AssetCategory::where('class', $assetClass)->first();
@@ -92,7 +92,7 @@ class AssetImport implements ToCollection, WithHeadingRow
                 }
             } catch (\Exception $e) {
                 // Use dd to halt execution and dump the problematic row
-                dd($row);
+                dd($e);
             }
         }
     }
