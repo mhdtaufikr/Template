@@ -15,6 +15,10 @@
             font-size: 9pt;
         }
 
+        .plate-container {
+            position: relative;
+        }
+
         .plate {
             width: 9cm;
             min-height: 4cm;
@@ -22,6 +26,7 @@
             border: 2px solid #000;
             box-sizing: border-box;
             text-align: center;
+            position: relative;
         }
 
         #header {
@@ -89,11 +94,21 @@
             margin-left: 20;
             margin-top: 5px;
         }
+
+        .label-number {
+            position: absolute;
+            top: -20px;
+            left: 5px;
+            font-size: 12px;
+            font-weight: bold;
+            color: red;
+        }
     </style>
 </head>
 
 <body>
-    @foreach ($assets->chunk(3) as $assetChunk)
+    <?php $labelNumber = 1; ?>
+    @foreach ($assets->chunk(3) as $chunkIndex => $assetChunk)
     <page>
         <table>
             <tr>
@@ -109,21 +124,24 @@
                                 <tr>
                             @endif
                             <td style="width:33.33%;">
-                                <table class="table table-bordered plate custom-table" style="margin-right: 120px;">
-                                    <tbody>
-                                        <tr>
-                                            <td style="width:30%" id="qrCode">
-                                                <img style="margin-top: 10px;" src="data:image/png;base64, {!! base64_encode($qrCode) !!}" alt="QR Code for Asset ID: {{ $asset->asset_no }}">
-                                            </td>
-                                            <td style="width:70%;" id="additionalInfo">
-                                                <h3 style="margin-bottom: 0; margin-top:20px; font-size: 16px;">Asset By PT.MKM</h3>
-                                                <h1 style="margin-bottom: 0; font-size: 22px;">{{ $asset->asset_no }}{{ $asset->sub_asset ? ' - ' . $asset->sub_asset : '' }} </h1>
-                                                <p style="margin-bottom: 0; font-size: 13px;">{{ Illuminate\Support\Str::limit($asset->desc, 50) }}</p>
-                                                <p style="margin: 0; font-size: 15px;">{{$asset->segment}} <br>{{ date('d/m/Y', strtotime($asset->acq_date)) }}</p>
-                                            </td>
-                                        </tr>
-                                    </tbody>
-                                </table>
+                                <div class="plate-container">
+                                    <div class="label-number">{{ $labelNumber++ }}</div>
+                                    <table class="table table-bordered plate custom-table" style="margin-right: 120px;">
+                                        <tbody>
+                                            <tr>
+                                                <td style="width:30%" id="qrCode">
+                                                    <img style="margin-top: 10px;" src="data:image/png;base64, {!! base64_encode($qrCode) !!}" alt="QR Code for Asset ID: {{ $asset->asset_no }}">
+                                                </td>
+                                                <td style="width:70%;" id="additionalInfo">
+                                                    <h3 style="margin-bottom: 0; margin-top:20px; font-size: 16px;">Asset By PT.MKM</h3>
+                                                    <h1 style="margin-bottom: 0; font-size: 22px;">{{ $asset->asset_no }}{{ $asset->sub_asset ? ' - ' . $asset->sub_asset : '' }} </h1>
+                                                    <p style="margin-bottom: 0; font-size: 13px;">{{ Illuminate\Support\Str::limit($asset->desc, 50) }}</p>
+                                                    <p style="margin: 0; font-size: 15px;">{{$asset->segment}} <br>{{ date('d/m/Y', strtotime($asset->acq_date)) }}</p>
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
                             </td>
                             @if (($key + 1) % 3 == 0 || $loop->last || ($loop->remaining < 3 && $loop->remaining % 3 == 0))
                                 </tr>
