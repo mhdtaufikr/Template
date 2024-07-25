@@ -25,6 +25,7 @@ use App\Exports\ExcelExportSearch;
 use App\Imports\AssetDetailImport;
 use Illuminate\Support\Facades\View;
 use App\Models\Rule;
+use App\Models\QrCodeCounter;
 
 use App\Exports\AssetExport;
 
@@ -1245,6 +1246,8 @@ return Excel::download(new AssetExport($exportData), 'assets.xlsx');
     return redirect()->back()->with('success', 'Image deleted successfully.');
 }
 
+
+
 public function qrBulk(Request $request)
 {
     $file = $request->file('excel-file');
@@ -1299,6 +1302,11 @@ public function qrBulk(Request $request)
         }
     }
 
+    // Fetch the last QR code number
+    $qrCodeCounter = QrCodeCounter::first();
+    $lastQrNumber = $qrCodeCounter ? $qrCodeCounter->last_qr_number : 0;
+    $labelNumber = $lastQrNumber + 1;
+
     // Fetch rule and segment
     $rules = Rule::where('rule_name', 'UrlQr')->first()->rule_value;
     $segment = $assets->first()->segment ?? '';
@@ -1307,7 +1315,8 @@ public function qrBulk(Request $request)
     $data = [
         'assets' => $assets,
         'segment' => $segment,
-        'rule' => $rules
+        'rule' => $rules,
+        'labelNumber' => $labelNumber // Pass the initial label number
     ];
 
     // Initialize the PDF
@@ -1317,8 +1326,17 @@ public function qrBulk(Request $request)
     $pdfPath = public_path("pdfs/qr_codes.pdf");
     $pdf->save($pdfPath);
 
+    // Update the last QR code number in the database
+    $newLastQrNumber = $labelNumber + $assets->count() - 1;
+    if ($qrCodeCounter) {
+        $qrCodeCounter->update(['last_qr_number' => $newLastQrNumber]);
+    } else {
+        QrCodeCounter::create(['last_qr_number' => $newLastQrNumber]);
+    }
+
     return response()->file($pdfPath);
 }
+
 
 
 

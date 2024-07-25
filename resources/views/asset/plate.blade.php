@@ -107,7 +107,7 @@
 </head>
 
 <body>
-    <?php $labelNumber = 1; ?>
+    <?php $currentLabelNumber = $labelNumber; ?>
     @foreach ($assets->chunk(3) as $chunkIndex => $assetChunk)
     <page>
         <table>
@@ -125,7 +125,7 @@
                             @endif
                             <td style="width:33.33%;">
                                 <div class="plate-container">
-                                    <div class="label-number">{{ $labelNumber++ }}</div>
+                                    <div class="label-number">{{ $currentLabelNumber++ }}</div>
                                     <table class="table table-bordered plate custom-table" style="margin-right: 120px;">
                                         <tbody>
                                             <tr>
