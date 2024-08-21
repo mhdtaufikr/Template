@@ -68,7 +68,6 @@
                     <th>Asset ID</th>
                     <th>Condition</th>
                     <th>Remark</th>
-                    <th>Image</th>
                     <th>Signature</th>
                     <th>Created At</th>
                     <th>Updated At</th>
@@ -80,21 +79,9 @@
                         <td>{{ $detail->asset_id }}</td>
                         <td>{{ $detail->condition }}</td>
                         <td>{{ $detail->remark }}</td>
-                        <td class="image">
-                            @if (file_exists(public_path($detail->img)))
-                                <img src="data:image/{{ pathinfo(public_path($detail->img), PATHINFO_EXTENSION) }};base64,{{ base64_encode(file_get_contents(public_path($detail->img))) }}" alt="Asset Image">
-                            @else
-                                <p>Image not found</p>
-                            @endif
-                        </td>
                         <td class="signature">
-                            @if (file_exists(public_path($detail->signature)))
-                                <img src="data:image/{{ pathinfo(public_path($detail->signature), PATHINFO_EXTENSION) }};base64,{{ base64_encode(file_get_contents(public_path($detail->signature))) }}" alt="Signature">
-                            @else
-                                <p>Signature not found</p>
-                            @endif
+                            <img src="{{ public_path($detail->signature) }}" alt="Signature">
                         </td>
-
                         <td>{{ date('d-M-Y', strtotime($detail->created_at)) }}</td>
                         <td>{{ date('d-M-Y', strtotime($detail->updated_at)) }}</td>
                     </tr>
