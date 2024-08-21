@@ -203,7 +203,7 @@ private function saveBase64Image($base64_image, $type)
         return view('audit.detail', compact('data'));
     }
 
-        public function auditPdf($id)
+    public function auditPdf($id)
     {
         $id = decrypt($id);
 
@@ -217,6 +217,7 @@ private function saveBase64Image($base64_image, $type)
         // Return the generated PDF
         return $pdf->download('audit_' . $id . '.pdf');
     }
+
 
 
 
