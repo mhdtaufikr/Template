@@ -71,8 +71,8 @@
                                         <div class="row">
                                             <div class="col-md-12">
                                                 <div class="row">
-                                                    <div class="col-md-6">
-                                                        <img src="{{ asset($item['assetDetailData']->img) }}" alt="Signature" class="img-fluid" style="width: 300px; height: 200px;">
+                                                    <div class="col-md-6 text-center">
+                                                        <img src="{{ asset($item['assetDetailData']->img) }}" alt="Signature" class="img-fluid" style="width: 400px; height: 300px;">
                                                     </div>
                                                     <div class="col-md-6">
                                                         <div class="row">
