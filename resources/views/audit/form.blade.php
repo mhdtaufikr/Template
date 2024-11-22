@@ -63,73 +63,73 @@
                             </div>
 
                            <!-- Include jQuery, Bootstrap JS, and Signature Pad -->
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
-<script src="https://stackpath.bootstrapcdn.com/bootstrap/5.1.3/js/bootstrap.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/signature_pad@4.0.0/dist/signature_pad.umd.min.js"></script>
-<script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
+                    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+                    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
+                    <script src="https://stackpath.bootstrapcdn.com/bootstrap/5.1.3/js/bootstrap.min.js"></script>
+                    <script src="https://cdn.jsdelivr.net/npm/signature_pad@4.0.0/dist/signature_pad.umd.min.js"></script>
+                    <script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
 
-<script>
-    document.addEventListener('DOMContentLoaded', function () {
-        // Signature pads initialization
-        const auditCanvas = document.getElementById('auditSignatureCanvas');
-        const auditSignaturePad = new SignaturePad(auditCanvas);
-        const auditSignatureInput = document.getElementById('auditSignature');
+                    <script>
+                        document.addEventListener('DOMContentLoaded', function () {
+                            // Signature pads initialization
+                            const auditCanvas = document.getElementById('auditSignatureCanvas');
+                            const auditSignaturePad = new SignaturePad(auditCanvas);
+                            const auditSignatureInput = document.getElementById('auditSignature');
 
-        const controllingCanvas = document.getElementById('controllingSignatureCanvas');
-        const controllingSignaturePad = new SignaturePad(controllingCanvas);
-        const controllingSignatureInput = document.getElementById('controllingSignature');
+                            const controllingCanvas = document.getElementById('controllingSignatureCanvas');
+                            const controllingSignaturePad = new SignaturePad(controllingCanvas);
+                            const controllingSignatureInput = document.getElementById('controllingSignature');
 
-        const userSignaturePads = [];
+                            const userSignaturePads = [];
 
-        // Initialize signature pads for each canvas element
-        @foreach ($data as $index => $item)
-            (function(index) {
-                const canvasId = `userSignatureCanvas-${index}`;
-                const canvas = document.getElementById(canvasId);
-                const signaturePad = new SignaturePad(canvas);
-                userSignaturePads.push(signaturePad);
+                            // Initialize signature pads for each canvas element
+                            @foreach ($data as $index => $item)
+                                (function(index) {
+                                    const canvasId = `userSignatureCanvas-${index}`;
+                                    const canvas = document.getElementById(canvasId);
+                                    const signaturePad = new SignaturePad(canvas);
+                                    userSignaturePads.push(signaturePad);
 
-                // Clear button functionality
-                const clearButton = document.querySelector(`button[data-canvas="${canvasId}"]`);
-                clearButton.addEventListener('click', function () {
-                    signaturePad.clear();
-                });
-            })({{ $index }});
-        @endforeach
+                                    // Clear button functionality
+                                    const clearButton = document.querySelector(`button[data-canvas="${canvasId}"]`);
+                                    clearButton.addEventListener('click', function () {
+                                        signaturePad.clear();
+                                    });
+                                })({{ $index }});
+                            @endforeach
 
-        // Function to capture signatures and update hidden input fields
-        function captureSignatures() {
-            let userSignaturesNotEmpty = false; // Flag to check if any user signature is not empty
+                            // Function to capture signatures and update hidden input fields
+                            function captureSignatures() {
+                                let userSignaturesNotEmpty = false; // Flag to check if any user signature is not empty
 
-            // Check if any user signature pad is not empty
-            userSignaturePads.forEach((signaturePad, index) => {
-                if (!signaturePad.isEmpty()) {
-                    userSignaturesNotEmpty = true;
-                    // Convert user signature to base64 data URL
-                    const signatureDataUrl = signaturePad.toDataURL('image/png');
-                    // Update the value of the hidden input field
-                    const signatureInputId = `userSignature-${index}`;
-                    document.getElementById(signatureInputId).value = signatureDataUrl;
-                }
-            });
+                                // Check if any user signature pad is not empty
+                                userSignaturePads.forEach((signaturePad, index) => {
+                                    if (!signaturePad.isEmpty()) {
+                                        userSignaturesNotEmpty = true;
+                                        // Convert user signature to base64 data URL
+                                        const signatureDataUrl = signaturePad.toDataURL('image/png');
+                                        // Update the value of the hidden input field
+                                        const signatureInputId = `userSignature-${index}`;
+                                        document.getElementById(signatureInputId).value = signatureDataUrl;
+                                    }
+                                });
 
-            // Check if audit and controlling signatures are not empty
-            if (!auditSignaturePad.isEmpty() && !controllingSignaturePad.isEmpty() && userSignaturesNotEmpty) {
-                auditSignatureInput.value = auditSignaturePad.toDataURL('image/png');
-                controllingSignatureInput.value = controllingSignaturePad.toDataURL('image/png');
-                document.querySelector('form').submit();
-            } else {
-                alert('Please provide all signatures.');
-            }
-        }
+                                // Check if audit and controlling signatures are not empty
+                                if (!auditSignaturePad.isEmpty() && !controllingSignaturePad.isEmpty() && userSignaturesNotEmpty) {
+                                    auditSignatureInput.value = auditSignaturePad.toDataURL('image/png');
+                                    controllingSignatureInput.value = controllingSignaturePad.toDataURL('image/png');
+                                    document.querySelector('form').submit();
+                                } else {
+                                    alert('Please provide all signatures.');
+                                }
+                            }
 
-        // Attach the captureSignatures function to the "Submit" button click event
-        document.getElementById('submitButton').addEventListener('click', function () {
-            captureSignatures();
-        });
-    });
-</script>
+                            // Attach the captureSignatures function to the "Submit" button click event
+                            document.getElementById('submitButton').addEventListener('click', function () {
+                                captureSignatures();
+                            });
+                        });
+                    </script>
 
                             <!-- Nav tabs -->
                             <ul class="nav nav-tabs" id="assetTab" role="tablist">
@@ -188,17 +188,17 @@
                                             </button>
                                             </div>
 
-                                            <div class="row">
+                                            <div class="row mb-4 border-bottom pb-3">
+                                                <!-- Carousel Section -->
                                                 <div class="col-md-4 text-center">
                                                     <div id="carouselExampleControls{{ $index }}" class="carousel slide" data-bs-ride="carousel">
                                                         <div class="carousel-inner">
                                                             @php
                                                                 $imagePaths = $item['assetHeaderData']->img ? json_decode($item['assetHeaderData']->img) : [];
                                                             @endphp
-
                                                             @foreach($imagePaths as $key => $imagePath)
                                                             <div class="carousel-item {{ $key == 0 ? 'active' : '' }}">
-                                                                <img src="{{ asset($imagePath) }}" class="d-block w-100" alt="Image {{ $key + 1 }}">
+                                                                <img src="{{ asset($imagePath) }}" class="d-block w-100 rounded" alt="Image {{ $key + 1 }}">
                                                             </div>
                                                             @endforeach
                                                         </div>
@@ -211,82 +211,70 @@
                                                             <span class="visually-hidden">Next</span>
                                                         </button>
                                                     </div>
-
-                                                    <h3 class="text-center">{{$item['assetHeaderData']->desc}}</h3>
+                                                    <h3 class="text-center mt-2">{{$item['assetHeaderData']->desc}}</h3>
                                                 </div>
 
-                                                <div class="col-md-2">
+                                                <!-- Asset Details Section -->
+                                                <div class="col-md-4">
                                                     <strong>Asset No.</strong><br>
                                                     <p>{{$item['assetHeaderData']->asset_no}}</p>
                                                     <strong>Quantity</strong><br>
-                                                    <p>{{$item['assetHeaderData']->qty}} ({{$item['assetHeaderData']->uom}} )</p>
+                                                    <p>{{$item['assetHeaderData']->qty}} ({{$item['assetHeaderData']->uom}})</p>
                                                     <strong>Asset Category</strong><br>
                                                     <p>{{$item['assetHeaderData']->asset_type}}</p>
                                                     <strong>Acquisition Date</strong><br>
                                                     <p>{{ date('d-M-Y', strtotime($item['assetHeaderData']->acq_date)) }}</p>
-                                                    <div class="col-md-4">
-                                                        <strong>PO No.</strong><br>
-                                                        <p>{{$item['assetHeaderData']->po_no}} </p>
-                                                    </div>
-                                                    <strong>Serial No. </strong><br>
+                                                    <strong>PO No.</strong><br>
+                                                    <p>{{$item['assetHeaderData']->po_no}}</p>
+                                                    <strong>Serial No.</strong><br>
                                                     <p>{{$item['assetHeaderData']->serial_no}}</p>
-                                                </div>
-                                                <div class="col-md-2">
                                                     <strong>Department</strong><br>
-                                                    <p>{{$item['assetHeaderData']->dept}} </p>
+                                                    <p>{{$item['assetHeaderData']->dept}}</p>
                                                     <strong>Location</strong><br>
                                                     <p>{{$item['assetHeaderData']->plant}} ({{$item['assetHeaderData']->loc}})</p>
                                                     <strong>Cost Center</strong><br>
-                                                    <p>{{$item['assetHeaderData']->cost_center}} </p>
+                                                    <p>{{$item['assetHeaderData']->cost_center}}</p>
                                                     <strong>Acquisition Cost</strong><br>
                                                     <p>{{ 'Rp ' . number_format($item['assetHeaderData']->acq_cost, 0, ',', '.') }}</p>
-                                                    <strong>BV End Of Year {{ now()->year }}</strong><br>
-                                                    <p>{{ 'Rp ' . number_format($item['assetHeaderData']->bv_endofyear, 0, ',', '.') }}</p>
-                                                    <strong>Remarks</strong><br>
-                                                    <p>Latest Update ({{date('d-M-Y', strtotime($item['assetHeaderData']->updated_at))}}) : {{ $item['assetHeaderData']->remarks }}</p>
                                                 </div>
+
+                                                <!-- Input and Signature Section -->
                                                 <div class="col-md-4">
                                                     <div class="row">
-                                                        <div class="col-md-6">
-                                                            <strong>Availability</strong><br>
+                                                        <div class="col-md-6 mb-3">
+                                                            <strong>Availability</strong>
                                                             <select class="form-control" name="availability[{{$item['assetHeaderData']->asset_no}}]" id="">
                                                                 <option value="">-- Select Option --</option>
                                                                 <option value="Yes">Yes</option>
                                                                 <option value="No">No</option>
                                                             </select>
                                                         </div>
-                                                        <div class="col-md-6">
-                                                            <strong>Condition</strong><br>
+                                                        <div class="col-md-6 mb-3">
+                                                            <strong>Condition</strong>
                                                             <select class="form-control" name="condition[{{$item['assetHeaderData']->asset_no}}]" id="">
                                                                 <option value="">-- Select Condition --</option>
                                                                 <option value="Good">Good</option>
                                                                 <option value="NG">Not Good</option>
                                                             </select>
                                                         </div>
-                                                        <div class="col-md-12">
-                                                            <strong>Images</strong><br>
-                                                            <input name="img[{{$item['assetHeaderData']->asset_no}}]" type="file" accept="image/*" capture="camera" class="form-control mt-2 imageInput" data-index="{{ $index }}">
+                                                        <div class="col-md-12 mb-3">
+                                                            <strong>Images</strong>
+                                                            <input name="img[{{$item['assetHeaderData']->asset_no}}]" type="file" accept="image/*" class="form-control mt-2 imageInput" data-index="{{ $index }}">
+                                                        </div>
+                                                        <div class="col-md-12 mb-3">
+                                                            <strong>Remarks</strong>
+                                                            <textarea name="remarks[{{$item['assetHeaderData']->asset_no}}]" id="" cols="30" rows="4" class="form-control"></textarea>
                                                         </div>
                                                         <div class="col-md-12">
-                                                            <strong>Remarks</strong><br>
-                                                            <textarea name="remarks[{{$item['assetHeaderData']->asset_no}}]" id="" cols="55" rows="5"></textarea>
-                                                        </div>
-                                                        <div class="col-md-12">
-                                                            <!-- Signature pad section -->
-                                                            <strong>User Signature</strong><br>
-                                                            <canvas id="userSignatureCanvas-{{ $index }}" class="border" width="520" height="200"></canvas>
+                                                            <strong>User Signature</strong>
+                                                            <canvas id="userSignatureCanvas-{{ $index }}" class="border rounded w-100" height="200"></canvas>
                                                             <input type="hidden" id="userSignature-{{ $index }}" name="user_signature[{{ $item['assetHeaderData']->asset_no }}]">
-
                                                             <button type="button" class="btn btn-danger mt-2 clearSignature" data-canvas="userSignatureCanvas-{{ $index }}">Clear</button>
                                                         </div>
                                                     </div>
                                                 </div>
-
-
-
-
-
                                             </div>
+
                                         </div>
                                     </div>
                                 @empty
