@@ -90,63 +90,61 @@ public function auditStore(Request $request)
             $remark = $request->input('remarks')[$asset_id]; // Get corresponding remark
             $user_signature = $this->saveBase64Image($request->input('user_signature')[$asset_id], 'signature'); // Save user signature
 
-            // Handle image file
+            // Handle the image upload using img_hidden
             $img_paths = [];
-            if ($request->hasFile('img') && isset($request->file('img')[$asset_id])) {
-                $img_file = $request->file('img')[$asset_id]; // Get the file for the asset
+            if (isset($request->img_hidden[$asset_id]) && is_array($request->img_hidden[$asset_id])) {
+                foreach ($request->img_hidden[$asset_id] as $file) {
+                    if ($file instanceof \Illuminate\Http\UploadedFile) {
+                        $file_name = uniqid() . '_' . $file->getClientOriginalName();
+                        $destination_path = public_path('images/audit');
 
-                if ($img_file) { // Check if the img_file is not empty
-                    $img_name = uniqid() . '.' . $img_file->getClientOriginalExtension();
-                    $destination_path = public_path('images/audit');
-                    $img_file->move($destination_path, $img_name);
-                    $img_paths[] = 'images/audit/' . $img_name; // Store relative path
+                        // Ensure the directory exists
+                        if (!file_exists($destination_path)) {
+                            mkdir($destination_path, 0755, true);
+                        }
+
+                        // Move the file
+                        $file->move($destination_path, $file_name);
+
+                        // Add the relative path to the image paths array
+                        $img_paths[] = 'images/audit/' . $file_name;
+
+                        // Log successful file upload
+                        \Log::info("File uploaded: {$file_name} to {$destination_path}");
+                    }
                 }
             }
 
-            // Insert data into the audit_details table for each image path
-            foreach ($img_paths as $img_path) {
-                AuditDetail::create([
-                    'audit_id' => $audit->id,
-                    'asset_id' => $asset_id,
-                    'condition' => $condition,
-                    'availability' => $request->availability[$asset_id],
-                    'remark' => $remark,
-                    'signature' => $user_signature,
-                    'img' => $img_path, // Save each image path separately
-                ]);
-            }
-
-            // Handle case where there are no images
-            if (empty($img_paths)) {
-                AuditDetail::create([
-                    'audit_id' => $audit->id,
-                    'asset_id' => $asset_id,
-                    'condition' => $condition,
-                    'availability' => $request->availability[$asset_id],
-                    'remark' => $remark,
-                    'signature' => $user_signature,
-                    'img' => null, // No image path
-                ]);
-            }
+            // Insert a single record in the audit_details table with JSON-encoded image paths
+            AuditDetail::create([
+                'audit_id' => $audit->id,
+                'asset_id' => $asset_id,
+                'condition' => $condition,
+                'availability' => $request->availability[$asset_id],
+                'remark' => $remark,
+                'signature' => $user_signature,
+                'img' => !empty($img_paths) ? json_encode($img_paths) : null, // Store JSON array of image paths or null
+            ]);
         }
 
         // Commit the transaction
         DB::commit();
 
         // Redirect or return response
-        return redirect()->route('audits.index')->with('success', 'Audit created successfully.');
+        return redirect()->route('audits.index')->with('status', 'Audit created successfully.');
     } catch (\Exception $e) {
-        dd($e);
         // Rollback the transaction on error
         DB::rollback();
 
-        // Log the error for further debugging
+        // Log the error for debugging
         \Log::error('Audit creation failed: ' . $e->getMessage());
 
         // Redirect or return response with error
-        return redirect()->route('audits.index')->with('error', 'Audit creation failed.');
+        return redirect()->route('audits.index')->with('failed', 'Audit creation failed.');
     }
 }
+
+
 
 private function calculateStatus($request)
 {

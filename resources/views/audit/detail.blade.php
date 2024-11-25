@@ -72,8 +72,42 @@
                                             <div class="col-md-12">
                                                 <div class="row">
                                                     <div class="col-md-6 text-center">
-                                                        <img src="{{ asset($item['assetDetailData']->img) }}" alt="Signature" class="img-fluid" style="width: 400px; height: 300px;">
+                                                        @if($item['assetDetailData']->img)
+                                                            @php
+                                                                // Check if the `img` field contains a JSON array of images
+                                                                $images = is_string($item['assetDetailData']->img) && is_array(json_decode($item['assetDetailData']->img, true))
+                                                                    ? json_decode($item['assetDetailData']->img, true)
+                                                                    : [$item['assetDetailData']->img]; // Treat as single image if not JSON
+                                                            @endphp
+
+                                                            @if(count($images) > 1)
+                                                                <!-- Carousel for multiple images -->
+                                                                <div id="carousel-{{ $item['assetDetailData']->id }}" class="carousel slide" data-bs-ride="carousel">
+                                                                    <div class="carousel-inner">
+                                                                        @foreach($images as $index => $image)
+                                                                            <div class="carousel-item {{ $index === 0 ? 'active' : '' }}">
+                                                                                <img src="{{ asset($image) }}" class="d-block w-100 img-fluid" alt="Asset Image" style="max-width: 400px; max-height: 300px; margin: auto;">
+                                                                            </div>
+                                                                        @endforeach
+                                                                    </div>
+                                                                    <button class="carousel-control-prev" type="button" data-bs-target="#carousel-{{ $item['assetDetailData']->id }}" data-bs-slide="prev">
+                                                                        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                                                                        <span class="visually-hidden">Previous</span>
+                                                                    </button>
+                                                                    <button class="carousel-control-next" type="button" data-bs-target="#carousel-{{ $item['assetDetailData']->id }}" data-bs-slide="next">
+                                                                        <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                                                                        <span class="visually-hidden">Next</span>
+                                                                    </button>
+                                                                </div>
+                                                            @else
+                                                                <!-- Single image -->
+                                                                <img src="{{ asset($images[0]) }}" alt="Asset Image" class="img-fluid" style="width: 400px; height: 300px;">
+                                                            @endif
+                                                        @else
+                                                            <p>No image available</p>
+                                                        @endif
                                                     </div>
+
                                                     <div class="col-md-6">
                                                         <div class="row">
                                                             <div class="col-md-6">
