@@ -35,7 +35,7 @@ Route::post('request/access', [AuthController::class, 'requestAccess']);
 //public Detail
 Route::get('mkm/{id}', [AssetController::class,'assetPublic']);
 Route::get('mkm/dtl/{id}', [AssetController::class,'assetPublicDtl']);
-
+Route::post('/asset/add/image', [AssetController::class, 'addImage']);
 Route::middleware(['auth'])->group(function () {
     //Home Controller
     Route::get('/home', [HomeController::class, 'index']);
@@ -63,7 +63,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/download/excel/format/search', [AssetController::class, 'excelFormatDetailSearch']);
     Route::post('/asset/search/no', [AssetController::class, 'searchBulkAsset']);
     Route::get('/asset/search/multiple', [AssetController::class, 'searchMultiple']);
-    Route::post('/asset/add/image', [AssetController::class, 'addImage']);
+
     Route::post('/asset/delete/image', [AssetController::class, 'deleteImage'])->name('asset.delete.image');
     Route::post('/asset/qr/bulk', [AssetController::class, 'qrBulk']);
 

@@ -189,7 +189,67 @@
                                     </div>
 
                                     <p class="text-center">{{$assetHeaderData->desc}}</p>
+                                    <div class="text-center">
+  <!-- Button trigger modal -->
+  <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#imageModallabel">
+    Manage Images
+</button>
+                                    </div>
 
+                            {{-- Modal Imgae CRUD --}}
+                        <!-- Modal -->
+                        <div class="modal fade" id="imageModallabel" tabindex="-1" aria-labelledby="imageModalLabel" aria-hidden="true">
+                            <div class="modal-dialog modal-lg">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title" id="imageModalLabel">Manage Images</h5>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                    </div>
+                                    <div class="modal-body">
+                                        <!-- Add a container for the "Add New" row -->
+                                        <div class="mb-3">
+                                            <form id="searchForm" action="{{ url('/asset/add/image') }}" method="POST" enctype="multipart/form-data">
+                                                @csrf
+                                                <h5>Add New Images</h5>
+                                                <input name="id" type="text" value="{{$assetHeaderData->id}}" hidden>
+                                                <div class="input-group">
+                                                    <input type="file" class="form-control" name="new_images[]" multiple>
+                                                    <button class="btn btn-primary" type="submit">Upload</button>
+                                                </div>
+                                            </form>
+
+                                        </div>
+                                        <div class="row">
+                                            <!-- Loop through the images and display them in a grid -->
+                                            @foreach($imagePaths as $key => $imagePath)
+                                            <div class="col-md-4 mb-3">
+                                                <div class="card">
+                                                    <img src="{{ asset($imagePath) }}" class="card-img-top" alt="Image {{ $key + 1 }}" style="height: 200px; width: auto;">
+                                                    <div class="card-body">
+                                                        <!-- Use a form to delete the image -->
+                                                        <form action="{{ route('asset.delete.image') }}" method="POST">
+                                                            @csrf
+                                                            <input type="hidden" name="img_path" value="{{ $imagePath }}">
+                                                            <input type="hidden" name="id" value="{{$assetHeaderData->id}}">
+                                                            <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+                                                        </form>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            @endforeach
+                                        </div>
+
+                                    </div>
+
+
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                        <!-- Add buttons for saving changes or performing other actions -->
+                                    </div>
+
+                                </div>
+                            </div>
+                        </div>
 
                                 </div>
                                 <div class="col-md-4">
