@@ -702,18 +702,43 @@ class AssetController extends Controller
     return response()->file($pdfPath);
 }
 
-    public function assetPublic($id){
+public function assetPublic($id)
+{
+    // Attempt to find AssetHeader by the given ID
+    $assetHeaderData = AssetHeader::where('id', $id)->first();
 
-        $assetHeaderData = AssetHeader::where('id', $id)->first();
-        $assetDetailData = AssetDetail::where('asset_header_id', $id)->get();
-        $dropdownUom = Dropdown::where('category','UOM')->get();
-        $assetCategory = AssetCategory::get();
-        $locHeader = LocHeader::orderBy('name')->get();
-        $locDetail = LocDetail::orderBy('name')->get();
-        $dept = Department::get();
-        return view('public.asset', compact('assetHeaderData','assetDetailData','dropdownUom','assetCategory','locHeader','locDetail','dept'));
-
+    // If AssetHeader is not found, try finding it via AssetDetail
+    if (!$assetHeaderData) {
+        $assetDetail = AssetDetail::where('id', $id)->first(); // Get the first matching AssetDetail
+        if ($assetDetail) {
+            $assetHeaderData = AssetHeader::where('id', $assetDetail->asset_header_id)->first(); // Find AssetHeader using the asset_header_id
+        }
     }
+
+    // Fetch other data
+    $assetDetailData = AssetDetail::where('asset_header_id', $assetHeaderData->id ?? 0)->get(); // Ensure we only query if $assetHeaderData is available
+    $dropdownUom = Dropdown::where('category', 'UOM')->get();
+    $assetCategory = AssetCategory::get();
+    $locHeader = LocHeader::orderBy('name')->get();
+    $locDetail = LocDetail::orderBy('name')->get();
+    $dept = Department::get();
+
+    // If AssetHeader is still not found, handle gracefully
+    if (!$assetHeaderData) {
+        return abort(404, 'Asset not found');
+    }
+
+    return view('public.asset', compact(
+        'assetHeaderData',
+        'assetDetailData',
+        'dropdownUom',
+        'assetCategory',
+        'locHeader',
+        'locDetail',
+        'dept'
+    ));
+}
+
 
     public function assetPublicDtl($id){
 
