@@ -34,9 +34,15 @@ Route::post('request/access', [AuthController::class, 'requestAccess']);
 
 //public Detail
 Route::get('mkm/{id}', [AssetController::class,'assetPublic']);
-Route::get('mkm/dtl/{id}', [AssetController::class,'assetPublicDtl']);
+Route::get('mkm/dtl/{id}', [AssetController::class,'assetPublicDtl'])->name('asset.public.detail');
 Route::post('/asset/add/image', [AssetController::class, 'addImage']);
 Route::post('/asset/delete/image', [AssetController::class, 'deleteImage'])->name('asset.delete.image');
+// Route for adding an image to the asset detail
+Route::post('/asset/details/{id}/add-image', [AssetController::class, 'addAssetDetailImage'])->name('asset.add.image');
+
+// Route for deleting an image from the asset detail
+Route::post('/asset/details/delete-image', [AssetController::class, 'deleteAssetDetailImage'])->name('asset.delete.image');
+
 Route::middleware(['auth'])->group(function () {
     //Home Controller
     Route::get('/home', [HomeController::class, 'index']);

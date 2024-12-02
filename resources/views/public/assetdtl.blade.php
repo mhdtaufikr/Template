@@ -33,13 +33,13 @@
         <script src="{{ asset('plugins/datatables-buttons/js/buttons.colVis.min.js') }}"></script>
         <script src="{{ url('https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.18.1/moment.min.js') }}"></script>
         <script src="{{ url('https://cdn.datatables.net/datetime/1.1.1/js/dataTables.dateTime.min.js') }}"></script>
-    
+
          <!-- Include cleave.js -->
         <script src="https://cdnjs.cloudflare.com/ajax/libs/cleave.js/1.6.0/cleave.min.js"></script>
-    
+
     </head>
 <body>
-        
+
             <main>
                 <header class="page-header page-header-dark bg-gradient-primary-to-secondary pb-10">
                     <div class="container-xl px-4">
@@ -58,7 +58,7 @@
                     </div>
                 </header>
             <!-- Main page content-->
-            <div class="container-xl px-4 mt-n10">       
+            <div class="container-xl px-4 mt-n10">
             <!-- Content Wrapper. Contains page content -->
             <div class="content-wrapper">
                 <!-- Content Header (Page header) -->
@@ -71,12 +71,12 @@
                     </div>
                 </div><!-- /.container-fluid --> --}}
                 </section>
-            
+
                 <!-- Main content -->
                 <section class="content">
-            
+
                 <div class="container-fluid">
-            
+
                     <div class="card card-header-actions mb-4">
                         <div class="card-header text-dark">
                         <h3>Asset Detail</h3>
@@ -88,7 +88,7 @@
                     <button class="btn btn-sm {{ $statusColor }}" >
                         {{ $statusText }}
                     </button>
-            
+
                         <!-- Modal for Remarks -->
                         <div class="modal fade" id="remarksModal" tabindex="-1" aria-labelledby="remarksModalLabel" aria-hidden="true">
                             <div class="modal-dialog">
@@ -119,7 +119,7 @@
                                 // Set the form action to the specified URL
                                 $('#remarksForm').attr('action', url);
                             }
-                        
+
                             function submitRemarksForm() {
                                 // Validate and submit the form
                                 if ($('#remarksForm')[0].checkValidity()) {
@@ -127,7 +127,7 @@
                                 }
                             }
                         </script>
-                        
+
                         <!-- Modal -->
                         <div class="modal fade" id="imageModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
                             <div class="modal-dialog">
@@ -143,7 +143,7 @@
                                 </div>
                             </div>
                         </div>
-            
+
                         <!-- JavaScript to set image source when the modal is shown -->
                         <script>
                             document.addEventListener('DOMContentLoaded', function () {
@@ -151,21 +151,21 @@
                                 var modalImage = document.getElementById('modalImage');
                                 var seeImageButton = document.querySelector('.btn-see-image');
                                 var imgPath = '{{ asset($assetDetailData->img) }}';
-            
+
                                 // Set the image source dynamically when the modal is shown
                                 imageModal._element.addEventListener('shown.bs.modal', function (event) {
                                     // Set the image source dynamically using the asset helper
                                     modalImage.src = imgPath;
                                 });
-            
-                                
+
+
                             });
                         </script>
                     </div>
                         <div class="card-body">
-                           
-                                
-                           
+
+
+
                             <div class="row">
                                 <div class="col-md-6">
                                     <strong>Asset Number</strong><br>
@@ -213,7 +213,7 @@
                                     $statusColor = ($assetDetailData->status == 1) ? 'btn-success' : (($assetDetailData->status == 0) ? 'btn-warning' : 'btn-danger');
                                     $statusText = ($assetDetailData->status == 1) ? 'Active' : (($assetDetailData->status == 0) ? 'Deactive' : 'Disposal');
                                     @endphp
-            
+
                                 <button class="btn btn-sm {{ $statusColor }}" >
                                     {{ $statusText }}
                                 </button>
@@ -224,12 +224,87 @@
                                 </div>
                             </div>
                             <!-- Add more fields as needed -->
-                            <div class="row">
-                                <div class="text-center col-md-12">
-                                    <strong>Image</strong><br>
-                                    <img src="{{ asset($assetDetailData->img) }}" alt="Asset Image" class="img-fluid">
+                            <div class="col-md-4">
+                                <div id="carouselExampleControls" class="carousel slide" data-bs-ride="carousel">
+                                    <div class="carousel-inner">
+                                        @php
+                                            $imagePaths = $assetDetailData->img ? json_decode($assetDetailData->img) : [];
+                                        @endphp
+
+                                        @foreach($imagePaths as $key => $imagePath)
+                                            <div class="carousel-item {{ $key == 0 ? 'active' : '' }}">
+                                                <img src="{{ asset($imagePath) }}" class="d-block w-100" alt="Image {{ $key + 1 }}">
+                                            </div>
+                                        @endforeach
+                                    </div>
+                                    <button class="carousel-control-prev" type="button" data-bs-target="#carouselExampleControls" data-bs-slide="prev">
+                                        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                                        <span class="visually-hidden">Previous</span>
+                                    </button>
+                                    <button class="carousel-control-next" type="button" data-bs-target="#carouselExampleControls" data-bs-slide="next">
+                                        <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                                        <span class="visually-hidden">Next</span>
+                                    </button>
+                                </div>
+
+                                <p class="text-center">{{$assetDetailData->desc}}</p>
+                                <div class="text-center">
+                                    <!-- Button trigger modal -->
+                                    <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#imageModallabel">
+                                        Manage Images
+                                    </button>
+                                </div>
+
+                                {{-- Modal Image CRUD --}}
+                                <!-- Modal -->
+                                <div class="modal fade" id="imageModallabel" tabindex="-1" aria-labelledby="imageModalLabel" aria-hidden="true">
+                                    <div class="modal-dialog modal-lg">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                                <h5 class="modal-title" id="imageModalLabel">Manage Images</h5>
+                                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                            </div>
+                                            <div class="modal-body">
+                                                <!-- Add a container for the "Add New" row -->
+                                                <div class="mb-3">
+                                                    <form id="searchForm" action="{{ route('asset.add.image', ['id' => $assetDetailData->id]) }}" method="POST" enctype="multipart/form-data">
+                                                        @csrf
+                                                        <h5>Add New Images</h5>
+                                                        <input name="asset_detail_id" type="hidden" value="{{ $assetDetailData->id }}">
+                                                        <div class="input-group">
+                                                            <input type="file" class="form-control" name="new_images[]" multiple>
+                                                            <button class="btn btn-primary" type="submit">Upload</button>
+                                                        </div>
+                                                    </form>
+                                                </div>
+                                                <div class="row">
+                                                    <!-- Loop through the images and display them in a grid -->
+                                                    @foreach($imagePaths as $key => $imagePath)
+                                                    <div class="col-md-4 mb-3">
+                                                        <div class="card">
+                                                            <img src="{{ asset($imagePath) }}" class="card-img-top" alt="Image {{ $key + 1 }}" style="height: 200px; width: auto;">
+                                                            <div class="card-body">
+                                                                <!-- Use a form to delete the image -->
+                                                                <form action="{{ route('asset.delete.image') }}" method="POST">
+                                                                    @csrf
+                                                                    <input type="hidden" name="img_path" value="{{ $imagePath }}">
+                                                                    <input type="hidden" name="asset_detail_id" value="{{ $assetDetailData->id }}">
+                                                                    <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+                                                                </form>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    @endforeach
+                                                </div>
+                                            </div>
+                                            <div class="modal-footer">
+                                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
+
                         </div>
                     </div>
                 <!-- /.container-fluid -->
@@ -239,8 +314,8 @@
             <!-- /.content-wrapper -->
             </div>
 
-           
-            
+
+
             <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.1/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
             <script src={{asset('assets/js/scripts.js')}} ></script>
         </main>
@@ -248,8 +323,8 @@
 <script>
     $(document).ready(function() {
       var table = $("#tableUser").DataTable({
-        "responsive": true, 
-        "lengthChange": false, 
+        "responsive": true,
+        "lengthChange": false,
         "autoWidth": false,
         // "buttons": ["copy", "csv", "excel", "pdf", "print", "colvis"]
       });

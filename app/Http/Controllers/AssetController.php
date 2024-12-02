@@ -704,15 +704,12 @@ class AssetController extends Controller
 
 public function assetPublic($id)
 {
-    // Attempt to find AssetHeader by the given ID
-    $assetHeaderData = AssetHeader::where('id', $id)->first();
+    $assetHeaderData = AssetHeader::find($id);
 
-    // If AssetHeader is not found, try finding it via AssetDetail
+    // Check if the asset header data exists
     if (!$assetHeaderData) {
-        $assetDetail = AssetDetail::where('id', $id)->first(); // Get the first matching AssetDetail
-        if ($assetDetail) {
-            $assetHeaderData = AssetHeader::where('id', $assetDetail->asset_header_id)->first(); // Find AssetHeader using the asset_header_id
-        }
+        // Redirect to the specified route with the ID
+        return redirect()->route('asset.public.detail', ['id' => $id]);
     }
 
     // Fetch other data
@@ -1364,6 +1361,71 @@ public function qrBulk(Request $request)
 
 
 
+public function addAssetDetailImage(Request $request)
+{
+    // Validate the incoming request
+    $request->validate([
+        'asset_detail_id' => 'required|exists:asset_details,id', // Ensure the asset detail ID exists
+        'new_images.*' => 'nullable|file|mimes:jpeg,png,jpg,gif|max:2048', // Validate the image files
+    ]);
+
+    // Retrieve the asset detail
+    $assetDetail = AssetDetail::findOrFail($request->asset_detail_id);
+
+    // Decode the current images if they exist
+    $imagePaths = $assetDetail->img ? json_decode($assetDetail->img, true) : [];
+
+    // Check if the request has any new images
+    if ($request->hasFile('new_images')) {
+        foreach ($request->file('new_images') as $file) {
+            // Generate a unique file name for each image
+            $fileName = uniqid() . '_' . $file->getClientOriginalName();
+
+            // Move the uploaded image to the storage directory
+            $destinationPath = public_path('images/asset_details');
+            $file->move($destinationPath, $fileName);
+
+            // Store the image path in the array
+            $imagePaths[] = 'images/asset_details/' . $fileName;
+        }
+
+        // Save the updated asset detail with the new image paths
+        $assetDetail->img = json_encode($imagePaths); // Convert back to JSON before saving
+        $assetDetail->save();
+    }
+
+    // Redirect back with a success message
+    return redirect()->back()->with('success', 'Images uploaded successfully.');
+}
+
+
+public function deleteAssetDetailImage(Request $request)
+{
+    // Retrieve the image path and asset detail ID from the request data
+    $imgPath = $request->input('img_path');
+    $assetDetailId = $request->input('asset_detail_id');
+
+    // Find the asset detail by ID
+    $assetDetail = AssetDetail::findOrFail($assetDetailId);
+
+    // Decode the image paths from JSON
+    $imagePaths = json_decode($assetDetail->img, true);
+
+    // Find the index of the image path to delete
+    $index = array_search($imgPath, $imagePaths);
+
+    // If the image path exists, remove it from the array
+    if ($index !== false) {
+        unset($imagePaths[$index]);
+
+        // Update the image paths in the database
+        $assetDetail->img = json_encode(array_values($imagePaths));
+        $assetDetail->save();
+    }
+
+    // Redirect back with a success message
+    return redirect()->back()->with('success', 'Image deleted successfully.');
+}
 
 
 
