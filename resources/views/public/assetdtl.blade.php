@@ -84,6 +84,12 @@
                         $statusColor = ($assetDetailData->status == 1) ? 'btn-success' : (($assetDetailData->status == 0) ? 'btn-warning' : 'btn-danger');
                         $statusText = ($assetDetailData->status == 1) ? 'Active' : (($assetDetailData->status == 0) ? 'Deactive' : 'Disposal');
                         @endphp
+<!-- Redirect Button -->
+<div class="text-center">
+    <a href="{{ url('mkm/' . $assetDetailData->asset_header_id) }}" class="btn btn-primary btn-sm">
+        Go to Header Details
+    </a>
+</div>
 
                     <button class="btn btn-sm {{ $statusColor }}" >
                         {{ $statusText }}
