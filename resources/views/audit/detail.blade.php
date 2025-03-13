@@ -50,151 +50,83 @@
                             });
                         </script>
 
-                        <!-- Nav tabs -->
-                        <ul class="nav nav-tabs" id="assetTab" role="tablist">
-                            @forelse ($data as $index => $item)
-                                <li class="nav-item" role="presentation">
-                                    <a class="nav-link {{ $index == 0 ? 'active' : '' }}" id="asset-tab-{{ $index }}" data-bs-toggle="tab" href="#asset-{{ $index }}" role="tab" aria-controls="asset-{{ $index }}" aria-selected="{{ $index == 0 ? 'true' : 'false' }}">
-                                        {{$item['assetHeaderData']->asset_no}}
-                                    </a>
-                                </li>
-                            @empty
-                                <li>No data available</li>
-                            @endforelse
-                        </ul>
+        <!-- Check if there is any data -->
+        @forelse ($data as $index => $item)
+            <div class="col-sm-12">
+                <!-- Alert success -->
+                @if (session('status'))
+                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                    <strong>{{ session('status') }}</strong>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+                @endif
 
-                        <!-- Tab content -->
-                        <div class="tab-content" id="assetTabContent">
-                            @forelse ($data as $index => $item)
-                                <div class="tab-pane fade {{ $index == 0 ? 'show active' : '' }}" id="asset-{{ $index }}" role="tabpanel" aria-labelledby="asset-tab-{{ $index }}">
-                                    <div class="card-body">
-                                        <div class="row">
-                                            <div class="col-md-12">
-                                                <div class="row">
-                                                    <div class="col-md-6 text-center">
-                                                        @if($item['assetDetailData']->img)
-                                                            @php
-                                                                // Check if the `img` field contains a JSON array of images
-                                                                $images = is_string($item['assetDetailData']->img) && is_array(json_decode($item['assetDetailData']->img, true))
-                                                                    ? json_decode($item['assetDetailData']->img, true)
-                                                                    : [$item['assetDetailData']->img]; // Treat as single image if not JSON
-                                                            @endphp
+                @if (session('failed'))
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    <strong>{{ session('failed') }}</strong>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+                @endif
 
-                                                            @if(count($images) > 1)
-                                                                <!-- Carousel for multiple images -->
-                                                                <div id="carousel-{{ $item['assetDetailData']->id }}" class="carousel slide" data-bs-ride="carousel">
-                                                                    <div class="carousel-inner">
-                                                                        @foreach($images as $index => $image)
-                                                                            <div class="carousel-item {{ $index === 0 ? 'active' : '' }}">
-                                                                                <img src="{{ asset($image) }}" class="d-block w-100 img-fluid" alt="Asset Image" style="max-width: 400px; max-height: 300px; margin: auto;">
-                                                                            </div>
-                                                                        @endforeach
-                                                                    </div>
-                                                                    <button class="carousel-control-prev" type="button" data-bs-target="#carousel-{{ $item['assetDetailData']->id }}" data-bs-slide="prev">
-                                                                        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-                                                                        <span class="visually-hidden">Previous</span>
-                                                                    </button>
-                                                                    <button class="carousel-control-next" type="button" data-bs-target="#carousel-{{ $item['assetDetailData']->id }}" data-bs-slide="next">
-                                                                        <span class="carousel-control-next-icon" aria-hidden="true"></span>
-                                                                        <span class="visually-hidden">Next</span>
-                                                                    </button>
-                                                                </div>
-                                                            @else
-                                                                <!-- Single image -->
-                                                                <img src="{{ asset($images[0]) }}" alt="Asset Image" class="img-fluid" style="width: 400px; height: 300px;">
-                                                            @endif
-                                                        @else
-                                                            <p>No image available</p>
-                                                        @endif
-                                                    </div>
+                @if (count($errors) > 0)
+                <div class="alert alert-info alert-dismissible fade show" role="alert">
+                    <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <ul>
+                        <li><strong>Data Process Failed !</strong></li>
+                        @foreach ($errors->all() as $error)
+                        <li><strong>{{ $error }}</strong></li>
+                        @endforeach
+                    </ul>
+                </div>
+                @endif
+            </div>
 
-                                                    <div class="col-md-6">
-                                                        <div class="row">
-                                                            <div class="col-md-6">
-                                                                <strong>Availability</strong><br>
-                                                                <select readonly class="form-control" name="condition[{{$item['assetHeaderData']->asset_no}}][]" id="">
-                                                                    <option value="">{{$item['assetDetailData']->availability}}</option>
-                                                                </select>
-                                                                <strong>Remarks</strong><br>
-                                                                <textarea readonly name="Remarks[{{$item['assetHeaderData']->asset_no}}][]" id="" cols="30" rows="10">{{$item['assetDetailData']->remark}}</textarea>
-                                                            </div>
-                                                            <div class="col-md-6">
-                                                                <strong>Condition</strong><br>
-                                                                <select readonly class="form-control" name="condition[{{$item['assetHeaderData']->asset_no}}][]" id="">
-                                                                    <option value="">{{$item['assetDetailData']->condition}}</option>
-                                                                </select>
-                                                                <!-- Include the signature inside the tab content -->
-                                                                <div class="mb-3">
-                                                                    <label for="signature-{{ $index }}" class="form-label">Signature</label>
-                                                                    <img src="{{ asset($item['assetDetailData']->signature) }}" alt="Signature" class="img-fluid" style="width: 150px; height: 100px;">
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <div class="col-md-6 text-center">
-                                                <div id="carouselExampleControls{{ $index }}" class="carousel slide" data-bs-ride="carousel">
-                                                    <div class="carousel-inner">
-                                                        @php
-                                                            $imagePaths = $item['assetHeaderData']->img ? json_decode($item['assetHeaderData']->img) : [];
-                                                        @endphp
+            <div style="text-align:right;">
+                @php
+                $statusColor = ($item['assetHeaderData']->status == 1) ? 'btn-success' : (($item['assetHeaderData']->status == 0) ? 'btn-warning' : 'btn-danger');
+                $statusText = ($item['assetHeaderData']->status == 1) ? 'Active' : (($item['assetHeaderData']->status == 0) ? 'Deactive' : 'Disposal');
+                @endphp
+                <button class="btn btn-sm {{ $statusColor }}">
+                    {{ $statusText }}
+                </button>
+            </div>
 
-                                                        @foreach($imagePaths as $key => $imagePath)
-                                                        <div class="carousel-item {{ $key == 0 ? 'active' : '' }}">
-                                                            <img src="{{ asset($imagePath) }}" class="d-block w-100" alt="Image {{ $key + 1 }}" style="width: 300px; height: 200px;">
-                                                        </div>
-                                                        @endforeach
-                                                    </div>
-                                                    <button class="carousel-control-prev" type="button" data-bs-target="#carouselExampleControls{{ $index }}" data-bs-slide="prev">
-                                                        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-                                                        <span class="visually-hidden">Previous</span>
-                                                    </button>
-                                                    <button class="carousel-control-next" type="button" data-bs-target="#carouselExampleControls{{ $index }}" data-bs-slide="next">
-                                                        <span class="carousel-control-next-icon" aria-hidden="true"></span>
-                                                        <span class="visually-hidden">Next</span>
-                                                    </button>
-                                                </div>
-
-                                                <h3 class="text-center">{{$item['assetHeaderData']->desc}}</h3>
-                                            </div>
-                                            <div class="col-md-3">
-                                                <strong>Asset No.</strong><br>
-                                                <p>{{$item['assetHeaderData']->asset_no}}</p>
-                                                <strong>Quantity</strong><br>
-                                                <p>{{$item['assetHeaderData']->qty}} ({{$item['assetHeaderData']->uom}} )</p>
-                                                <strong>Asset Category</strong><br>
-                                                <p>{{$item['assetHeaderData']->asset_type}}</p>
-                                                <strong>Acquisition Date</strong><br>
-                                                <p>{{ date('d-M-Y', strtotime($item['assetHeaderData']->acq_date)) }}</p>
-                                                <div class="col-md-4">
-                                                    <strong>PO No.</strong><br>
-                                                    <p>{{$item['assetHeaderData']->po_no}} </p>
-                                                </div>
-                                                <strong>Serial No. </strong><br>
-                                                <p>{{$item['assetHeaderData']->serial_no}}</p>
-                                            </div>
-                                            <div class="col-md-3">
-                                                <strong>Department</strong><br>
-                                                <p>{{$item['assetHeaderData']->dept}} </p>
-                                                <strong>Location</strong><br>
-                                                <p>{{$item['assetHeaderData']->plant}} ({{$item['assetHeaderData']->loc}})</p>
-                                                <strong>Cost Center</strong><br>
-                                                <p>{{$item['assetHeaderData']->cost_center}} </p>
-                                                <strong>Acquisition Cost</strong><br>
-                                                <p>{{ 'Rp ' . number_format($item['assetHeaderData']->acq_cost, 0, ',', '.') }}</p>
-                                                <strong>BV End Of Year {{ now()->year }}</strong><br>
-                                                <p>{{ 'Rp ' . number_format($item['assetHeaderData']->bv_endofyear, 0, ',', '.') }}</p>
-                                                <strong>Remarks</strong><br>
-                                                <p>Latest Update ({{date('d-M-Y', strtotime($item['assetHeaderData']->updated_at))}}) : {{ $item['assetHeaderData']->remarks }}</p>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            @empty
-                                <p>No data available</p>
-                            @endforelse
+            <div class="row mb-4 border-bottom pb-3">
+                <!-- Carousel Section -->
+                <div class="col-md-4 text-center">
+                    <div id="carouselExampleControls{{ $index }}" class="carousel slide" data-bs-ride="carousel">
+                        <div class="carousel-inner">
+                            @php
+                                $imagePaths = $item['assetHeaderData']->img ? json_decode($item['assetHeaderData']->img) : [];
+                            @endphp
+                            @foreach($imagePaths as $key => $imagePath)
+                            <div class="carousel-item {{ $key == 0 ? 'active' : '' }}">
+                                <img src="{{ asset($imagePath) }}" class="d-block w-100 rounded" alt="Image {{ $key + 1 }}">
+                            </div>
+                            @endforeach
                         </div>
+                        <button class="carousel-control-prev" type="button" data-bs-target="#carouselExampleControls{{ $index }}" data-bs-slide="prev">
+                            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                            <span class="visually-hidden">Previous</span>
+                        </button>
+                        <button class="carousel-control-next" type="button" data-bs-target="#carouselExampleControls{{ $index }}" data-bs-slide="next">
+                            <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                            <span class="visually-hidden">Next</span>
+                        </button>
+                    </div>
+                    <h3 class="text-center mt-2">{{$item['assetHeaderData']->desc}}</h3>
+                </div>
+
+                <!-- Asset Details Section -->
+                @include('partials.asset-details', ['asset' => $item['assetHeaderData']])
+
+                <!-- Input and Signature Section -->
+                @include('partials.asset-inputs', ['asset' => $item['assetHeaderData'], 'index' => $index])
+            </div>
+        @empty
+            <p>No data available</p>
+        @endforelse
+
                     </div>
                 </div>
             </section>
