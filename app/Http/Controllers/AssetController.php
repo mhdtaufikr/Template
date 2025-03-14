@@ -711,7 +711,7 @@ public function assetPublic($id)
         // Redirect to the specified route with the ID
         return redirect()->route('asset.public.detail', ['id' => $id]);
     }
-
+/* as */
     // Fetch other data
     $assetDetailData = AssetDetail::where('asset_header_id', $assetHeaderData->id ?? 0)->get(); // Ensure we only query if $assetHeaderData is available
     $dropdownUom = Dropdown::where('category', 'UOM')->get();
