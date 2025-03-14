@@ -63,15 +63,13 @@
                                             <form action="{{ url('/audit/scan') }}" method="POST">
                                                 @csrf
                                                 <div class="modal-body">
-                                                    <div class="form-group mb-4">
-                                                        <label for="assetelect">Choose asset:</label>
-                                                        <select name="asset[]" id="assetelect" class="form-control chosen-select" data-placeholder="Choose asset..." multiple>
-                                                            <option value=""></option> <!-- Add an empty option -->
-                                                            @foreach($assetNo as $asset)
-                                                                <option value="{{ $asset }}">{{ $asset }}</option>
-                                                            @endforeach
-                                                        </select>
-                                                    </div>
+                                                <div class="form-group mb-4">
+                                                    <label for="assetSelect">Choose asset:</label>
+                                                    <select name="asset[]" id="assetSelect" class="form-control" multiple="multiple" style="width: 100%">
+                                                        <!-- Initial options will be loaded via AJAX -->
+                                                    </select>
+                                                </div>
+
 
 
                                                 </div>
@@ -195,26 +193,37 @@
   });
 </script>
 <script>
-    $(document).ready(function() {
-        // Populate options dynamically from PHP variable
-        var asset = @json($assetNo);
-
-        // Function to populate select options
-        function populateOptions() {
-            var select = $('#assetelect');
-            select.empty();
-            select.append('<option></option>'); // Add an empty option
-            asset.forEach(function(machine) {
-                select.append('<option value="' + machine + '">' + machine + '</option>');
-            });
-            // Initialize Chosen plugin
-            select.chosen();
-        }
-
-        // Call the function to populate options on page load
-        populateOptions();
+$(document).ready(function() {
+    $('#assetSelect').select2({
+        ajax: {
+            url: '/path/to/asset/query', // Modify this URL to your asset fetching route
+            dataType: 'json',
+            delay: 250, // Wait for 250 milliseconds after typing stops to send the request
+            data: function (params) {
+                return {
+                    search: params.term, // search term
+                    page: params.page || 1
+                };
+            },
+            processResults: function (data, params) {
+                // Parse the results into the format expected by Select2
+                params.page = params.page || 1;
+                return {
+                    results: data.items,
+                    pagination: {
+                        more: (params.page * 30) < data.total_count // Assuming 30 items per page
+                    }
+                };
+            },
+            cache: true
+        },
+        placeholder: 'Choose asset...',
+        minimumInputLength: 1, // Require at least one character before triggering AJAX
+        multiple: true
     });
+});
 </script>
+
 
 
 

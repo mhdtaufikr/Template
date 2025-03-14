@@ -83,6 +83,8 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/audit/store', [AuditController::class, 'auditStore']);
     Route::get('/audit/detail/{id}', [AuditController::class, 'auditDetail']);
     Route::get('/audit/pdf/{id}', [AuditController::class, 'auditPdf']);
+    Route::get('/path/to/asset/query', [AuditController::class, 'getAssets'])->name('assets.query');
+
 
 
     //Dropdown Controller

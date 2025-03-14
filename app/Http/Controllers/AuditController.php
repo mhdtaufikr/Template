@@ -216,7 +216,29 @@ private function saveBase64Image($base64_image, $type)
         return $pdf->download('audit_' . $id . '.pdf');
     }
 
-
+    public function getAssets(Request $request)
+    {
+        $search = $request->search;
+        $page = $request->page;
+        $query = AssetHeader::query();
+    
+        if ($search) {
+            $query->where('asset_no', 'like', "%{$search}%");
+        }
+    
+        $assets = $query->paginate(30); // Adjust the pagination as necessary
+    
+        // Format for Select2
+        $response = [
+            'total_count' => $assets->total(),
+            'items' => $assets->map(function ($asset) {
+                return ['id' => $asset->asset_no, 'text' => $asset->asset_no];
+            })
+        ];
+    
+        return response()->json($response);
+    }
+    
 
 
 

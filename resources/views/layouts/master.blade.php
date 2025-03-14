@@ -49,6 +49,13 @@
          <!-- Include Chart CSS -->
          <script src="{{asset('canvasjs.min.js')}}"></script>
 
+         <!-- Include Select2 CSS -->
+<link href="https://cdn.jsdelivr.net/npm/select2@4.0.13/dist/css/select2.min.css" rel="stylesheet" />
+
+<!-- Include Select2 JS -->
+<script src="https://cdn.jsdelivr.net/npm/select2@4.0.13/dist/js/select2.min.js"></script>
+
+
         <!-- Include Chosen JS -->
         <script src="{{asset('chosen/chosen.jquery.min.js')}}"></script>
 
