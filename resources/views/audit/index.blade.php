@@ -123,15 +123,18 @@
                                                                     <a href="audit/detail/{{ encrypt($data->id) }}" class="btn btn-primary btn-sm" title="Detail">
                                                                         <i class="fas fa-info"></i>
                                                                     </a>
+                                                                    <a href="audit/edit/{{ encrypt($data->id) }}" class="btn btn-warning btn-sm" title="Edit">
+                                                                        <i class="fas fa-edit"></i>
+                                                                    </a>
                                                                     <button title="Delete" class="btn btn-danger btn-sm" data-bs-toggle="modal" data-bs-target="#modal-delete{{ $data->id }}">
                                                                         <i class="fas fa-trash-alt"></i>
                                                                     </button>
-                                                                    <a href="audit/pdf/{{ encrypt($data->id) }}" class="btn btn-success btn-sm" title="Detail">
+                                                                    <a href="audit/pdf/{{ encrypt($data->id) }}" class="btn btn-success btn-sm" title="Download PDF">
                                                                         <i class="far fa-file-pdf"></i>
                                                                     </a>
                                                                 </div>
-
                                                             </td>
+
                                                         </tr>
                                                         @endforeach
                                                     </tbody>

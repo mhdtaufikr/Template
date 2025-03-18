@@ -32,7 +32,8 @@ class AuditController extends Controller
 {
    public function index(){
     $assetNo = AssetHeader::pluck('asset_no');
-    $item = Audit::get();
+    $item = Audit::orderBy('created_at', 'desc')->get();
+
     return view('audit.index', compact('assetNo','item'));
    }
 
@@ -201,6 +202,54 @@ private function saveBase64Image($base64_image, $type)
         return view('audit.detail', compact('data'));
     }
 
+    public function edit($id)
+{
+    $id = decrypt($id);
+
+    // Fetch the audit record with its details
+    $audit = Audit::select('id', 'audit_no', 'signature_aud', 'signature_ctl')
+                  ->findOrFail($id);
+
+    // Fetch audit details (only signature & asset ID)
+    $auditDetails = AuditDetail::where('audit_id', $audit->id)
+                  ->select('id', 'asset_id', 'signature')
+                  ->get();
+
+    // Initialize data array for assets
+    $data = [];
+
+    // Fetch asset information for each asset in audit details
+    foreach ($auditDetails as $detail) {
+        $asset = AssetHeader::where('asset_no', $detail->asset_id)->first();
+
+        if ($asset) {
+            $data[] = [
+                'assetHeaderData' => $asset,
+                'assetDetailData' => AssetDetail::where('asset_header_id', $asset->id)->get(),
+                'auditDetail' => $detail
+            ];
+        }
+    }
+
+    // Fetch dropdown options
+    $dropdownUom = Dropdown::where('category', 'UOM')->get();
+    $assetCategory = AssetCategory::all();
+    $locHeader = LocHeader::orderBy('name')->get();
+    $locDetail = LocDetail::orderBy('name')->get();
+    $dept = Department::all();
+    $status = Dropdown::where('category', 'Status')->get();
+
+    return view('audit.edit', compact(
+        'audit', 'auditDetails', 'data',
+        'dropdownUom', 'assetCategory', 'locHeader', 'locDetail', 'dept', 'status'
+    ));
+}
+
+
+
+
+
+
     public function auditPdf($id)
     {
         $id = decrypt($id);
@@ -221,13 +270,13 @@ private function saveBase64Image($base64_image, $type)
         $search = $request->search;
         $page = $request->page;
         $query = AssetHeader::query();
-    
+
         if ($search) {
             $query->where('asset_no', 'like', "%{$search}%");
         }
-    
+
         $assets = $query->paginate(30); // Adjust the pagination as necessary
-    
+
         // Format for Select2
         $response = [
             'total_count' => $assets->total(),
@@ -235,10 +284,95 @@ private function saveBase64Image($base64_image, $type)
                 return ['id' => $asset->asset_no, 'text' => $asset->asset_no];
             })
         ];
-    
+
         return response()->json($response);
     }
-    
+
+    public function update(Request $request, $id)
+    {
+        $id = decrypt($id);
+
+        DB::beginTransaction();
+        try {
+            $audit = Audit::findOrFail($id);
+
+            // ✅ Update audit signatures (Convert base64 to images)
+            $audit->update([
+                'signature_ctl' => $this->saveBase64Image($request->input('controlling_signature'), 'signature'),
+                'signature_aud' => $this->saveBase64Image($request->input('audit_signature'), 'signature'),
+            ]);
+
+            // ✅ Update audit details (assets)
+            foreach ($request->input('asset_signatures', []) as $detailId => $signature) {
+                // Get corresponding audit detail
+                $auditDetail = AuditDetail::findOrFail($detailId);
+
+                // ✅ Update signature
+                $auditDetail->update([
+                    'signature' => $this->saveBase64Image($signature, 'signature')
+                ]);
+            }
+
+            // ✅ Update condition, availability, and remarks (if provided)
+            foreach ($request->input('condition', []) as $asset_id => $condition) {
+                $auditDetail = AuditDetail::where('audit_id', $audit->id)
+                    ->where('asset_id', $asset_id)
+                    ->first();
+
+                if ($auditDetail) {
+                    $auditDetail->update([
+                        'condition' => $condition ?? $auditDetail->condition, // Keep existing if null
+                        'availability' => $request->input('availability')[$asset_id] ?? $auditDetail->availability,
+                        'remark' => $request->input('remarks')[$asset_id] ?? $auditDetail->remark,
+                    ]);
+                }
+            }
+
+            // ✅ Handle image uploads (Preserve previous images & append new ones)
+            foreach ($request->input('img_hidden', []) as $asset_id => $files) {
+                $auditDetail = AuditDetail::where('audit_id', $audit->id)
+                    ->where('asset_id', $asset_id)
+                    ->first();
+
+                if ($auditDetail) {
+                    $img_paths = json_decode($auditDetail->img, true) ?? []; // Preserve existing images
+
+                    foreach ($files as $file) {
+                        if ($file instanceof \Illuminate\Http\UploadedFile) {
+                            $file_name = uniqid() . '_' . $file->getClientOriginalName();
+                            $destination_path = public_path('images/audit');
+
+                            // Ensure directory exists
+                            if (!file_exists($destination_path)) {
+                                mkdir($destination_path, 0755, true);
+                            }
+
+                            // Move the file
+                            $file->move($destination_path, $file_name);
+                            $img_paths[] = 'images/audit/' . $file_name; // Store path
+                        }
+                    }
+
+                    // ✅ Update image field in the database
+                    $auditDetail->update([
+                        'img' => !empty($img_paths) ? json_encode($img_paths) : $auditDetail->img,
+                    ]);
+                }
+            }
+
+            DB::commit();
+            return redirect()->route('audits.index')->with('status', 'Audit updated successfully.');
+        } catch (\Exception $e) {
+            DB::rollback();
+            \Log::error('Failed to update audit: ' . $e->getMessage());
+
+            return redirect()->route('audit.edit', encrypt($id))->with('failed', 'Failed to update audit.');
+        }
+    }
+
+
+
+
 
 
 

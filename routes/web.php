@@ -84,6 +84,9 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/audit/detail/{id}', [AuditController::class, 'auditDetail']);
     Route::get('/audit/pdf/{id}', [AuditController::class, 'auditPdf']);
     Route::get('/path/to/asset/query', [AuditController::class, 'getAssets'])->name('assets.query');
+    Route::get('/audit/edit/{id}', [AuditController::class, 'edit'])->name('audit.edit');
+    Route::put('/audit/update/{id}', [AuditController::class, 'update'])->name('audit.update');
+
 
 
 
