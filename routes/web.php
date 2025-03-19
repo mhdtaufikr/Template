@@ -33,7 +33,7 @@ Route::get('/logout', [AuthController::class, 'logout']);
 Route::post('request/access', [AuthController::class, 'requestAccess']);
 
 //public Detail
-Route::get('mkm/{id}', [AssetController::class,'assetPublic']);
+Route::get('mkm/{id}', [AssetController::class,'assetPublic'])->name('asset.public');;
 Route::get('mkm/dtl/{id}', [AssetController::class,'assetPublicDtl'])->name('asset.public.detail');
 Route::post('/asset/add/image', [AssetController::class, 'addImage']);
 Route::post('/asset/delete/image', [AssetController::class, 'deleteImage'])->name('asset.delete.image');

@@ -737,12 +737,18 @@ public function assetPublic($id)
 }
 
 
-    public function assetPublicDtl($id){
+public function assetPublicDtl($id)
+{
+    $assetDetailData = AssetDetail::where('id', $id)->first();
 
-        $assetDetailData = AssetDetail::where('id', $id)->first();
-        return view('public.assetdtl', compact('assetDetailData'));
-
+    // If asset detail is not found
+    if (!$assetDetailData) {
+        return redirect()->route('asset.public', ['id' => $id]);
     }
+
+    return view('public.assetdtl', compact('assetDetailData'));
+}
+
 
     public function searchBy(Request $request)
 {
