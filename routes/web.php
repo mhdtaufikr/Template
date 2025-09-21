@@ -1,5 +1,6 @@
 <?php
 
+
 use Illuminate\Support\Facades\Route;
 
 use App\Http\Controllers\AuthController;
@@ -7,6 +8,12 @@ use App\Http\Controllers\HomeController;
 use App\Http\Controllers\DropdownController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\RulesController;
+use App\Http\Controllers\AssetCategoryController;
+use App\Http\Controllers\CostCenterController;
+use App\Http\Controllers\DepartmentController;
+use App\Http\Controllers\LocationController;
+use App\Http\Controllers\AssetController;
+use App\Http\Controllers\AuditController;
 
 /*
 |--------------------------------------------------------------------------
@@ -23,22 +30,77 @@ use App\Http\Controllers\RulesController;
 Route::get('/', [AuthController::class, 'login'])->name('login');
 Route::post('/auth/login', [AuthController::class, 'postLogin']);
 Route::get('/logout', [AuthController::class, 'logout']);
+Route::post('request/access', [AuthController::class, 'requestAccess']);
+
+//public Detail
+Route::get('mkm/{id}', [AssetController::class,'assetPublic'])->name('asset.public');;
+Route::get('mkm/dtl/{id}', [AssetController::class,'assetPublicDtl'])->name('asset.public.detail');
+Route::post('/asset/add/image', [AssetController::class, 'addImage']);
+Route::post('/asset/delete/image', [AssetController::class, 'deleteImage'])->name('asset.delete.image');
+// Route for adding an image to the asset detail
+Route::post('/asset/details/{id}/add-image', [AssetController::class, 'addAssetDetailImage'])->name('asset.add.image');
+
+// Route for deleting an image from the asset detail
+Route::post('/asset/details/delete-image', [AssetController::class, 'deleteAssetDetailImage'])->name('asset.delete.image');
 
 Route::middleware(['auth'])->group(function () {
     //Home Controller
     Route::get('/home', [HomeController::class, 'index']);
 
-     //Dropdown Controller
-     Route::get('/dropdown', [DropdownController::class, 'index'])->middleware(['checkRole:Super Admin']);
-     Route::post('/dropdown/store', [DropdownController::class, 'store'])->middleware(['checkRole:Super Admin']);
-     Route::patch('/dropdown/update/{id}', [DropdownController::class, 'update'])->middleware(['checkRole:Super Admin']);
-     Route::delete('/dropdown/delete/{id}', [DropdownController::class, 'delete'])->middleware(['checkRole:Super Admin']);
- 
-     //Rules Controller
-     Route::get('/rule', [RulesController::class, 'index'])->middleware(['checkRole:Super Admin']);
-     Route::post('/rule/store', [RulesController::class, 'store'])->middleware(['checkRole:Super Admin']);
-     Route::patch('/rule/update/{id}', [RulesController::class, 'update'])->middleware(['checkRole:Super Admin']);
-     Route::delete('/rule/delete/{id}', [RulesController::class, 'delete'])->middleware(['checkRole:Super Admin']);
+    //Home Controller
+    Route::get('/asset', [AssetController::class, 'index']);
+    Route::post('/asset/store', [AssetController::class,'store']);
+    Route::patch('/asset/update/{id}', [AssetController::class,'update']);
+    Route::get('/asset/detail/{id}', [AssetController::class, 'detail'])->name('detail');
+    Route::post('/asset/status/{id}', [AssetController::class,'status']);
+    Route::delete('/asset/delete/{id}', [AssetController::class, 'delete']);
+    Route::post('/asset/detail/store', [AssetController::class,'detailStore']);
+    Route::patch('/asset/detail/update/{id}', [AssetController::class,'detailUpdate']);
+    Route::delete('/asset/detail/delete/{id}', [AssetController::class, 'detailDelete']);
+    Route::post('/asset/status/detail/{id_header}/{id}', [AssetController::class,'statusDetail']);
+    Route::get('/download/excel/format', [AssetController::class, 'excelFormat']);
+    Route::get('/download/excel/format/bulk', [AssetController::class, 'excelFormatBulk']);
+    Route::get('/download/excel/format/detail', [AssetController::class, 'excelFormatDetail']);
+    Route::post('/asset/import', [AssetController::class, 'excelData']);
+    Route::get('/asset/qr', [AssetController::class,'generateQRCodesAndReturnPDF']);
+    Route::get('/asset/qr/detail/{id}', [AssetController::class, 'generateQRCodesDetailAndReturnPDF']);
+    route::get('/asset/search', [AssetController::class,'searchBy']);
+    Route::post('/asset/detail/import/{id}', [AssetController::class, 'excelDataDetail']);
+    Route::get('/asset/export', [AssetController::class, 'exportToExcel']);
+    Route::get('/download/excel/format/search', [AssetController::class, 'excelFormatDetailSearch']);
+    Route::post('/asset/search/no', [AssetController::class, 'searchBulkAsset']);
+    Route::get('/asset/search/multiple', [AssetController::class, 'searchMultiple']);
+
+
+    Route::post('/asset/qr/bulk', [AssetController::class, 'qrBulk']);
+
+
+    Route::get('/temporary/qr', [AssetController::class, 'temporaryQR']);
+
+    //Audit Controller
+    Route::get('/audit', [AuditController::class, 'index'])->name('audits.index');
+    Route::post('/audit/scan', [AuditController::class, 'scanAudit']);
+    Route::post('/audit/store', [AuditController::class, 'auditStore']);
+    Route::get('/audit/detail/{id}', [AuditController::class, 'auditDetail']);
+    Route::get('/audit/pdf/{id}', [AuditController::class, 'auditPdf']);
+    Route::get('/path/to/asset/query', [AuditController::class, 'getAssets'])->name('assets.query');
+    Route::get('/audit/edit/{id}', [AuditController::class, 'edit'])->name('audit.edit');
+    Route::put('/audit/update/{id}', [AuditController::class, 'update'])->name('audit.update');
+
+
+
+
+    //Dropdown Controller
+    Route::get('/dropdown', [DropdownController::class, 'index'])->middleware(['checkRole:Super Admin']);
+    Route::post('/dropdown/store', [DropdownController::class, 'store'])->middleware(['checkRole:Super Admin']);
+    Route::patch('/dropdown/update/{id}', [DropdownController::class, 'update'])->middleware(['checkRole:Super Admin']);
+    Route::delete('/dropdown/delete/{id}', [DropdownController::class, 'delete'])->middleware(['checkRole:Super Admin']);
+
+    //Rules Controller
+    Route::get('/rule', [RulesController::class, 'index'])->middleware(['checkRole:Super Admin']);
+    Route::post('/rule/store', [RulesController::class, 'store'])->middleware(['checkRole:Super Admin']);
+    Route::patch('/rule/update/{id}', [RulesController::class, 'update'])->middleware(['checkRole:Super Admin']);
+    Route::delete('/rule/delete/{id}', [RulesController::class, 'delete'])->middleware(['checkRole:Super Admin']);
 
     //User Controller
     Route::get('/user', [UserController::class, 'index'])->middleware(['checkRole:Super Admin']);
@@ -47,4 +109,34 @@ Route::middleware(['auth'])->group(function () {
     Route::patch('/user/update/{user}', [UserController::class, 'update'])->middleware(['checkRole:Super Admin']);
     Route::get('/user/revoke/{user}', [UserController::class, 'revoke'])->middleware(['checkRole:Super Admin']);
     Route::get('/user/access/{user}', [UserController::class, 'access'])->middleware(['checkRole:Super Admin']);
+
+    //Asset Controller
+    Route::get('/asset_category', [AssetCategoryController::class, 'index'])->middleware(['checkRole:Super Admin']);
+    Route::post('/asset_category/store', [AssetCategoryController::class, 'store'])->middleware(['checkRole:Super Admin']);
+    Route::patch('/asset_category/update/{id}', [AssetCategoryController::class, 'update'])->middleware(['checkRole:Super Admin']);
+    Route::delete('/asset_category/delete/{id}', [AssetCategoryController::class, 'delete'])->middleware(['checkRole:Super Admin']);
+
+    //CostCenter Controller
+    Route::get('/cost_center', [CostCenterController::class, 'index'])->middleware(['checkRole:Super Admin']);
+    Route::post('/cost_center/store', [CostCenterController::class, 'store'])->middleware(['checkRole:Super Admin']);
+    Route::patch('/cost_center/update/{id}', [CostCenterController::class, 'update'])->middleware(['checkRole:Super Admin']);
+    Route::delete('/cost_center/delete/{id}', [CostCenterController::class, 'delete'])->middleware(['checkRole:Super Admin']);
+
+    //Department Controller
+    Route::get('/department', [DepartmentController::class, 'index'])->middleware(['checkRole:Super Admin']);
+    Route::post('/department/store', [DepartmentController::class, 'store'])->middleware(['checkRole:Super Admin']);
+    Route::patch('/department/update/{id}', [DepartmentController::class, 'update'])->middleware(['checkRole:Super Admin']);
+    Route::delete('/department/delete/{id}', [DepartmentController::class, 'delete'])->middleware(['checkRole:Super Admin']);
+
+    //Location Controller
+    Route::get('/location', [LocationController::class, 'index'])->middleware(['checkRole:Super Admin']);
+    Route::post('/location/store', [LocationController::class, 'store'])->middleware(['checkRole:Super Admin']);
+    Route::patch('/location/update/{id}', [LocationController::class, 'update'])->middleware(['checkRole:Super Admin']);
+    Route::delete('/location/delete/{id}', [LocationController::class, 'delete'])->middleware(['checkRole:Super Admin']);
+
+    Route::get('/location/detail/{id}', [LocationController::class, 'detail'])->middleware(['checkRole:Super Admin']);
+    Route::post('/location/detail/store/{id}', [LocationController::class, 'storeDetail'])->middleware(['checkRole:Super Admin']);
+    Route::patch('/location/detail/update/{id}', [LocationController::class, 'updateDetail'])->middleware(['checkRole:Super Admin']);
+    Route::delete('/location/detail/delete/{id}', [LocationController::class, 'deleteDetail'])->middleware(['checkRole:Super Admin']);
+
 });

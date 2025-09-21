@@ -1,9 +1,14 @@
 <!DOCTYPE html>
 <html lang="en">
     <head>
+        <!-- PWA  -->
+        <meta name="theme-color" content="#6777ef"/>
+        <link rel="apple-touch-icon" href="{{ asset('logo.png') }}">
+        <link rel="manifest" href="{{ asset('/manifest.json') }}">
         <meta charset="utf-8" />
         <meta http-equiv="X-UA-Compatible" content="IE=edge" />
         <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+        <meta name="apple-mobile-web-app-capable" content="yes">
         <meta name="description" content="" />
         <meta name="author" content="" />
         <title>MKM Asset Management</title>
@@ -34,17 +39,63 @@
         <script src="{{ asset('plugins/datatables-buttons/js/buttons.colVis.min.js') }}"></script>
         <script src="{{ url('https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.18.1/moment.min.js') }}"></script>
         <script src="{{ url('https://cdn.datatables.net/datetime/1.1.1/js/dataTables.dateTime.min.js') }}"></script>
+
+         <!-- Include cleave.js -->
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/cleave.js/1.6.0/cleave.min.js"></script>
+
+         <!-- Include Chosen CSS -->
+         <link href="{{asset('chosen/chosen.min.css')}}" rel="stylesheet" />
+
+         <!-- Include Chart CSS -->
+         <script src="{{asset('canvasjs.min.js')}}"></script>
+
+         <!-- Include Select2 CSS -->
+<link href="https://cdn.jsdelivr.net/npm/select2@4.0.13/dist/css/select2.min.css" rel="stylesheet" />
+
+<!-- Include Select2 JS -->
+<script src="https://cdn.jsdelivr.net/npm/select2@4.0.13/dist/js/select2.min.js"></script>
+
+
+        <!-- Include Chosen JS -->
+        <script src="{{asset('chosen/chosen.jquery.min.js')}}"></script>
+
     </head>
-    <body class="nav-fixed">
+    <body class="nav-fixed sidenav-toggled">
         @include('layouts.includes._topbar')
             <div id="layoutSidenav">
                 @include('layouts.includes._sidebar')
                     <div id="layoutSidenav_content">
                         @yield('content')
-                        @include('layouts.includes._footer')
+                        <footer class="footer-admin mt-auto footer-light">
+                            <div class="container-xl px-4">
+                                <div class="row">
+                                    <div class="col-md-6 small"></div>
+                                    <div class="col-md-6 text-md-end small">
+                                     Copyright PT Mitsubishi Krama Yudha Motors and Manufacturing&copy; 2023
+                                    </div>
+                                </div>
+                            </div>
+                        </footer>
                     </div>
             </div>
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.1/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
         <script src={{asset('assets/js/scripts.js')}} ></script>
+        <script src="{{ asset('/sw.js') }}"></script>
+<script>
+   if ("serviceWorker" in navigator) {
+      // Register a service worker hosted at the root of the
+      // site using the default scope.
+      navigator.serviceWorker.register("/sw.js").then(
+      (registration) => {
+         console.log("Service worker registration succeeded:", registration);
+      },
+      (error) => {
+         console.error(`Service worker registration failed: ${error}`);
+      },
+    );
+  } else {
+     console.error("Service workers are not supported.");
+  }
+</script>
     </body>
 </html>

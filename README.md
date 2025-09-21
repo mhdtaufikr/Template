@@ -37,6 +37,8 @@ php artisan migrate
 
 # Seed the database tables
 php artisan db:seed
+php artisan db:seed --class=UsersTableSeeder
+php artisan db:seed --class=DropdownsTableSeeder
 ```
 
 ## Running the Application
