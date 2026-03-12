@@ -106,39 +106,35 @@
                                                         </tr>
                                                     </thead>
                                                     <tbody>
-                                                        @php
-                                                        $no = 1;
-                                                        @endphp
-                                                   @foreach ($item as $data)
-                                                   <tr class="audit-row" style="cursor:pointer;"
-                                                       data-audit="{{ $data->audit_no }}"
-                                                       data-assets="{{ $assets->toJson() }}">
-                                                       <td>{{ $no++ }}</td>
-                                                       <td>{{ $data->audit_no }}</td>
-                                                       <td>{{ $data->audit_date }}</td>
-                                                       <td>{{ $data->user->name ?? 'Unknown' }}</td>
-                                                       <td>
-                                                           <div class="btn-group">
-                                                               <a href="audit/detail/{{ encrypt($data->id) }}" class="btn btn-primary btn-sm" title="Detail">
-                                                                   <i class="fas fa-info"></i>
-                                                               </a>
-                                                               <a href="audit/edit/{{ encrypt($data->id) }}" class="btn btn-warning btn-sm" title="Edit">
-                                                                   <i class="fas fa-edit"></i>
-                                                               </a>
-                                                               <button title="Delete" class="btn btn-danger btn-sm"
-                                                                   data-bs-toggle="modal" data-bs-target="#modal-delete{{ $data->id }}">
-                                                                   <i class="fas fa-trash-alt"></i>
-                                                               </button>
-                                                               <a href="audit/pdf/{{ encrypt($data->id) }}" class="btn btn-success btn-sm" title="Download PDF">
-                                                                   <i class="far fa-file-pdf"></i>
-                                                               </a>
-                                                           </div>
-                                                       </td>
-                                                   </tr>
-                                                   @endforeach
-
+                                                        @php $no = 1; @endphp
+                                                        @foreach ($item as $data)
+                                                        <tr class="audit-row" style="cursor:pointer;" data-audit="{{ $data->audit_no }}">
+                                                            <td>{{ $no++ }}</td>
+                                                            <td>{{ $data->audit_no }}</td>
+                                                            <td>{{ $data->audit_date }}</td>
+                                                            <td>{{ $data->user->name ?? 'Unknown' }}</td>
+                                                            <td>
+                                                                <div class="btn-group">
+                                                                    <a href="audit/detail/{{ encrypt($data->id) }}" class="btn btn-primary btn-sm" title="Detail">
+                                                                        <i class="fas fa-info"></i>
+                                                                    </a>
+                                                                    <a href="audit/edit/{{ encrypt($data->id) }}" class="btn btn-warning btn-sm" title="Edit">
+                                                                        <i class="fas fa-edit"></i>
+                                                                    </a>
+                                                                    <button title="Delete" class="btn btn-danger btn-sm"
+                                                                        data-bs-toggle="modal" data-bs-target="#modal-delete{{ $data->id }}">
+                                                                        <i class="fas fa-trash-alt"></i>
+                                                                    </button>
+                                                                    <a href="audit/pdf/{{ encrypt($data->id) }}" class="btn btn-success btn-sm" title="Download PDF">
+                                                                        <i class="far fa-file-pdf"></i>
+                                                                    </a>
+                                                                </div>
+                                                            </td>
+                                                        </tr>
+                                                        @endforeach
                                                     </tbody>
                                                 </table>
+
                                             </div>
                                         </div>
                                     </div>
@@ -196,11 +192,14 @@
             "responsive": true,
             "lengthChange": false,
             "autoWidth": false,
+            // "buttons": ["copy", "csv", "excel", "pdf", "print", "colvis"]
         });
 
+        var assetCache = null;
+
         function buildAssetTable(assets) {
-            let statusColor = { active: 'success', inactive: 'danger', disposed: 'secondary' };
-            let rows = assets.map((a, i) => `
+            const statusColor = { active: 'success', inactive: 'danger', disposed: 'secondary' };
+            const rows = assets.map((a, i) => `
                 <tr>
                     <td>${i + 1}</td>
                     <td><span class="badge bg-secondary">${a.asset_no ?? '-'}</span></td>
@@ -231,25 +230,40 @@
             `;
         }
 
-        // Double click handler via DataTables API
+        function showChildRow(tr, row) {
+            if (assetCache) {
+                row.child(buildAssetTable(assetCache)).show();
+                tr.addClass('shown');
+            } else {
+                row.child('<div class="p-3 text-muted"><i class="fas fa-spinner fa-spin me-1"></i> Loading assets...</div>').show();
+                tr.addClass('shown');
+
+                $.get('{{ url("audit/asset-list") }}', function (data) {
+                    assetCache = data;
+                    if (row.child.isShown()) {
+                        row.child(buildAssetTable(data)).show();
+                    }
+                });
+            }
+        }
+
         $('#tableUser tbody').on('dblclick', 'tr.audit-row', function (e) {
             if ($(e.target).closest('.btn-group').length) return;
 
-            var tr   = $(this);
-            var row  = table.row(tr);
+            var tr  = $(this);
+            var row = table.row(tr);
 
             if (row.child.isShown()) {
                 row.child.hide();
                 tr.removeClass('shown');
             } else {
-                var assets = JSON.parse(tr.attr('data-assets') || '[]');
-                row.child(buildAssetTable(assets)).show();
-                tr.addClass('shown');
+                showChildRow(tr, row);
             }
         });
 
     });
     </script>
+
 
 <script>
     $(document).ready(function() {
