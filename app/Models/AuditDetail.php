@@ -15,8 +15,8 @@ class AuditDetail extends Model
 
 
    // Di AuditDetail model, pastikan foreign key & owner key benar
-public function asset(){
-    return $this->belongsTo(AssetHeader::class, 'asset_id', 'id');
+   public function asset(){
+    return $this->belongsTo(AssetHeader::class, 'asset_id', 'asset_no');
 }
 
 
