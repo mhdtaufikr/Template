@@ -262,7 +262,7 @@ $(document).ready(function () {
         });
     }
 
-    $('#tableUser tbody').on('dblclick', 'tr.audit-row', function (e) {
+    $('#tableUser tbody').on('click', 'tr.audit-row', function (e) {
         if ($(e.target).closest('.btn-group').length) return;
 
         var tr  = $(this);
