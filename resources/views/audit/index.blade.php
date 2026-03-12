@@ -217,7 +217,7 @@ $(document).ready(function () {
                 <tr>
                     <td>${i + 1}</td>
                     <td><span class="badge bg-secondary">${a.asset_no ?? '-'}</span></td>
-                    <td>${a.desc ?? '-'}</td>
+                   <td>${a.desc ?? '-'}</td>
                     <td>${a.dept ?? '-'}</td>
                     <td>${a.loc ?? '-'}</td>
                     <td>${d.condition ?? '-'}</td>

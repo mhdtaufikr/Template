@@ -36,11 +36,14 @@ class AuditController extends Controller
     }
 
     public function assetList($auditId){
-        $assets = AuditDetail::with('asset')
+        $assets = AuditDetail::with(['asset' => function($q){
+                        $q->select('id', 'asset_no', 'desc', 'qty', 'uom', 'asset_type', 'dept', 'loc', 'status');
+                    }])
                     ->where('audit_id', $auditId)
                     ->get();
         return response()->json($assets);
     }
+
 
 
 
