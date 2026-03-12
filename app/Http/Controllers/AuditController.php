@@ -30,12 +30,14 @@ use Illuminate\Support\Facades\Auth;
 
 class AuditController extends Controller
 {
-   public function index(){
-    $assetNo = AssetHeader::pluck('asset_no');
-    $item = Audit::orderBy('created_at', 'desc')->get();
+    public function index(){
+        $assetNo = AssetHeader::pluck('asset_no');
+        $assets  = AssetHeader::select('asset_no','desc','qty','uom','asset_type','dept','loc','status')->get();
+        $item    = Audit::orderBy('created_at', 'desc')->get();
 
-    return view('audit.index', compact('assetNo','item'));
-   }
+        return view('audit.index', compact('assetNo', 'assets', 'item'));
+    }
+
 
    public function scanAudit(Request $request){
     $data = [];
