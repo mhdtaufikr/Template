@@ -31,12 +31,14 @@ use Illuminate\Support\Facades\Auth;
 class AuditController extends Controller
 {
     public function index(){
-        $item = Audit::orderBy('created_at', 'desc')->get();
+        $item = Audit::with('user')->orderBy('created_at', 'desc')->get();
         return view('audit.index', compact('item'));
     }
 
-    public function assetList(){
-        $assets = AssetHeader::select('asset_no','desc','qty','uom','asset_type','dept','loc','status')->get();
+    public function assetList($auditId){
+        $assets = AuditDetail::with('asset')
+                    ->where('audit_id', $auditId)
+                    ->get();
         return response()->json($assets);
     }
 

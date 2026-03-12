@@ -13,13 +13,12 @@ class AuditDetail extends Model
         'id'
     ];
 
-    public function audit()
-    {
-        return $this->belongsTo(Audit::class);
+
+    public function asset(){
+        return $this->belongsTo(AssetHeader::class, 'asset_id');
     }
 
-    public function asset()
-    {
-        return $this->belongsTo(Asset::class);
+    public function audit(){
+        return $this->belongsTo(Audit::class, 'audit_id');
     }
 }

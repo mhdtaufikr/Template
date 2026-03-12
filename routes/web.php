@@ -86,7 +86,8 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/path/to/asset/query', [AuditController::class, 'getAssets'])->name('assets.query');
     Route::get('/audit/edit/{id}', [AuditController::class, 'edit'])->name('audit.edit');
     Route::put('/audit/update/{id}', [AuditController::class, 'update'])->name('audit.update');
-    Route::get('audit/asset-list', [AuditController::class, 'assetList']); // ganti ini
+    Route::get('audit/asset-list/{auditId}', [AuditController::class, 'assetList']);
+
 
 
 
