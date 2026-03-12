@@ -266,27 +266,29 @@ private function saveBase64Image($base64_image, $type)
     }
 
     public function getAssets(Request $request)
-    {
-        $search = $request->search;
-        $page = $request->page;
-        $query = AssetHeader::query();
+{
+    $search = $request->get('search', '');
+    $page   = $request->get('page', 1);
+    $perPage = 30;
 
-        if ($search) {
-            $query->where('asset_no', 'like', "%{$search}%");
-        }
+    $query = AssetHeader::where('asset_no', 'like', "%{$search}%");
 
-        $assets = $query->paginate(30); // Adjust the pagination as necessary
+    $total = $query->count();
+    $assets = $query->offset(($page - 1) * $perPage)
+                    ->limit($perPage)
+                    ->get();
 
-        // Format for Select2
-        $response = [
-            'total_count' => $assets->total(),
-            'items' => $assets->map(function ($asset) {
-                return ['id' => $asset->asset_no, 'text' => $asset->asset_no];
-            })
-        ];
+    $items = $assets->map(fn($a) => [
+        'id'   => $a->asset_no,
+        'text' => $a->asset_no,
+    ]);
 
-        return response()->json($response);
-    }
+    return response()->json([
+        'items'       => $items,
+        'total_count' => $total,
+    ]);
+}
+
 
     public function update(Request $request, $id)
     {

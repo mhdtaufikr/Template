@@ -196,36 +196,36 @@
   });
 </script>
 <script>
-$(document).ready(function() {
-    $('#assetSelect').select2({
-        ajax: {
-            url: '/path/to/asset/query', // Modify this URL to your asset fetching route
-            dataType: 'json',
-            delay: 250, // Wait for 250 milliseconds after typing stops to send the request
-            data: function (params) {
-                return {
-                    search: params.term, // search term
-                    page: params.page || 1
-                };
+    $(document).ready(function() {
+        $('#assetSelect').select2({
+            ajax: {
+                url: '{{ route("assets.query") }}', // ✅ using route name
+                dataType: 'json',
+                delay: 250,
+                data: function (params) {
+                    return {
+                        search: params.term,
+                        page: params.page || 1
+                    };
+                },
+                processResults: function (data, params) {
+                    params.page = params.page || 1;
+                    return {
+                        results: data.items,
+                        pagination: {
+                            more: (params.page * 30) < data.total_count
+                        }
+                    };
+                },
+                cache: true
             },
-            processResults: function (data, params) {
-                // Parse the results into the format expected by Select2
-                params.page = params.page || 1;
-                return {
-                    results: data.items,
-                    pagination: {
-                        more: (params.page * 30) < data.total_count // Assuming 30 items per page
-                    }
-                };
-            },
-            cache: true
-        },
-        placeholder: 'Choose asset...',
-        minimumInputLength: 1, // Require at least one character before triggering AJAX
-        multiple: true
+            placeholder: 'Choose asset...',
+            minimumInputLength: 1,
+            multiple: true
+        });
     });
-});
-</script>
+    </script>
+
 
 
 
