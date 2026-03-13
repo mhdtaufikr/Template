@@ -87,6 +87,7 @@
                                                             <th>No</th>
                                                             <th>Audit No.</th>
                                                             <th>Audit Date</th>
+                                                            <th>Dept</th>          {{-- ← TAMBAH INI --}}
                                                             <th>Created By</th>
                                                             <th>Action</th>
                                                         </tr>
@@ -94,6 +95,16 @@
                                                     <tbody>
                                                         @php $no = 1; @endphp
                                                         @foreach ($item as $data)
+
+                                                        {{-- Ambil dept dari detail pertama yang punya asset --}}
+                                                        @php
+                                                            $firstDept = $data->auditDetails
+                                                                ->whereNotNull('asset')
+                                                                ->first()
+                                                                ?->asset
+                                                                ?->dept ?? '-';
+                                                        @endphp
+
                                                         <tr class="audit-row"
                                                             style="cursor:pointer;"
                                                             data-id="{{ $data->id }}"
@@ -101,6 +112,7 @@
                                                             <td>{{ $no++ }}</td>
                                                             <td>{{ $data->audit_no }}</td>
                                                             <td>{{ $data->audit_date }}</td>
+                                                            <td>{{ $firstDept }}</td>    {{-- ← TAMPIL DEPT --}}
                                                             <td>{{ $data->user->name ?? 'Unknown' }}</td>
                                                             <td>
                                                                 <div class="btn-group">
@@ -123,6 +135,7 @@
                                                         @endforeach
                                                     </tbody>
                                                 </table>
+
                                             </div>
                                         </div>
                                     </div>

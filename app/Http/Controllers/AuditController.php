@@ -26,14 +26,22 @@ use App\Imports\AssetDetailImport;
 use Illuminate\Support\Facades\View;
 use App\Models\Rule;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Http\UploadedFile;
 
 
 class AuditController extends Controller
 {
     public function index(){
-        $item = Audit::with('user')->orderBy('created_at', 'desc')->get();
+        $item = Audit::with([
+                    'user',
+                    'auditDetails.asset' // eager load detail + asset
+                ])
+                ->orderBy('created_at', 'desc')
+                ->get();
+
         return view('audit.index', compact('item'));
     }
+
 
     public function assetList($auditId){
         $assets = AuditDetail::with(['asset' => function($q){
@@ -350,87 +358,113 @@ private function imageToBase64(?string $path): ?string
 }
 
 
-    public function update(Request $request, $id)
-    {
-        $id = decrypt($id);
 
-        DB::beginTransaction();
-        try {
-            $audit = Audit::findOrFail($id);
 
-            // ✅ Update audit signatures (Convert base64 to images)
-            $audit->update([
-                'signature_ctl' => $this->saveBase64Image($request->input('controlling_signature'), 'signature'),
-                'signature_aud' => $this->saveBase64Image($request->input('audit_signature'), 'signature'),
-            ]);
+public function update(Request $request, $id)
+{
+    $id = decrypt($id);
 
-            // ✅ Update audit details (assets)
-            foreach ($request->input('asset_signatures', []) as $detailId => $signature) {
-                // Get corresponding audit detail
-                $auditDetail = AuditDetail::findOrFail($detailId);
+    DB::beginTransaction();
 
-                // ✅ Update signature
+    try {
+        $audit = Audit::findOrFail($id);
+
+        // 1) Update audit signatures
+        $audit->update([
+            'signature_ctl' => $this->saveBase64Image($request->input('controlling_signature'), 'signature') ?? $audit->signature_ctl,
+            'signature_aud' => $this->saveBase64Image($request->input('audit_signature'), 'signature') ?? $audit->signature_aud,
+            'status'        => $this->calculateStatus($request), // kalau di update mau hitung ulang
+        ]);
+
+        // 2) Update detail signatures (base64)
+        foreach ($request->input('asset_signatures', []) as $detailId => $signature) {
+            $auditDetail = AuditDetail::find($detailId);
+            if (!$auditDetail) {
+                continue;
+            }
+
+            $newSignature = $this->saveBase64Image($signature, 'signature');
+
+            if ($newSignature) {
                 $auditDetail->update([
-                    'signature' => $this->saveBase64Image($signature, 'signature')
+                    'signature' => $newSignature,
                 ]);
             }
+        }
 
-            // ✅ Update condition, availability, and remarks (if provided)
-            foreach ($request->input('condition', []) as $asset_id => $condition) {
-                $auditDetail = AuditDetail::where('audit_id', $audit->id)
-                    ->where('asset_id', $asset_id)
-                    ->first();
+        // 3) Update condition, availability, remark
+        foreach ($request->input('condition', []) as $asset_id => $condition) {
+            $auditDetail = AuditDetail::where('audit_id', $audit->id)
+                ->where('asset_id', $asset_id)
+                ->first();
 
-                if ($auditDetail) {
-                    $auditDetail->update([
-                        'condition' => $condition ?? $auditDetail->condition, // Keep existing if null
-                        'availability' => $request->input('availability')[$asset_id] ?? $auditDetail->availability,
-                        'remark' => $request->input('remarks')[$asset_id] ?? $auditDetail->remark,
-                    ]);
-                }
+            if (!$auditDetail) {
+                continue;
             }
 
-            // ✅ Handle image uploads (Preserve previous images & append new ones)
-            foreach ($request->input('img_hidden', []) as $asset_id => $files) {
-                $auditDetail = AuditDetail::where('audit_id', $audit->id)
-                    ->where('asset_id', $asset_id)
-                    ->first();
+            $auditDetail->update([
+                'condition'    => $condition ?? $auditDetail->condition,
+                'availability' => $request->input('availability')[$asset_id] ?? $auditDetail->availability,
+                'remark'       => $request->input('remarks')[$asset_id] ?? $auditDetail->remark,
+            ]);
+        }
 
-                if ($auditDetail) {
-                    $img_paths = json_decode($auditDetail->img, true) ?? []; // Preserve existing images
+        // 4) Handle image uploads (append ke JSON lama)
+        //    Struktur yang ideal: img_hidden sebagai file input: name="img_hidden[ASSET_ID][]"
+        foreach ($request->file('img_hidden', []) as $asset_id => $files) {
+            $auditDetail = AuditDetail::where('audit_id', $audit->id)
+                ->where('asset_id', $asset_id)
+                ->first();
 
-                    foreach ($files as $file) {
-                        if ($file instanceof \Illuminate\Http\UploadedFile) {
-                            $file_name = uniqid() . '_' . $file->getClientOriginalName();
-                            $destination_path = public_path('images/audit');
+            if (!$auditDetail) {
+                continue;
+            }
 
-                            // Ensure directory exists
-                            if (!file_exists($destination_path)) {
-                                mkdir($destination_path, 0755, true);
-                            }
+            // ambil gambar lama (JSON) dan jadikan array
+            $img_paths = json_decode($auditDetail->img, true) ?? [];
 
-                            // Move the file
-                            $file->move($destination_path, $file_name);
-                            $img_paths[] = 'images/audit/' . $file_name; // Store path
-                        }
+            // pastikan bentuknya benar-benar array
+            if (!is_array($img_paths)) {
+                $img_paths = [];
+            }
+
+            // $files sekarang array of UploadedFile
+            foreach ((array) $files as $file) {
+                if ($file instanceof UploadedFile) {
+                    $file_name       = uniqid() . '_' . $file->getClientOriginalName();
+                    $destinationPath = public_path('images/audit');
+
+                    if (!file_exists($destinationPath)) {
+                        mkdir($destinationPath, 0755, true);
                     }
 
-                    // ✅ Update image field in the database
-                    $auditDetail->update([
-                        'img' => !empty($img_paths) ? json_encode($img_paths) : $auditDetail->img,
-                    ]);
+                    $file->move($destinationPath, $file_name);
+
+                    $img_paths[] = 'images/audit/' . $file_name;
                 }
             }
 
-            DB::commit();
-            return redirect()->route('audits.index')->with('status', 'Audit updated successfully.');
-        } catch (\Exception $e) {
-            DB::rollback();
-            \Log::error('Failed to update audit: ' . $e->getMessage());
-
-            return redirect()->route('audit.edit', encrypt($id))->with('failed', 'Failed to update audit.');
+            // update hanya jika ada perubahan
+            if (!empty($img_paths)) {
+                $auditDetail->update([
+                    'img' => json_encode($img_paths),
+                ]);
+            }
         }
+
+        DB::commit();
+
+        return redirect()->route('audits.index')->with('status', 'Audit updated successfully.');
+    } catch (\Exception $e) {
+        DB::rollback();
+        \Log::error('Failed to update audit: ' . $e->getMessage());
+
+        return redirect()
+            ->route('audit.edit', encrypt($id))
+            ->with('failed', 'Failed to update audit.');
     }
+}
+
 
 
 
