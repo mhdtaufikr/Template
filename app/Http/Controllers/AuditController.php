@@ -260,20 +260,70 @@ private function saveBase64Image($base64_image, $type)
 
 
 
-    public function auditPdf($id)
-    {
-        $id = decrypt($id);
+public function auditPdf($id)
+{
+    $id = decrypt($id);
 
-        // Retrieve the audit data using the decrypted ID
-        $audit = Audit::with('user')->findOrFail($id); // Eager loading the user relationship
-        $auditDetails = AuditDetail::where('audit_id', $id)->get();
+    $audit = Audit::with('user')->findOrFail($id);
+    $auditDetails = AuditDetail::where('audit_id', $id)->get();
 
-        // Load the view and pass the audit data to it
-        $pdf = PDF::loadView('audit.pdf', compact('audit', 'auditDetails'))->setPaper('a4', 'landscape');
+    $auditDetails = $auditDetails->map(function ($detail) {
 
-        // Return the generated PDF
-        return $pdf->download('audit_' . $id . '.pdf');
-    }
+        // Decode JSON img (bisa null atau array)
+        $imgPaths = [];
+        if (!empty($detail->img)) {
+            $decoded = json_decode($detail->img, true);
+            // Handle double-encoded JSON
+            if (is_string($decoded)) {
+                $decoded = json_decode($decoded, true);
+            }
+            $imgPaths = is_array($decoded) ? $decoded : [$decoded];
+        }
+
+        // Convert semua img ke Base64
+        $detail->img_b64_list = collect($imgPaths)
+            ->filter()
+            ->map(fn($path) => $this->imageToBase64($path))
+            ->filter() // buang null jika file tidak ditemukan
+            ->values()
+            ->toArray();
+
+        // Signature tetap single path
+        $detail->signature_b64 = $this->imageToBase64($detail->signature);
+
+        return $detail;
+    });
+
+    $audit->signature_ctl_b64 = $this->imageToBase64($audit->signature_ctl);
+    $audit->signature_aud_b64 = $this->imageToBase64($audit->signature_aud);
+
+    $pdf = PDF::loadView('audit.pdf', compact('audit', 'auditDetails'))
+              ->setPaper('a4', 'landscape');
+
+    return $pdf->download('audit_' . $id . '.pdf');
+}
+
+private function imageToBase64(?string $path): ?string
+{
+    if (!$path) return null;
+
+    // Bersihkan slash ganda atau escape yang tersisa
+    $path     = str_replace('\\/', '/', $path);
+    $fullPath = public_path($path);
+
+    if (!file_exists($fullPath)) return null;
+
+    $ext  = strtolower(pathinfo($fullPath, PATHINFO_EXTENSION));
+    $mime = match($ext) {
+        'jpg', 'jpeg' => 'image/jpeg',
+        'png'         => 'image/png',
+        'gif'         => 'image/gif',
+        default       => 'image/jpeg',
+    };
+
+    return 'data:' . $mime . ';base64,' . base64_encode(file_get_contents($fullPath));
+}
+
 
     public function getAssets(Request $request)
 {
