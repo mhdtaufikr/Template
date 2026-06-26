@@ -9,7 +9,7 @@ class AssetDetail extends Model
 {
     protected $fillable = [
         'asset_header_id', 'asset_no', 'sub_asset', 'desc', 'qty', 'uom', 'asset_type',
-        'date', 'cost', 'po_no', 'serial_no', 'img', 'status', 'bv_endofyear'
+        'date', 'cost', 'po_no', 'serial_no', 'img', 'status', 'remarks', 'segment', 'bv_endofyear'
     ];
 
     public function assetHeader()

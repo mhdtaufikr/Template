@@ -34,8 +34,7 @@ use App\Exports\AssetExport;
 class AssetController extends Controller
 {
     public function index(){
-        // Retrieve the latest 50 rows based on the acquisition date
-        $assetData = AssetHeader::orderBy('created_at', 'desc')->take(50)->get();
+        $assetData = collect();
 
         // Retrieve other necessary data
         $assetNo = AssetHeader::pluck('asset_no');
@@ -49,6 +48,124 @@ class AssetController extends Controller
         $status = Dropdown::where('category','Status')->get();
 
         return view("asset.main", compact('assetNo', 'assetData', 'dropdownUom', 'assetCategory', 'dept', 'locHeader', 'locDetail', 'costCenter', 'status'));
+    }
+
+    public function dataTable(Request $request)
+    {
+        $columns = [
+            1 => 'asset_no',
+            2 => 'desc',
+            3 => 'asset_type',
+            4 => 'qty',
+            5 => 'acq_date',
+            6 => 'created_at',
+            7 => 'acq_cost',
+            8 => 'bv_endofyear',
+            9 => 'dept',
+            10 => 'plant',
+        ];
+
+        $baseQuery = AssetHeader::query()->withCount('details');
+        $recordsTotal = (clone $baseQuery)->count();
+
+        $search = $request->input('search.value');
+        if ($search) {
+            $baseQuery->where(function ($query) use ($search) {
+                $query->where('asset_no', 'like', "%{$search}%")
+                    ->orWhere('desc', 'like', "%{$search}%")
+                    ->orWhere('asset_type', 'like', "%{$search}%")
+                    ->orWhere('dept', 'like', "%{$search}%")
+                    ->orWhere('plant', 'like', "%{$search}%")
+                    ->orWhere('loc', 'like', "%{$search}%")
+                    ->orWhere('cost_center', 'like', "%{$search}%");
+            });
+        }
+
+        foreach ($request->input('columns', []) as $index => $column) {
+            $columnSearch = trim($column['search']['value'] ?? '');
+
+            if ($columnSearch === '' || !isset($columns[$index])) {
+                continue;
+            }
+
+            $dbColumn = $columns[$index];
+
+            if (in_array($dbColumn, ['acq_date', 'created_at'], true)) {
+                $baseQuery->whereDate($dbColumn, $columnSearch);
+            } elseif ($index === 10) {
+                $baseQuery->where(function ($query) use ($columnSearch) {
+                    $query->where('plant', 'like', "%{$columnSearch}%")
+                        ->orWhere('loc', 'like', "%{$columnSearch}%");
+                });
+            } elseif (in_array($dbColumn, ['acq_cost', 'bv_endofyear'], true)) {
+                $numberSearch = preg_replace('/[^0-9-]/', '', $columnSearch);
+                $baseQuery->where($dbColumn, 'like', '%' . ($numberSearch ?: $columnSearch) . '%');
+            } else {
+                $baseQuery->where($dbColumn, 'like', "%{$columnSearch}%");
+            }
+        }
+
+        $recordsFiltered = (clone $baseQuery)->count();
+
+        $orderColumn = (int) $request->input('order.0.column', 0);
+        $orderDirection = $request->input('order.0.dir') === 'asc' ? 'asc' : 'desc';
+
+        if (isset($columns[$orderColumn])) {
+            $baseQuery->orderBy($columns[$orderColumn], $orderDirection);
+        } else {
+            $baseQuery->orderBy('created_at', 'desc')->orderBy('id', 'desc');
+        }
+
+        $start = max((int) $request->input('start', 0), 0);
+        $length = (int) $request->input('length', 25);
+        $length = $length > 0 ? min($length, 100) : 25;
+
+        $assets = $baseQuery->skip($start)->take($length)->get();
+
+        $data = $assets->map(function ($asset) {
+            $statusColor = $asset->status == 1 ? 'success' : ($asset->status == 0 ? 'warning' : 'danger');
+            $statusText = $asset->status == 1 ? 'Active' : ($asset->status == 0 ? 'Deactive' : 'Disposal');
+            $detailUrl = url('asset/detail/' . encrypt($asset->id));
+            $deleteUrl = url('/asset/delete/' . $asset->id);
+
+            $action = '<div class="dropdown">'
+                . '<button class="btn btn-primary btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">Actions</button>'
+                . '<ul class="dropdown-menu">'
+                . '<li><a title="Detail Asset" class="dropdown-item" href="' . $detailUrl . '"><i class="fas fa-info me-2"></i>Detail Asset</a></li>';
+
+            if (\Auth::user()->role === 'Super Admin') {
+                $action .= '<li><hr class="dropdown-divider"></li>'
+                    . '<li><form action="' . $deleteUrl . '" method="POST" onsubmit="return confirm(\'Delete asset ' . e($asset->asset_no) . '?\')">'
+                    . csrf_field()
+                    . method_field('DELETE')
+                    . '<button title="Delete Asset" class="dropdown-item text-danger" type="submit"><i class="fas fa-trash-alt me-2"></i>Delete Asset</button>'
+                    . '</form></li>';
+            }
+
+            $action .= '</ul></div>';
+
+            return [
+                '<input class="form-check-input asset-checkbox" type="checkbox" name="assetCheckbox[]" value="' . $asset->id . '">',
+                '<strong>' . e($asset->asset_no) . '</strong><br><span class="badge bg-' . $statusColor . '">' . $statusText . '</span>',
+                e($asset->desc),
+                e($asset->asset_type ?: '-'),
+                e(str_replace(' ', '', (string) $asset->qty)) . ' <small>(' . e(str_replace(' ', '', (string) $asset->uom)) . ')</small>',
+                $asset->acq_date ? date('d-M-Y', strtotime($asset->acq_date)) : '-',
+                $asset->created_at ? $asset->created_at->format('d-M-Y H:i') : '-',
+                'Rp ' . number_format((float) $asset->acq_cost, 0, ',', '.'),
+                'Rp ' . number_format((float) $asset->bv_endofyear, 0, ',', '.'),
+                e($asset->dept ?: '-'),
+                e(str_replace(' ', '', (string) $asset->plant)) . '<br><small>(' . e(str_replace(' ', '', (string) $asset->loc)) . ')</small>',
+                $action,
+            ];
+        });
+
+        return response()->json([
+            'draw' => (int) $request->input('draw'),
+            'recordsTotal' => $recordsTotal,
+            'recordsFiltered' => $recordsFiltered,
+            'data' => $data,
+        ]);
     }
 
 
@@ -572,12 +689,10 @@ class AssetController extends Controller
 
             return redirect()->back()->with('status', 'Assets imported successfully');
         } catch (Throwable $e) {
-            dd($e);
-
             // Log or handle the error as needed
             // You can also use $e->getMessage() to get the error message
 
-            return redirect()->back()->with('failed', 'Error importing assets. Please check the data format.');
+            return redirect()->back()->with('failed', 'Error importing assets: ' . $e->getMessage());
         }
     }
 
@@ -599,14 +714,13 @@ class AssetController extends Controller
 
             return redirect()->back()->with('status', 'Assets imported successfully');
         } catch (Throwable $e) {
-            dd($e);
             // If an error occurs, rollback the transaction
             DB::rollBack();
 
             // Log or handle the error as needed
             // You can also use $e->getMessage() to get the error message
 
-            return redirect()->back()->with('failed', 'Error importing assets. Please check the data format.');
+            return redirect()->back()->with('failed', 'Error importing assets: ' . $e->getMessage());
         }
     }
 

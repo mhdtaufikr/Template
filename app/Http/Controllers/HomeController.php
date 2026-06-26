@@ -4,139 +4,150 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\AssetHeader;
+use Illuminate\Support\Facades\DB;
 
 class HomeController extends Controller
 {
     public function index()
     {
-        // Ambil data distribusi jenis aset dari model Asset
-        $assetDistribution = AssetHeader::select('asset_type', \DB::raw('count(*) as total'))
-        ->groupBy('asset_type')
-        ->whereIn('status', [1, 0])
-        ->get();
+        $statusRows = AssetHeader::select('status', DB::raw('COUNT(*) as total'), DB::raw('COALESCE(SUM(acq_cost), 0) as acq_cost'))
+            ->groupBy('status')
+            ->get()
+            ->keyBy('status');
 
-        // Calculate the total count of assets
-        $totalCount = $assetDistribution->sum('total');
+        $countStatusOne = (int) optional($statusRows->get(1))->total;
+        $countStatusZero = (int) optional($statusRows->get(0))->total;
+        $countStatusDisposal = (int) optional($statusRows->get(2))->total;
+        $sumAcqCostStatusOne = (float) optional($statusRows->get(1))->acq_cost;
+        $sumAcqCostStatusZero = (float) optional($statusRows->get(0))->acq_cost;
+        $sumAcqCostStatusDisposal = (float) optional($statusRows->get(2))->acq_cost;
 
-        // Calculate the percentage for each asset type
-        foreach ($assetDistribution as $asset) {
-            $asset->percentage = number_format(($asset->total / $totalCount) * 100, 2) . '%';
-        }
-            // Fetch data from asset_headers table
-        $assetData = AssetHeader::select('acq_date', 'acq_cost')->whereIn('status', [1, 0])->orderBy('acq_date')->get();
+        $totalAsset = AssetHeader::count();
+        $activeControlledAsset = $countStatusOne + $countStatusZero;
+        $sumAcqCostTotal = (float) AssetHeader::sum('acq_cost');
+        $sumBookValueTotal = (float) AssetHeader::sum('bv_endofyear');
+        $thisYearAsset = AssetHeader::whereYear('created_at', date('Y'))->count();
+        $thisMonthAsset = AssetHeader::whereYear('created_at', date('Y'))->whereMonth('created_at', date('m'))->count();
 
-        $chartData = [];
-        $acquisitionCostByYear = []; // Store the summed acquisition costs by year
+        $statusChartData = collect([
+            ['status' => 'Active', 'total' => $countStatusOne, 'value' => $sumAcqCostStatusOne, 'color' => '#10b981'],
+            ['status' => 'Deactive', 'total' => $countStatusZero, 'value' => $sumAcqCostStatusZero, 'color' => '#f59e0b'],
+            ['status' => 'Disposal', 'total' => $countStatusDisposal, 'value' => $sumAcqCostStatusDisposal, 'color' => '#ef4444'],
+        ])->filter(fn ($row) => $row['total'] > 0)->values();
 
-        foreach ($assetData as $asset) {
-            // Extracting the year from the acquisition date
-            $year = date('Y', strtotime($asset->acq_date));
-            // Summing up acquisition costs for the same year
-            if (isset($acquisitionCostByYear[$year])) {
-                $acquisitionCostByYear[$year] += (float) $asset->acq_cost;
-            } else {
-                $acquisitionCostByYear[$year] = (float) $asset->acq_cost;
-            }
-        }
+        $assetTypeChartData = AssetHeader::select(
+                DB::raw("COALESCE(NULLIF(asset_type, ''), 'Unclassified') as category"),
+                DB::raw('COUNT(*) as total'),
+                DB::raw('COALESCE(SUM(bv_endofyear), 0) as book_value')
+            )
+            ->groupBy('category')
+            ->orderByDesc('book_value')
+            ->limit(8)
+            ->get()
+            ->map(fn ($row) => [
+                'category' => $row->category,
+                'total' => (int) $row->total,
+                'book_value' => (float) $row->book_value,
+            ]);
 
-        // Prepare data points using unique years and summed acquisition costs
-        foreach ($acquisitionCostByYear as $year => $totalCost) {
-            $chartData[] = [
-                'x' => intval($year), // Convert year to integer for better handling
-                'y' => $totalCost
-            ];
-        }
-
-        // Fetch data for quantity by department
-        $quantityByDepartment = AssetHeader::select('dept', \DB::raw('count(*) as total'))
-            ->groupBy('dept')
+        $departmentChartData = AssetHeader::select(
+                DB::raw("COALESCE(NULLIF(dept, ''), 'Unassigned') as department"),
+                DB::raw('COUNT(*) as total'),
+                DB::raw('COALESCE(SUM(acq_cost), 0) as acq_cost')
+            )
             ->whereIn('status', [1, 0])
-            ->get();
+            ->groupBy('department')
+            ->orderByDesc('total')
+            ->limit(10)
+            ->get()
+            ->map(fn ($row) => [
+                'department' => $row->department,
+                'total' => (int) $row->total,
+                'acq_cost' => (float) $row->acq_cost,
+            ]);
 
-        // Get the current year
-        $currentYear = date('Y');
-
-        // Calculate the start year for the last 5 years
-        $startYear = $currentYear - 4; // Since we want data for the last 5 years
-
-        // Fetch data from asset_headers table for the last 5 years based on acquisition date
-        $assets = AssetHeader::select('acq_date', 'acq_cost')
-            ->whereYear('acq_date', '>=', $startYear)
+        $yearlyAcquisitionData = AssetHeader::select(
+                DB::raw('YEAR(acq_date) as year'),
+                DB::raw('COUNT(*) as total'),
+                DB::raw('COALESCE(SUM(acq_cost), 0) as acq_cost')
+            )
+            ->whereNotNull('acq_date')
             ->whereIn('status', [1, 0])
-            ->get();
+            ->groupBy('year')
+            ->orderBy('year')
+            ->get()
+            ->map(fn ($row) => [
+                'year' => (string) $row->year,
+                'total' => (int) $row->total,
+                'acq_cost' => (float) $row->acq_cost,
+            ]);
 
-        $acquisitionData = [];
+        $registryTrendData = AssetHeader::select(
+                DB::raw("DATE_FORMAT(created_at, '%Y-%m') as month"),
+                DB::raw('COUNT(*) as total')
+            )
+            ->whereNotNull('created_at')
+            ->where('created_at', '>=', now()->subMonths(11)->startOfMonth())
+            ->groupBy('month')
+            ->orderBy('month')
+            ->get()
+            ->keyBy('month');
 
-        // Prepare data points for the bar chart
-        foreach ($assets as $asset) {
-            $acqDate = $asset->acq_date;
-            $acqCost = (float) $asset->acq_cost;
+        $registryTrendData = collect(range(11, 0))->map(function ($offset) use ($registryTrendData) {
+            $date = now()->subMonths($offset);
+            $key = $date->format('Y-m');
 
-            // Sum up acquisition cost by year
-            $acqYear = date('Y', strtotime($acqDate));
-            if (isset($acquisitionData[$acqYear])) {
-                $acquisitionData[$acqYear] += $acqCost;
-            } else {
-                $acquisitionData[$acqYear] = $acqCost;
-            }
-        }
-
-        $barChartData = [];
-
-        // Convert acquisitionData into barChartData format
-        foreach ($acquisitionData as $year => $acqCost) {
-            $barChartData[] = [
-                'y' => $acqCost,
-                'label' => $year
+            return [
+                'month' => $date->format('M y'),
+                'total' => (int) optional($registryTrendData->get($key))->total,
             ];
-        }
-
-        // Sort $barChartData by the "label" key in ascending order
-        usort($barChartData, function($a, $b) {
-            return $a['label'] - $b['label'];
         });
 
-        // Fetch data from asset_headers table
-        $assets = AssetHeader::select('asset_type', 'bv_endofyear')->get();
+        $plantChartData = AssetHeader::select(
+                DB::raw("COALESCE(NULLIF(plant, ''), 'Unassigned') as plant"),
+                DB::raw('COUNT(*) as total')
+            )
+            ->whereIn('status', [1, 0])
+            ->groupBy('plant')
+            ->orderByDesc('total')
+            ->limit(8)
+            ->get()
+            ->map(fn ($row) => [
+                'plant' => $row->plant,
+                'total' => (int) $row->total,
+            ]);
 
-        $assetTypeData = [];
+        $latestAssets = AssetHeader::select('asset_no', 'desc', 'asset_type', 'dept', 'plant', 'loc', 'created_at', 'acq_cost')
+            ->orderByDesc('created_at')
+            ->limit(8)
+            ->get();
 
-        // Prepare data points for the bar chart
-        foreach ($assets as $asset) {
-            $assetType = $asset->asset_type;
-            $bvEndOfYear = (float) $asset->bv_endofyear;
+        $topBookValueAssets = AssetHeader::select('asset_no', 'desc', 'asset_type', 'bv_endofyear')
+            ->orderByDesc('bv_endofyear')
+            ->limit(6)
+            ->get();
 
-            // Sum up BV end of year by asset type
-            if (isset($assetTypeData[$assetType])) {
-                $assetTypeData[$assetType] += $bvEndOfYear;
-            } else {
-                $assetTypeData[$assetType] = $bvEndOfYear;
-            }
-        }
-
-        $barChartDatatype = [];
-
-        // Convert assetTypeData into barChartData format
-        foreach ($assetTypeData as $assetType => $bvEndOfYear) {
-            $barChartDatatype[] = [
-                'y' => $bvEndOfYear,
-                'label' => $assetType
-            ];
-        }
-       // Count and sum acq_cost for assets with status 1
-       $countStatusOne = AssetHeader::where('status', 1)->count();
-       $sumAcqCostStatusOne = AssetHeader::where('status', 1)->sum('acq_cost');
-
-       // Count and sum acq_cost for assets with status 0
-       $countStatusZero = AssetHeader::where('status', 0)->count();
-       $sumAcqCostStatusZero = AssetHeader::where('status', 0)->sum('acq_cost');
-
-       // Count and sum acq_cost for assets with status 1 or 0
-       $totalAsset = AssetHeader::whereIn('status', [1, 0])->count();
-       $sumAcqCostTotal = AssetHeader::whereIn('status', [1, 0])->sum('acq_cost');
-
-
-        return view('home.index', compact('sumAcqCostStatusOne','sumAcqCostStatusZero','sumAcqCostTotal','assetDistribution','chartData','quantityByDepartment','barChartData','barChartDatatype','countStatusOne','countStatusZero','totalAsset'));
+        return view('home.index', compact(
+            'countStatusOne',
+            'countStatusZero',
+            'countStatusDisposal',
+            'sumAcqCostStatusOne',
+            'sumAcqCostStatusZero',
+            'sumAcqCostStatusDisposal',
+            'totalAsset',
+            'activeControlledAsset',
+            'sumAcqCostTotal',
+            'sumBookValueTotal',
+            'thisYearAsset',
+            'thisMonthAsset',
+            'statusChartData',
+            'assetTypeChartData',
+            'departmentChartData',
+            'yearlyAcquisitionData',
+            'registryTrendData',
+            'plantChartData',
+            'latestAssets',
+            'topBookValueAssets'
+        ));
     }
 }
-

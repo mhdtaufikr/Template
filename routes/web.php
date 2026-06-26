@@ -49,6 +49,7 @@ Route::middleware(['auth'])->group(function () {
 
     //Home Controller
     Route::get('/asset', [AssetController::class, 'index']);
+    Route::get('/asset/data', [AssetController::class, 'dataTable'])->name('asset.data');
     Route::post('/asset/store', [AssetController::class,'store']);
     Route::patch('/asset/update/{id}', [AssetController::class,'update']);
     Route::get('/asset/detail/{id}', [AssetController::class, 'detail'])->name('detail');

@@ -56,14 +56,93 @@
 <script src="https://cdn.jsdelivr.net/npm/select2@4.0.13/dist/js/select2.min.js"></script>
 
 
-        <!-- Include Chosen JS -->
+         <!-- Include Chosen JS -->
         <script src="{{asset('chosen/chosen.jquery.min.js')}}"></script>
 
+        <style>
+            body.topnav-only #layoutSidenav #layoutSidenav_content {
+                margin-left: 0 !important;
+                padding-left: 0;
+                top: 3.625rem;
+            }
+
+            body.topnav-only #layoutSidenav #layoutSidenav_content:before {
+                display: none !important;
+            }
+
+            .asset-topbar .navbar-brand img {
+                max-width: 180px;
+                object-fit: contain;
+            }
+
+            .asset-topbar .topbar-link {
+                border-bottom: 3px solid transparent;
+                color: #4a5568;
+                font-weight: 600;
+                padding: 1rem .9rem;
+            }
+
+            .asset-topbar .topbar-link:hover,
+            .asset-topbar .topbar-link.active {
+                border-bottom-color: #0061f2;
+                color: #0061f2;
+            }
+
+            .asset-actionbar {
+                background: #f8fafc;
+                border: 1px solid #e5e7eb;
+                border-radius: 8px;
+                display: flex;
+                flex-wrap: wrap;
+                gap: .75rem;
+                justify-content: space-between;
+                padding: .85rem;
+            }
+
+            .asset-actionbar__group {
+                display: flex;
+                flex-wrap: wrap;
+                gap: .5rem;
+            }
+
+            .asset-actionbar .btn {
+                align-items: center;
+                display: inline-flex;
+                gap: .45rem;
+                min-height: 34px;
+            }
+
+            .asset-table-filters th {
+                background: #f8fafc;
+                padding: .35rem .5rem !important;
+            }
+
+            .asset-table-filters .form-control {
+                min-width: 92px;
+            }
+
+            @media (max-width: 991.98px) {
+                body.topnav-only #layoutSidenav #layoutSidenav_content {
+                    top: 3.625rem;
+                }
+
+                .asset-topbar .topbar-link {
+                    border-bottom: 0;
+                    border-left: 3px solid transparent;
+                    padding: .75rem 1rem;
+                }
+
+                .asset-topbar .topbar-link:hover,
+                .asset-topbar .topbar-link.active {
+                    border-left-color: #0061f2;
+                }
+            }
+        </style>
+
     </head>
-    <body class="nav-fixed sidenav-toggled">
+    <body class="nav-fixed topnav-only">
         @include('layouts.includes._topbar')
             <div id="layoutSidenav">
-                @include('layouts.includes._sidebar')
                     <div id="layoutSidenav_content">
                         @yield('content')
                         <footer class="footer-admin mt-auto footer-light">

@@ -34,94 +34,138 @@ class AssetImport implements ToCollection, WithHeadingRow
                     }
                 }
 
+                $mainAssetNo = trim((string) ($row['main_asset'] ?? ''));
+                $assetNo = trim((string) ($row['asset_no'] ?? ''));
+                $subAsset = trim((string) ($row['sub_asset'] ?? ''));
+                $flag = trim((string) ($row['flag'] ?? ''));
+
                 // Validasi field 'main_asset'
-                if (empty($row['main_asset'])) {
+                if ($mainAssetNo === '') {
                     throw new \Exception("Field 'main_asset' tidak boleh null di row " . ($index + 1));
                 }
 
+                if ($assetNo === '' && $flag === '') {
+                    throw new \Exception("Field 'asset_no' atau 'flag' harus diisi di row " . ($index + 1));
+                }
+
                 // Ambil 2 karakter pertama dari 'main_asset'
-                $assetClass = substr($row['main_asset'], 0, 2);
+                $assetClass = substr($mainAssetNo, 0, 2);
 
                 // Query kategori aset
                 $assetCategory = AssetCategory::where('class', $assetClass)->first();
 
                 // Ambil jumlah (quantity)
                 $quantity = !empty($row['quantity']) ? $row['quantity'] : 0;
+                $acquisitionCost = $this->cleanNumber($row['acquis_val'] ?? 0);
+                $bookValue = $this->cleanNumber($row['book_value_at_end_of_year'] ?? 0);
 
-                // Cek apakah sub_asset ada
-                if (!empty($row['sub_asset'])) {
-                    $mainAsset = AssetHeader::where('asset_no', $row['main_asset'])->first();
+                // Kalau Main Asset sama dengan Asset No, row ini adalah asset utama.
+                // Beberapa template lama mengisi Sub Asset dengan 0/1; itu bukan detail.
+                if ($assetNo !== '' && $mainAssetNo === $assetNo) {
+                    AssetHeader::updateOrCreate(
+                        ['asset_no' => $assetNo],
+                        [
+                            'desc' => $row['asset_description'],
+                            'qty' => $quantity,
+                            'uom' => $row['bun'],
+                            'asset_type' => $assetCategory->desc ?? null,
+                            'acq_date' => $acquisitionDate,
+                            'acq_cost' => $acquisitionCost,
+                            'po_no' => $row['po_no'],
+                            'serial_no' => $row['serial_no'],
+                            'dept' => $row['department'],
+                            'plant' => $row['plant'],
+                            'loc' => $row['location'],
+                            'cost_center' => $row['cost_center'],
+                            'segment' => $row['part_no'],
+                            'status' => $row['status'],
+                            'remarks' => $row['remarks'],
+                            'bv_endofyear' => $bookValue,
+                        ]
+                    );
+                } elseif ($subAsset !== '') {
+                    $mainAsset = AssetHeader::where('asset_no', $mainAssetNo)->first();
                     if (!$mainAsset) {
-                        throw new \Exception("Asset dengan 'main_asset' {$row['main_asset']} tidak ditemukan.");
+                        throw new \Exception("Asset dengan 'main_asset' {$mainAssetNo} tidak ditemukan.");
                     }
 
-                    AssetDetail::create([
-                        'asset_header_id' => $mainAsset->id,
-                        'asset_no' => $row['asset_no'],
-                        'sub_asset' => $row['sub_asset'],
-                        'desc' => $row['asset_description'],
-                        'qty' => $quantity,
-                        'uom' => $row['bun'],
-                        'asset_type' => $assetCategory->desc ?? null,
-                        'date' => $acquisitionDate,
-                        'cost' => $row['acquis_val'],
-                        'po_no' => $row['po_no'],
-                        'serial_no' => $row['serial_no'],
-                        'status' => $row['status'],
-                        'remarks' => $row['remarks'],
-                        'bv_endofyear' => $row['book_value_at_end_of_year'],
-                    ]);
-                } elseif (!empty($row['flag'])) {
-                    $mainAsset = AssetHeader::where('asset_no', $row['main_asset'])->first();
+                    AssetDetail::updateOrCreate(
+                        [
+                            'asset_header_id' => $mainAsset->id,
+                            'asset_no' => $assetNo,
+                            'sub_asset' => $subAsset,
+                        ],
+                        [
+                            'desc' => $row['asset_description'],
+                            'qty' => $quantity,
+                            'uom' => $row['bun'],
+                            'asset_type' => $assetCategory->desc ?? null,
+                            'date' => $acquisitionDate,
+                            'cost' => $acquisitionCost,
+                            'po_no' => $row['po_no'],
+                            'serial_no' => $row['serial_no'],
+                            'status' => $row['status'],
+                            'remarks' => $row['remarks'],
+                            'bv_endofyear' => $bookValue,
+                        ]
+                    );
+                } elseif ($flag !== '') {
+                    $mainAsset = AssetHeader::where('asset_no', $mainAssetNo)->first();
                     if (!$mainAsset) {
-                        throw new \Exception("Asset dengan 'main_asset' {$row['main_asset']} tidak ditemukan.");
+                        throw new \Exception("Asset dengan 'main_asset' {$mainAssetNo} tidak ditemukan.");
                     }
 
-                    AssetDetail::create([
-                        'asset_header_id' => $mainAsset->id,
-                        'asset_no' => $row['flag'],
-                        'sub_asset' => null,
-                        'desc' => $row['asset_description'],
-                        'qty' => $quantity,
-                        'uom' => $row['bun'],
-                        'asset_type' => $assetCategory->desc ?? null,
-                        'date' => $acquisitionDate,
-                        'cost' => $row['acquis_val'],
-                        'po_no' => $row['po_no'],
-                        'serial_no' => $row['serial_no'],
-                        'status' => $row['status'],
-                        'remarks' => $row['remarks'],
-                        'bv_endofyear' => $row['book_value_at_end_of_year'],
-                    ]);
+                    AssetDetail::updateOrCreate(
+                        [
+                            'asset_header_id' => $mainAsset->id,
+                            'asset_no' => $flag,
+                            'sub_asset' => null,
+                        ],
+                        [
+                            'desc' => $row['asset_description'],
+                            'qty' => $quantity,
+                            'uom' => $row['bun'],
+                            'asset_type' => $assetCategory->desc ?? null,
+                            'date' => $acquisitionDate,
+                            'cost' => $acquisitionCost,
+                            'po_no' => $row['po_no'],
+                            'serial_no' => $row['serial_no'],
+                            'status' => $row['status'],
+                            'remarks' => $row['remarks'],
+                            'bv_endofyear' => $bookValue,
+                        ]
+                    );
                 } else {
-                    AssetHeader::create([
-                        'asset_no' => $row['asset_no'],
-                        'desc' => $row['asset_description'],
-                        'qty' => $quantity,
-                        'uom' => $row['bun'],
-                        'asset_type' => $assetCategory->desc ?? null,
-                        'acq_date' => $acquisitionDate,
-                        'acq_cost' => $row['acquis_val'],
-                        'po_no' => $row['po_no'],
-                        'serial_no' => $row['serial_no'],
-                        'dept' => $row['department'],
-                        'plant' => $row['plant'],
-                        'loc' => $row['location'],
-                        'cost_center' => $row['cost_center'],
-                        'segment' => $row['part_no'],
-                        'status' => $row['status'],
-                        'remarks' => $row['remarks'],
-                        'bv_endofyear' => $row['book_value_at_end_of_year'],
-                    ]);
+                    AssetHeader::updateOrCreate(
+                        ['asset_no' => $assetNo],
+                        [
+                            'desc' => $row['asset_description'],
+                            'qty' => $quantity,
+                            'uom' => $row['bun'],
+                            'asset_type' => $assetCategory->desc ?? null,
+                            'acq_date' => $acquisitionDate,
+                            'acq_cost' => $acquisitionCost,
+                            'po_no' => $row['po_no'],
+                            'serial_no' => $row['serial_no'],
+                            'dept' => $row['department'],
+                            'plant' => $row['plant'],
+                            'loc' => $row['location'],
+                            'cost_center' => $row['cost_center'],
+                            'segment' => $row['part_no'],
+                            'status' => $row['status'],
+                            'remarks' => $row['remarks'],
+                            'bv_endofyear' => $bookValue,
+                        ]
+                    );
                 }
             } catch (\Exception $e) {
-                // Debug error dan iterasi
-                dd([
-                    'error' => $e->getMessage(),
-                    'row_data' => $row,
-                    'iteration' => $index + 1,
-                ]);
+                throw new \Exception("Row " . ($index + 1) . ": " . $e->getMessage(), 0, $e);
             }
         }
+    }
+
+    private function cleanNumber($value): int
+    {
+        return (int) preg_replace('/[^0-9-]/', '', (string) $value);
     }
 }

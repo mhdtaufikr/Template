@@ -348,46 +348,38 @@
 
 
                     <div class="mb-3 col-sm-12">
-                        @if(\Auth::user()->role === 'Super Admin')
-                        <!-- Search buttons -->
-                        <div class="btn-group mb-2" role="group" aria-label="Search">
-                            <button type="button" class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#searchModal">
-                                <i class="fas fa-search"></i> Search Multiple Variable
-                            </button>
-                            <button title="Search Asset" type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#modal-search">
-                                <i class="fas fa-search"></i>
-                            </button>
-                        </div>
+                        <div class="asset-actionbar">
+                            <div class="asset-actionbar__group" aria-label="Search actions">
+                                <button type="button" class="btn btn-outline-primary btn-sm" data-bs-toggle="modal" data-bs-target="#searchModal">
+                                    <i class="fas fa-filter"></i> Advanced Filter
+                                </button>
+                                <button title="Search Asset From Excel" type="button" class="btn btn-outline-secondary btn-sm" data-bs-toggle="modal" data-bs-target="#modal-search">
+                                    <i class="fas fa-search"></i> Search From Excel
+                                </button>
+                            </div>
 
-                        <!-- Add and import buttons -->
-                        <div class="btn-group mb-2" role="group" aria-label="Add and Import">
-                            <button title="Import Asset" type="button" class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#modal-import">
-                                <i class="fas fa-file-import"></i> Import Assets
-                            </button>
-                            <button title="Add Asset" type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#modal-add">
-                                <i class="fas fa-plus-square"></i>
-                            </button>
+                            <div class="asset-actionbar__group" aria-label="QR and export actions">
+                                <a title="Generate QR For Selected Assets" class="btn btn-primary btn-sm" href="#" onclick="generateChecklist(); return false;" id="generateChecklistBtn">
+                                    <i class="fas fa-qrcode"></i> Generate QR Selected
+                                </a>
+                                <button title="Generate QR From Excel Template" type="button" class="btn btn-outline-primary btn-sm" data-bs-toggle="modal" data-bs-target="#generate-qr-bulk">
+                                    <i class="fas fa-file-upload"></i> QR Bulk From Excel
+                                </button>
+                                <button title="Export to Excel" type="button" class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#modal-export-excel">
+                                    <i class="fas fa-file-excel"></i> Export
+                                </button>
+                            </div>
 
-                        </div>
-                        @endif
-
-                        <!-- Additional buttons -->
-                        <div class="btn-group mb-2" role="group" aria-label="Generate and Export">
-
-                            <button title="Export to Excel" type="button" class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#modal-export-excel">
-                                <i class="fas fa-file-excel"></i> Export to Excel
-                            </button>
-                            <a title="Generate Checklist" class="btn btn-primary btn-sm" href="#" onclick="generateChecklist(); return false;" id="generateChecklistBtn">
-                                <i class="fas fa-qrcode"></i>
-                            </a>
-                        </div>
-
-                        <div class="btn-group mb-2" role="group" aria-label="Generate and Export">
-
-                            <button title="Export to Excel" type="button" class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#generate-qr-bulk">
-                                <i class="fas fa-file-excel"></i> Generate QR Bulk
-                            </button>
-                            </a>
+                            @if(\Auth::user()->role === 'Super Admin')
+                            <div class="asset-actionbar__group" aria-label="Manage asset actions">
+                                <button title="Import Asset" type="button" class="btn btn-warning btn-sm" data-bs-toggle="modal" data-bs-target="#modal-import">
+                                    <i class="fas fa-file-import"></i> Import Asset
+                                </button>
+                                <button title="Add Asset" type="button" class="btn btn-dark btn-sm" data-bs-toggle="modal" data-bs-target="#modal-add">
+                                    <i class="fas fa-plus"></i> Add Asset
+                                </button>
+                            </div>
+                            @endif
                         </div>
 
 
@@ -401,7 +393,7 @@
                                     </div>
                                     <div class="modal-body">
                                         <!-- Add any content related to exporting to Excel here -->
-                                        <p>Choose export options and click export.</p>
+                                        <p class="text-muted mb-3">Choose a filter, then export matching asset data to Excel.</p>
                                         <!-- You can add form elements, checkboxes, or any other export-related options here -->
 
                                         <div class="col-sm-12 mb-2">
@@ -703,19 +695,19 @@
                           </div>
 
                            <!-- Modal -->
-                        <div class="modal fade" id="generate-qr-bulk" tabindex="-1" aria-labelledby="modal-add-label" aria-hidden="true">
+                        <div class="modal fade" id="generate-qr-bulk" tabindex="-1" aria-labelledby="generate-qr-bulk-label" aria-hidden="true">
                             <div class="modal-dialog">
                                 <div class="modal-content">
                                     <div class="modal-header">
-                                        <h5 class="modal-title" id="modal-add-label">Generate QR Bulk</h5>
+                                        <h5 class="modal-title" id="generate-qr-bulk-label">QR Bulk From Excel</h5>
                                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                     </div>
                                     <form action="{{ url('/asset/qr/bulk') }}" method="POST" enctype="multipart/form-data">
                                         @csrf
                                         <div class="modal-body">
                                             <div class="mb-3">
-                                                <input type="file" class="form-control" id="csvFile" name="excel-file" accept=".csv">
-                                                <p class="text-danger">*file must be xlsx</p>
+                                                <input type="file" class="form-control" id="qrBulkFile" name="excel-file" accept=".xlsx">
+                                                <p class="text-danger">*file must be .xlsx</p>
                                             </div>
 
                                             @error('excel-file')
@@ -737,19 +729,19 @@
                         </div>
 
                           <!-- Modal -->
-                        <div class="modal fade" id="modal-import" tabindex="-1" aria-labelledby="modal-add-label" aria-hidden="true">
+                        <div class="modal fade" id="modal-import" tabindex="-1" aria-labelledby="modal-import-label" aria-hidden="true">
                             <div class="modal-dialog">
                                 <div class="modal-content">
                                     <div class="modal-header">
-                                        <h5 class="modal-title" id="modal-add-label">Import Asset</h5>
+                                        <h5 class="modal-title" id="modal-import-label">Import Asset From Excel</h5>
                                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                     </div>
                                     <form action="{{ url('/asset/import') }}" method="POST" enctype="multipart/form-data">
                                         @csrf
                                         <div class="modal-body">
                                             <div class="mb-3">
-                                                <input type="file" class="form-control" id="csvFile" name="excel-file" accept=".csv">
-                                                <p class="text-danger">*file must be xlsx</p>
+                                                <input type="file" class="form-control" id="assetImportFile" name="excel-file" accept=".xlsx">
+                                                <p class="text-danger">*file must be .xlsx</p>
                                             </div>
 
                                             @error('excel-file')
@@ -771,19 +763,19 @@
                         </div>
 
                         <!-- Modal -->
-                        <div class="modal fade" id="modal-search" tabindex="-1" aria-labelledby="modal-add-label" aria-hidden="true">
+                        <div class="modal fade" id="modal-search" tabindex="-1" aria-labelledby="modal-search-label" aria-hidden="true">
                             <div class="modal-dialog">
                                 <div class="modal-content">
                                     <div class="modal-header">
-                                        <h5 class="modal-title" id="modal-add-label">Search Asset</h5>
+                                        <h5 class="modal-title" id="modal-search-label">Search Asset From Excel</h5>
                                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                     </div>
                                     <form action="{{ url('/asset/search/no') }}" method="POST" enctype="multipart/form-data">
                                         @csrf
                                         <div class="modal-body">
                                             <div class="mb-3">
-                                                <input type="file" class="form-control" id="csvFile" name="excel-file" accept=".csv">
-                                                <p class="text-danger">*file must be xlsx</p>
+                                                <input type="file" class="form-control" id="assetSearchFile" name="excel-file" accept=".xlsx">
+                                                <p class="text-danger">*file must be .xlsx</p>
                                             </div>
 
                                             @error('excel-file')
@@ -845,14 +837,29 @@
                     <th> <input type="checkbox"  id="checkAllBtn">  </th>
                     <th>Asset No</th>
                     <th>Desc.</th>
+                    <th>Asset Type</th>
                     <th>Qty</th>
                     <th>Acquisition date</th>
+                    <th>Registered At</th>
                     <th>Acquisition Cost</th>
                     <th>Book Value</th>
                     <th>Department</th>
                     <th>Location</th>
-                    <th>Sub</th>
                     <th>Action</th>
+                  </tr>
+                  <tr class="asset-table-filters">
+                    <th></th>
+                    <th><input type="text" class="form-control form-control-sm" placeholder="Asset No"></th>
+                    <th><input type="text" class="form-control form-control-sm" placeholder="Description"></th>
+                    <th><input type="text" class="form-control form-control-sm" placeholder="Type"></th>
+                    <th><input type="text" class="form-control form-control-sm" placeholder="Qty"></th>
+                    <th><input type="date" class="form-control form-control-sm"></th>
+                    <th><input type="date" class="form-control form-control-sm"></th>
+                    <th><input type="text" class="form-control form-control-sm" placeholder="Cost"></th>
+                    <th><input type="text" class="form-control form-control-sm" placeholder="Book Value"></th>
+                    <th><input type="text" class="form-control form-control-sm" placeholder="Department"></th>
+                    <th><input type="text" class="form-control form-control-sm" placeholder="Plant / Loc"></th>
+                    <th></th>
                   </tr>
                   </thead>
                   <tbody>
@@ -1335,18 +1342,45 @@
     $(document).ready(function () {
         var table = $("#tableUser").DataTable({
             "responsive": false,
-            "lengthChange": false,
+            "processing": true,
+            "serverSide": true,
+            "ajax": "{{ route('asset.data') }}",
+            "orderCellsTop": true,
+            "pageLength": 25,
+            "lengthMenu": [[10, 25, 50, 100], [10, 25, 50, 100]],
+            "lengthChange": true,
             "autoWidth": false,
-            "order": [],
-            "dom": 'Bfrtip',
-            "buttons": [] // Remove the button configuration
+            "order": [[6, "desc"]],
+            "dom": 'Blfrtip',
+            "buttons": [],
+            "columnDefs": [
+                { "targets": [0, 11], "orderable": false, "searchable": false },
+                { "targets": 0, "width": "32px" },
+                { "targets": 11, "width": "110px" }
+            ]
+        });
+
+        $('#tableUser thead tr.asset-table-filters th').each(function (index) {
+            $('input', this).on('keyup change clear', function () {
+                if (table.column(index).search() !== this.value) {
+                    table.column(index).search(this.value).draw();
+                }
+            });
+        });
+
+        $('#tableUser thead tr.asset-table-filters input').on('click', function (event) {
+            event.stopPropagation();
+        });
+
+        table.on('draw', function () {
+            $('#checkAllBtn').prop('checked', false);
         });
     });
 </script>
 
 <script>
     $(document).ready(function () {
-        $(".table").DataTable({
+        $(".table").not("#tableUser").DataTable({
             "responsive": false,
             "lengthChange": false,
             "autoWidth": false,
@@ -1388,7 +1422,7 @@
     document.addEventListener('DOMContentLoaded', function () {
     // Check All checkbox
     document.getElementById('checkAllBtn').addEventListener('change', function () {
-        var checkboxes = document.querySelectorAll('input[name="assetCheckbox[]"]');
+        var checkboxes = document.querySelectorAll('#tableUser tbody input[name="assetCheckbox[]"]');
         checkboxes.forEach(function (checkbox) {
             checkbox.checked = document.getElementById('checkAllBtn').checked;
         });

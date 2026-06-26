@@ -11,6 +11,27 @@ class AssetHeader extends Model
     protected $table = 'asset_headers'; // pastikan nama tabel benar
     protected $primaryKey = 'id';       // pastikan primary key benar
 
+    protected $fillable = [
+        'asset_no',
+        'desc',
+        'qty',
+        'uom',
+        'asset_type',
+        'acq_date',
+        'acq_cost',
+        'po_no',
+        'serial_no',
+        'dept',
+        'plant',
+        'loc',
+        'cost_center',
+        'segment',
+        'img',
+        'status',
+        'remarks',
+        'bv_endofyear',
+    ];
+
 
     public function details(): HasMany
     {
